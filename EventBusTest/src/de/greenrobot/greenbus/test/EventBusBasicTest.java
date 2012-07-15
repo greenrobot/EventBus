@@ -162,10 +162,9 @@ public class EventBusBasicTest extends TestCase {
         eventBus.register(this);
         eventBus.post(1);
         assertEquals(10, countIntEvent);
-        // Out-of-order
-        // assertEquals(10, lastIntEvent);
-        assertEquals(10, reposter.countIntEvent);
-        assertEquals(10, reposter.lastIntEvent);
+        assertEquals(10, lastIntEvent);
+        assertEquals(10, reposter.countEvent);
+        assertEquals(10, reposter.lastEvent);
     }
 
     public void onEvent(String event) {
@@ -187,15 +186,19 @@ public class EventBusBasicTest extends TestCase {
     }
 
     class RepostInteger {
-        public int lastIntEvent;
-        public int countIntEvent;
+        public int lastEvent;
+        public int countEvent;
 
         public void onEvent(Integer event) {
-            lastIntEvent = event;
-            countIntEvent++;
+            lastEvent = event;
+            countEvent++;
+            assertEquals(countEvent, event.intValue());
 
             if (event < 10) {
+                int countIntEventBefore = countEvent;
                 eventBus.post(event + 1);
+                //All our post calls will just enqueue the event, so check count is unchanged
+                assertEquals(countIntEventBefore, countIntEventBefore);
             }
         }
     }

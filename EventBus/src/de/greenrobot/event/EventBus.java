@@ -41,6 +41,20 @@ public class EventBus {
     private final Map<Class<?>, List<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
 
+    private final ThreadLocal<List<Object>> eventsQueuedForCurrentThread = new ThreadLocal<List<Object>>() {
+        @Override
+        protected List<Object> initialValue() {
+            return new ArrayList<Object>();
+        }
+    };
+
+    private final ThreadLocal<Boolean> currentThreadIsPosting = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
+
     private String defaultMethodName = "onEvent";
 
     public static synchronized EventBus getDefault() {
@@ -211,8 +225,43 @@ public class EventBus {
 
     /** Posts the given event to the event bus. */
     public void post(Object event) {
+        List<Object> eventQueue = eventsQueuedForCurrentThread.get();
+        eventQueue.add(event);
 
-        Class<? extends Object> clazz = event.getClass();
+        if (currentThreadIsPosting.get()) {
+            return;
+        } else {
+            currentThreadIsPosting.set(true);
+            try {
+                while (!eventQueue.isEmpty()) {
+                    Object eventToPost = eventQueue.remove(0);
+                    postSingleEvent(eventToPost);
+                }
+            } finally {
+                currentThreadIsPosting.set(false);
+            }
+        }
+    }
+
+    private void postSingleEvent(Object eventToPost) throws Error {
+        Class<? extends Object> clazz = eventToPost.getClass();
+        List<Subscription> subscriptions = getSubscriptionsForEventTypeFromPool(clazz);
+        if (subscriptions.isEmpty()) {
+            Log.d(TAG, "No subscriptions registered for event " + eventToPost.getClass());
+        } else {
+            int size = subscriptions.size();
+            for (int i = 0; i < size; i++) {
+                Subscription subscription = subscriptions.get(i);
+                postToSubscribtion(subscription, eventToPost);
+            }
+            subscriptions.clear();
+        }
+        synchronized (this) {
+            postQueuePool.add(subscriptions);
+        }
+    }
+
+    private List<Subscription> getSubscriptionsForEventTypeFromPool(Class<? extends Object> clazz) {
         // Don't block other threads during event handling, just grab the subscriptions to call
         List<Subscription> subscriptions;
         synchronized (this) {
@@ -231,19 +280,7 @@ public class EventBus {
                 subscriptions.addAll(list);
             }
         }
-        if (subscriptions.isEmpty()) {
-            Log.d(TAG, "No subscriptions registered for event " + event.getClass());
-        } else {
-            int size = subscriptions.size();
-            for (int i = 0; i < size; i++) {
-                Subscription subscription = subscriptions.get(i);
-                postToSubscribtion(subscription, event);
-            }
-            subscriptions.clear();
-        }
-        synchronized (this) {
-            postQueuePool.add(subscriptions);
-        }
+        return subscriptions;
     }
 
     private void postToSubscribtion(Subscription subscription, Object event) throws Error {
