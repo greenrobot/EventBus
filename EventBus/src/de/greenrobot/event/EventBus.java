@@ -258,9 +258,7 @@ public class EventBus {
                 subscriptions = subscriptionsByEventType.get(clazz);
             }
             if (subscriptions != null) {
-                Iterator<Subscription> iterator = subscriptions.iterator();
-                while (iterator.hasNext()) {
-                    Subscription subscription = iterator.next();
+                for (Subscription subscription : subscriptions) {
                     postToSubscribtion(subscription, event);
                 }
                 subscriptionFound = true;
@@ -314,7 +312,7 @@ public class EventBus {
         }
     }
 
-    static class Subscription {
+    final static class Subscription {
         final Object subscriber;
         final Method method;
 
@@ -342,7 +340,7 @@ public class EventBus {
     }
 
     /** For ThreadLocal, much faster to set than storing a new Boolean. */
-    static class BooleanWrapper {
+    final static class BooleanWrapper {
         boolean value;
     }
 
