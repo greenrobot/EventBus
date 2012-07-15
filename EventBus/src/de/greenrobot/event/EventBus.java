@@ -50,10 +50,10 @@ public class EventBus {
         }
     };
 
-    private final ThreadLocal<Boolean> currentThreadIsPosting = new ThreadLocal<Boolean>() {
+    private final ThreadLocal<BooleanWrapper> currentThreadIsPosting = new ThreadLocal<BooleanWrapper>() {
         @Override
-        protected Boolean initialValue() {
-            return false;
+        protected BooleanWrapper initialValue() {
+            return new BooleanWrapper();
         }
     };
 
@@ -234,17 +234,18 @@ public class EventBus {
         List<Object> eventQueue = eventsQueuedForCurrentThread.get();
         eventQueue.add(event);
 
-        if (currentThreadIsPosting.get()) {
+        BooleanWrapper isPosting = currentThreadIsPosting.get();
+        if (isPosting.value) {
             return;
         } else {
-            currentThreadIsPosting.set(true);
+            isPosting.value = true;
             try {
                 while (!eventQueue.isEmpty()) {
                     Object eventToPost = eventQueue.remove(0);
                     postSingleEvent(eventToPost);
                 }
             } finally {
-                currentThreadIsPosting.set(false);
+                isPosting.value = false;
             }
         }
     }
@@ -302,7 +303,7 @@ public class EventBus {
         }
     }
 
-    private List<Subscription> getSubscriptionsForEventTypeFromPool(Class<? extends Object> clazz) {
+    private List<Subscription> getSubscriptionsForEventTypeFromPool(Class<?> clazz) {
         // Don't block other threads during event handling, just grab the subscriptions to call
         List<Subscription> subscriptions;
         synchronized (this) {
@@ -317,7 +318,11 @@ public class EventBus {
                         throw new RuntimeException("Post queue from pool was not empty");
                     }
                 }
-                subscriptions.addAll(list);
+                // Avoid subscriptions.addAll(list) because it restructures the list and is expensive
+                int size = list.size();
+                for (int i = 0; i < size; i++) {
+                    subscriptions.add(list.get(i));
+                }
                 return subscriptions;
             } else {
                 return null;
@@ -365,6 +370,11 @@ public class EventBus {
             // Check performance once used
             return subscriber.hashCode() + method.hashCode();
         }
+    }
+
+    /** For ThreadLocal, much faster to set than storing a new Boolean. */
+    static class BooleanWrapper {
+        boolean value;
     }
 
 }
