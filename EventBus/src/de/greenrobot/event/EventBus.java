@@ -20,8 +20,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.util.Log;
 
@@ -34,13 +36,12 @@ public class EventBus {
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
-    private static EventBus defaultInstance;
+    private static final EventBus defaultInstance = new EventBus();
 
-    private static Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
-    private static Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
-    private static List<List<Subscription>> postQueuePool = new ArrayList<List<Subscription>>();
+    private static final Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
+    private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
-    private final Map<Class<?>, List<Subscription>> subscriptionsByEventType;
+    private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
 
     private final ThreadLocal<List<Object>> eventsQueuedForCurrentThread = new ThreadLocal<List<Object>>() {
@@ -59,15 +60,12 @@ public class EventBus {
 
     private String defaultMethodName = "onEvent";
 
-    public static synchronized EventBus getDefault() {
-        if (null == defaultInstance) {
-            defaultInstance = new EventBus();
-        }
+    public static EventBus getDefault() {
         return defaultInstance;
     }
 
     public EventBus() {
-        subscriptionsByEventType = new HashMap<Class<?>, List<Subscription>>();
+        subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
     }
 
@@ -143,9 +141,9 @@ public class EventBus {
     }
 
     private void subscribe(Object subscriber, Method subscriberMethod, Class<?> eventType) {
-        List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
+        CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions == null) {
-            subscriptions = new ArrayList<Subscription>();
+            subscriptions = new CopyOnWriteArrayList<Subscription>();
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             for (Subscription subscription : subscriptions) {
@@ -241,8 +239,7 @@ public class EventBus {
             isPosting.value = true;
             try {
                 while (!eventQueue.isEmpty()) {
-                    Object eventToPost = eventQueue.remove(0);
-                    postSingleEvent(eventToPost);
+                    postSingleEvent(eventQueue.remove(0));
                 }
             } finally {
                 isPosting.value = false;
@@ -256,18 +253,17 @@ public class EventBus {
         int countTypes = eventTypes.size();
         for (int h = 0; h < countTypes; h++) {
             Class<?> clazz = eventTypes.get(h);
-            List<Subscription> subscriptions = getSubscriptionsForEventTypeFromPool(clazz);
+            CopyOnWriteArrayList<Subscription> subscriptions;
+            synchronized (this) {
+                subscriptions = subscriptionsByEventType.get(clazz);
+            }
             if (subscriptions != null) {
-                int size = subscriptions.size();
-                for (int i = 0; i < size; i++) {
-                    Subscription subscription = subscriptions.get(i);
+                Iterator<Subscription> iterator = subscriptions.iterator();
+                while (iterator.hasNext()) {
+                    Subscription subscription = iterator.next();
                     postToSubscribtion(subscription, event);
                 }
                 subscriptionFound = true;
-                subscriptions.clear();
-                synchronized (this) {
-                    postQueuePool.add(subscriptions);
-                }
             }
         }
         if (!subscriptionFound) {
@@ -299,33 +295,6 @@ public class EventBus {
             if (!eventTypes.contains(interfaceClass)) {
                 eventTypes.add(interfaceClass);
                 addInterfaces(eventTypes, interfaceClass.getInterfaces());
-            }
-        }
-    }
-
-    private List<Subscription> getSubscriptionsForEventTypeFromPool(Class<?> clazz) {
-        // Don't block other threads during event handling, just grab the subscriptions to call
-        List<Subscription> subscriptions;
-        synchronized (this) {
-            List<Subscription> list = subscriptionsByEventType.get(clazz);
-            if (list != null && !list.isEmpty()) {
-                int countPooled = postQueuePool.size();
-                if (countPooled == 0) {
-                    subscriptions = new ArrayList<EventBus.Subscription>();
-                } else {
-                    subscriptions = postQueuePool.remove(countPooled - 1);
-                    if (!subscriptions.isEmpty()) {
-                        throw new RuntimeException("Post queue from pool was not empty");
-                    }
-                }
-                // Avoid subscriptions.addAll(list) because it restructures the list and is expensive
-                int size = list.size();
-                for (int i = 0; i < size; i++) {
-                    subscriptions.add(list.get(i));
-                }
-                return subscriptions;
-            } else {
-                return null;
             }
         }
     }
