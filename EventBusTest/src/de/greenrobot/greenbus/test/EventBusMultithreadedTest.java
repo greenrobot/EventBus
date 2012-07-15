@@ -72,6 +72,22 @@ public class EventBusMultithreadedTest extends TestCase {
         runThreadsMixedEventType(40);
     }
 
+    public void testSubscribeUnSubscribeAndPostMixedEventType() throws InterruptedException {
+        List<SubscribeUnsubscribeThread> threads = new ArrayList<SubscribeUnsubscribeThread>();
+        for (int i = 0; i < 10; i++) {
+            SubscribeUnsubscribeThread thread = new SubscribeUnsubscribeThread();
+            thread.start();
+            threads.add(thread);
+        }
+        runThreadsMixedEventType(10);
+        for (SubscribeUnsubscribeThread thread : threads) {
+            thread.shutdown();
+        }
+        for (SubscribeUnsubscribeThread thread : threads) {
+            thread.join();
+        }
+    }
+
     private void runThreadsSingleEventType(int threadCount) throws InterruptedException {
         int iterations = COUNT / threadCount;
         eventBus.register(this);
@@ -173,6 +189,41 @@ public class EventBusMultithreadedTest extends TestCase {
             for (int i = 0; i < iterations; i++) {
                 eventBus.post(eventToPost);
             }
+        }
+    }
+
+    class SubscribeUnsubscribeThread extends Thread {
+        boolean running = true;
+
+        public void shutdown() {
+            running = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (running) {
+                    eventBus.register(this);
+                    double random = Math.random();
+                    if (random > 0.6d) {
+                        Thread.sleep(1);
+                    } else if (random > 0.3d) {
+                        Thread.yield();
+                    }
+                    eventBus.unregister(this);
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void onEvent(String event) {
+        }
+
+        public void onEvent(Integer event) {
+        }
+
+        public void onEvent(Object event) {
         }
     }
 
