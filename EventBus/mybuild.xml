@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="greenrobot EventBus" default="build-jar">
+
+	<target name="build-jar" description="Depends on Eclipse to have everything compiled into bin/">
+		<mkdir dir="release" />
+		<jar jarfile="release/eventbus.jar">
+			<fileset dir="bin/classes">
+				<include name="de/greenrobot/**" />
+			</fileset>
+		</jar>
+	</target>
+
+</project>
