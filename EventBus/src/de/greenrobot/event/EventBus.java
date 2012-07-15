@@ -245,42 +245,50 @@ public class EventBus {
 
     private void postSingleEvent(Object eventToPost) throws Error {
         Class<? extends Object> clazz = eventToPost.getClass();
-        List<Subscription> subscriptions = getSubscriptionsForEventTypeFromPool(clazz);
-        if (subscriptions.isEmpty()) {
-            Log.d(TAG, "No subscriptions registered for event " + eventToPost.getClass());
-        } else {
-            int size = subscriptions.size();
-            for (int i = 0; i < size; i++) {
-                Subscription subscription = subscriptions.get(i);
-                postToSubscribtion(subscription, eventToPost);
+        boolean subscriptionFound = false;
+        while (clazz != null) {
+            List<Subscription> subscriptions = getSubscriptionsForEventTypeFromPool(clazz);
+            if (subscriptions != null) {
+                int size = subscriptions.size();
+                for (int i = 0; i < size; i++) {
+                    Subscription subscription = subscriptions.get(i);
+                    postToSubscribtion(subscription, eventToPost);
+                }
+                subscriptionFound = true;
+                subscriptions.clear();
+                synchronized (this) {
+                    postQueuePool.add(subscriptions);
+                }
             }
-            subscriptions.clear();
+            clazz = clazz.getSuperclass();
         }
-        synchronized (this) {
-            postQueuePool.add(subscriptions);
+        if (!subscriptionFound) {
+            Log.d(TAG, "No subscripers registered for event " + eventToPost.getClass());
         }
+
     }
 
     private List<Subscription> getSubscriptionsForEventTypeFromPool(Class<? extends Object> clazz) {
         // Don't block other threads during event handling, just grab the subscriptions to call
         List<Subscription> subscriptions;
         synchronized (this) {
-            int countPooled = postQueuePool.size();
-            if (countPooled == 0) {
-                subscriptions = new ArrayList<EventBus.Subscription>();
-            } else {
-                subscriptions = postQueuePool.remove(countPooled - 1);
-                if (!subscriptions.isEmpty()) {
-                    throw new RuntimeException("Post queue from pool was not empty");
-                }
-            }
-
             List<Subscription> list = subscriptionsByEventType.get(clazz);
             if (list != null && !list.isEmpty()) {
+                int countPooled = postQueuePool.size();
+                if (countPooled == 0) {
+                    subscriptions = new ArrayList<EventBus.Subscription>();
+                } else {
+                    subscriptions = postQueuePool.remove(countPooled - 1);
+                    if (!subscriptions.isEmpty()) {
+                        throw new RuntimeException("Post queue from pool was not empty");
+                    }
+                }
                 subscriptions.addAll(list);
+                return subscriptions;
+            } else {
+                return null;
             }
         }
-        return subscriptions;
     }
 
     private void postToSubscribtion(Subscription subscription, Object event) throws Error {

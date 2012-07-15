@@ -30,6 +30,8 @@ public class EventBusBasicTest extends TestCase {
     private int countStringEvent;
     private int countIntEvent;
     private int lastIntEvent;
+    private int countMyEventExtended;
+    private int countMyEvent;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -177,12 +179,26 @@ public class EventBusBasicTest extends TestCase {
         countIntEvent++;
     }
 
+    public void onEvent(MyEvent event) {
+        countMyEvent++;
+    }
+
+    public void onEvent(MyEventExtended event) {
+        countMyEventExtended++;
+    }
+
     static class TestActivity extends Activity {
         public String lastStringEvent;
 
         public void onEvent(String event) {
             lastStringEvent = event;
         }
+    }
+
+    class MyEvent {
+    }
+
+    class MyEventExtended extends MyEvent {
     }
 
     class RepostInteger {
@@ -197,7 +213,7 @@ public class EventBusBasicTest extends TestCase {
             if (event < 10) {
                 int countIntEventBefore = countEvent;
                 eventBus.post(event + 1);
-                //All our post calls will just enqueue the event, so check count is unchanged
+                // All our post calls will just enqueue the event, so check count is unchanged
                 assertEquals(countIntEventBefore, countIntEventBefore);
             }
         }
