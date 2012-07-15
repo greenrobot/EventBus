@@ -28,6 +28,8 @@ public class EventBusInheritanceTest extends TestCase {
     protected int countMyEventExtended;
     protected int countMyEvent;
     protected int countObjectEvent;
+    private int countMyEventInterface;
+    private int countMyEventInterfaceExtended;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -36,32 +38,52 @@ public class EventBusInheritanceTest extends TestCase {
 
     public void testEventClassHierarchy() {
         eventBus.register(this);
-        
+
         eventBus.post("Hello");
         assertEquals(1, countObjectEvent);
-        
+
         eventBus.post(new MyEvent());
         assertEquals(2, countObjectEvent);
         assertEquals(1, countMyEvent);
-        
+
         eventBus.post(new MyEventExtended());
         assertEquals(3, countObjectEvent);
         assertEquals(2, countMyEvent);
         assertEquals(1, countMyEventExtended);
     }
 
+    public void testEventInterfaceHierarchy() {
+        eventBus.register(this);
+
+        eventBus.post(new MyEvent());
+        assertEquals(1, countMyEventInterface);
+
+        eventBus.post(new MyEventExtended());
+        assertEquals(2, countMyEventInterface);
+        assertEquals(1, countMyEventInterfaceExtended);
+    }
+
+    public void testEventSuperInterfaceHierarchy() {
+        eventBus.register(this);
+
+        eventBus.post(new MyEventInterfaceExtended() {
+        });
+        assertEquals(1, countMyEventInterface);
+        assertEquals(1, countMyEventInterfaceExtended);
+    }
+
     public void testSubscriberClassHierarchy() {
         SubscriberExtended subscriber = new SubscriberExtended();
         eventBus.register(subscriber);
-        
+
         eventBus.post("Hello");
         assertEquals(1, subscriber.countObjectEvent);
-        
+
         eventBus.post(new MyEvent());
         assertEquals(2, subscriber.countObjectEvent);
         assertEquals(0, subscriber.countMyEvent);
         assertEquals(1, subscriber.countMyEventOverwritten);
-        
+
         eventBus.post(new MyEventExtended());
         assertEquals(3, subscriber.countObjectEvent);
         assertEquals(0, subscriber.countMyEvent);
@@ -81,12 +103,26 @@ public class EventBusInheritanceTest extends TestCase {
         countMyEventExtended++;
     }
 
-    static class MyEvent {
+    public void onEvent(MyEventInterface event) {
+        countMyEventInterface++;
     }
 
-    static class MyEventExtended extends MyEvent {
+    public void onEvent(MyEventInterfaceExtended event) {
+        countMyEventInterfaceExtended++;
     }
-    
+
+    static interface MyEventInterface {
+    }
+
+    static class MyEvent implements MyEventInterface {
+    }
+
+    static interface MyEventInterfaceExtended extends MyEventInterface {
+    }
+
+    static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
+    }
+
     static class SubscriberExtended extends EventBusInheritanceTest {
         private int countMyEventOverwritten;
 

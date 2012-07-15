@@ -37,6 +37,7 @@ public class EventBus {
     private static EventBus defaultInstance;
 
     private static Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
+    private static Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
     private static List<List<Subscription>> postQueuePool = new ArrayList<List<Subscription>>();
 
     private final Map<Class<?>, List<Subscription>> subscriptionsByEventType;
@@ -107,7 +108,7 @@ public class EventBus {
                     Class<?>[] parameterTypes = method.getParameterTypes();
                     if (parameterTypes.length == 1) {
                         if (eventTypesFound.add(parameterTypes[0])) {
-                            // Only add if not already found in more concrete class
+                            // Only add if not already found in a sub class
                             subscriberMethods.add(method);
                         }
                     }
@@ -248,16 +249,18 @@ public class EventBus {
         }
     }
 
-    private void postSingleEvent(Object eventToPost) throws Error {
-        Class<? extends Object> clazz = eventToPost.getClass();
+    private void postSingleEvent(Object event) throws Error {
+        List<Class<?>> eventTypes = findEventTypes(event.getClass());
         boolean subscriptionFound = false;
-        while (clazz != null) {
+        int countTypes = eventTypes.size();
+        for (int h = 0; h < countTypes; h++) {
+            Class<?> clazz = eventTypes.get(h);
             List<Subscription> subscriptions = getSubscriptionsForEventTypeFromPool(clazz);
             if (subscriptions != null) {
                 int size = subscriptions.size();
                 for (int i = 0; i < size; i++) {
                     Subscription subscription = subscriptions.get(i);
-                    postToSubscribtion(subscription, eventToPost);
+                    postToSubscribtion(subscription, event);
                 }
                 subscriptionFound = true;
                 subscriptions.clear();
@@ -265,13 +268,38 @@ public class EventBus {
                     postQueuePool.add(subscriptions);
                 }
             }
-            // TODO add interface and use cached list
-            clazz = clazz.getSuperclass();
         }
         if (!subscriptionFound) {
-            Log.d(TAG, "No subscripers registered for event " + eventToPost.getClass());
+            Log.d(TAG, "No subscripers registered for event " + event.getClass());
         }
+    }
 
+    /** Finds all Class objects including super classes and interfaces. */
+    private List<Class<?>> findEventTypes(Class<?> eventClass) {
+        synchronized (eventTypesCache) {
+            List<Class<?>> eventTypes = eventTypesCache.get(eventClass);
+            if (eventTypes == null) {
+                eventTypes = new ArrayList<Class<?>>();
+                Class<?> clazz = eventClass;
+                while (clazz != null) {
+                    eventTypes.add(clazz);
+                    addInterfaces(eventTypes, clazz.getInterfaces());
+                    clazz = clazz.getSuperclass();
+                }
+                eventTypesCache.put(eventClass, eventTypes);
+            }
+            return eventTypes;
+        }
+    }
+
+    /** Recurses through super interfaces. */
+    private void addInterfaces(List<Class<?>> eventTypes, Class<?>[] interfaces) {
+        for (Class<?> interfaceClass : interfaces) {
+            if (!eventTypes.contains(interfaceClass)) {
+                eventTypes.add(interfaceClass);
+                addInterfaces(eventTypes, interfaceClass.getInterfaces());
+            }
+        }
     }
 
     private List<Subscription> getSubscriptionsForEventTypeFromPool(Class<? extends Object> clazz) {
