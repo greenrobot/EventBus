@@ -36,14 +36,10 @@ public class EventBus {
     private static EventBus defaultInstance;
 
     private static Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
+    private static List<List<Subscription>> postQueuePool = new ArrayList<List<Subscription>>();
 
     private final Map<Class<?>, List<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
-    private final ThreadLocal<List<Subscription>> postQueue = new ThreadLocal<List<Subscription>>() {
-        protected java.util.List<Subscription> initialValue() {
-            return new ArrayList<Subscription>();
-        };
-    };
 
     private String defaultMethodName = "onEvent";
 
@@ -215,15 +211,21 @@ public class EventBus {
 
     /** Posts the given event to the event bus. */
     public void post(Object event) {
-        List<Subscription> subscriptions = postQueue.get();
-        if (!subscriptions.isEmpty()) {
-            Log.e(TAG, "Post queue not empty prior to posting");
-            subscriptions.clear();
-        }
 
         Class<? extends Object> clazz = event.getClass();
         // Don't block other threads during event handling, just grab the subscriptions to call
+        List<Subscription> subscriptions;
         synchronized (this) {
+            int countPooled = postQueuePool.size();
+            if (countPooled == 0) {
+                subscriptions = new ArrayList<EventBus.Subscription>();
+            } else {
+                subscriptions = postQueuePool.remove(countPooled - 1);
+                if (!subscriptions.isEmpty()) {
+                    throw new RuntimeException("Post queue from pool was not empty");
+                }
+            }
+
             List<Subscription> list = subscriptionsByEventType.get(clazz);
             if (list != null && !list.isEmpty()) {
                 subscriptions.addAll(list);
@@ -238,6 +240,9 @@ public class EventBus {
                 postToSubscribtion(subscription, event);
             }
             subscriptions.clear();
+        }
+        synchronized (this) {
+            postQueuePool.add(subscriptions);
         }
     }
 

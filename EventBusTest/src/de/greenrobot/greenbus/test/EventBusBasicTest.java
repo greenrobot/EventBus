@@ -36,7 +36,7 @@ public class EventBusBasicTest extends TestCase {
         eventBus = new EventBus();
     }
 
-    public void testRegisterForEventClassAndPost() {
+    public void testRegisterForEventTypeAndPost() {
         // Use an activity to test real life performance
         TestActivity testActivity = new TestActivity();
         String event = "Hello";
@@ -124,24 +124,80 @@ public class EventBusBasicTest extends TestCase {
         assertNull(lastStringEvent);
     }
 
+    public void testRegisterForOtherTypeThanPosted() {
+        eventBus.register(this, String.class);
+        eventBus.post(42);
+        assertEquals(0, countIntEvent);
+    }
+
+    public void testRegisterAndPostTwoTypes() {
+        eventBus.register(this);
+        eventBus.post(42);
+        eventBus.post("Hello");
+        assertEquals(1, countIntEvent);
+        assertEquals(1, countStringEvent);
+        assertEquals(42, lastIntEvent);
+        assertEquals("Hello", lastStringEvent);
+    }
+
+    public void testRegisterUnregisterAndPostTwoTypes() {
+        eventBus.register(this);
+        eventBus.unregister(this, String.class);
+        eventBus.post(42);
+        eventBus.post("Hello");
+        assertEquals(1, countIntEvent);
+        assertEquals(42, lastIntEvent);
+        assertEquals(0, countStringEvent);
+    }
+
+    public void testPostOnDifferentEventBus() {
+        eventBus.register(this);
+        new EventBus().post("Hello");
+        assertEquals(0, countStringEvent);
+    }
+
+    public void testPostInEventHandler() {
+        RepostInteger reposter = new RepostInteger();
+        eventBus.register(reposter);
+        eventBus.register(this);
+        eventBus.post(1);
+        assertEquals(10, countIntEvent);
+        // Out-of-order
+        // assertEquals(10, lastIntEvent);
+        assertEquals(10, reposter.countIntEvent);
+        assertEquals(10, reposter.lastIntEvent);
+    }
+
     public void onEvent(String event) {
         lastStringEvent = event;
         countStringEvent++;
     }
 
-    public void onEvent(int event) {
+    public void onEvent(Integer event) {
         lastIntEvent = event;
         countIntEvent++;
     }
 
     static class TestActivity extends Activity {
-
         public String lastStringEvent;
 
         public void onEvent(String event) {
             lastStringEvent = event;
         }
+    }
 
+    class RepostInteger {
+        public int lastIntEvent;
+        public int countIntEvent;
+
+        public void onEvent(Integer event) {
+            lastIntEvent = event;
+            countIntEvent++;
+
+            if (event < 10) {
+                eventBus.post(event + 1);
+            }
+        }
     }
 
 }
