@@ -25,8 +25,9 @@ public class EventBusInheritanceTest extends TestCase {
 
     private EventBus eventBus;
 
-    private int countMyEventExtended;
-    private int countMyEvent;
+    protected int countMyEventExtended;
+    protected int countMyEvent;
+    protected int countObjectEvent;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -35,11 +36,41 @@ public class EventBusInheritanceTest extends TestCase {
 
     public void testEventClassHierarchy() {
         eventBus.register(this);
+        
+        eventBus.post("Hello");
+        assertEquals(1, countObjectEvent);
+        
         eventBus.post(new MyEvent());
+        assertEquals(2, countObjectEvent);
         assertEquals(1, countMyEvent);
+        
         eventBus.post(new MyEventExtended());
+        assertEquals(3, countObjectEvent);
         assertEquals(2, countMyEvent);
         assertEquals(1, countMyEventExtended);
+    }
+
+    public void testSubscriberClassHierarchy() {
+        SubscriberExtended subscriber = new SubscriberExtended();
+        eventBus.register(subscriber);
+        
+        eventBus.post("Hello");
+        assertEquals(1, subscriber.countObjectEvent);
+        
+        eventBus.post(new MyEvent());
+        assertEquals(2, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countMyEvent);
+        assertEquals(1, subscriber.countMyEventOverwritten);
+        
+        eventBus.post(new MyEventExtended());
+        assertEquals(3, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countMyEvent);
+        assertEquals(1, subscriber.countMyEventExtended);
+        assertEquals(2, subscriber.countMyEventOverwritten);
+    }
+
+    public void onEvent(Object event) {
+        countObjectEvent++;
     }
 
     public void onEvent(MyEvent event) {
@@ -50,10 +81,18 @@ public class EventBusInheritanceTest extends TestCase {
         countMyEventExtended++;
     }
 
-    class MyEvent {
+    static class MyEvent {
     }
 
-    class MyEventExtended extends MyEvent {
+    static class MyEventExtended extends MyEvent {
+    }
+    
+    static class SubscriberExtended extends EventBusInheritanceTest {
+        private int countMyEventOverwritten;
+
+        public void onEvent(MyEvent event) {
+            countMyEventOverwritten++;
+        }
     }
 
 }

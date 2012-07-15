@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +93,7 @@ public class EventBus {
         }
         subscriberMethods = new ArrayList<Method>();
         Class<?> clazz = subscriberClass;
+        HashSet<Class<?>> eventTypesFound = new HashSet<Class<?>>();
         while (clazz != null) {
             String name = clazz.getName();
             if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
@@ -104,7 +106,10 @@ public class EventBus {
                 if (method.getName().equals(methodName)) {
                     Class<?>[] parameterTypes = method.getParameterTypes();
                     if (parameterTypes.length == 1) {
-                        subscriberMethods.add(method);
+                        if (eventTypesFound.add(parameterTypes[0])) {
+                            // Only add if not already found in more concrete class
+                            subscriberMethods.add(method);
+                        }
                     }
                 }
             }
@@ -260,6 +265,7 @@ public class EventBus {
                     postQueuePool.add(subscriptions);
                 }
             }
+            // TODO add interface and use cached list
             clazz = clazz.getSuperclass();
         }
         if (!subscriptionFound) {
