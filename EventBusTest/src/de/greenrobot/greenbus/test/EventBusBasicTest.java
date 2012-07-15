@@ -17,6 +17,7 @@ package de.greenrobot.greenbus.test;
 
 import junit.framework.TestCase;
 import android.app.Activity;
+import android.os.Debug;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
 
@@ -103,9 +104,11 @@ public class EventBusBasicTest extends TestCase {
         String event = "Hello";
         int count = 100;
         long start = System.currentTimeMillis();
+        //Debug.startMethodTracing("testPostMultipleTimes" + count);
         for (int i = 0; i < count; i++) {
             eventBus.post(event);
         }
+        //Debug.stopMethodTracing();
         long time = System.currentTimeMillis() - start;
         Log.d(EventBus.TAG, "Posted " + count + " events in " + time + "ms");
         assertEquals(event, lastStringEvent);
