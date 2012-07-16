@@ -1,6 +1,6 @@
 EventBus
 ========
-EventBus is an Android optimized publish/subscribe event bus. A typical use case for Android apps is gluing Activities, Fragments, and background threads together. Conventional wiring of those elements often introduces complex and error-prone dependencies and life cycle issues. Propagating listeners through all participants (e.g. background service -> activity -> multiple fragments or helper classes) becomes deprecated. EventBus decouples event senders and receivers and thus simplifies communication between app components. And you don't need to implement a single interface!
+EventBus is an Android optimized publish/subscribe event bus. A typical use case for Android apps is gluing Activities, Fragments, and background threads together. Conventional wiring of those elements often introduces complex and error-prone dependencies and life cycle issues. With EventBus propagating listeners through all participants (e.g. background service -> activity -> multiple fragments or helper classes) becomes deprecated. EventBus decouples event senders and receivers and thus simplifies communication between app components. Less code, better quality. And you don't need to implement a single interface!
 
 General Usage and API
 ---------------------
@@ -22,10 +22,10 @@ The API is very close to [Guava's event bus](http://code.google.com/p/guava-libr
 Additional Features and Notes
 -----------------------------
 While the API is partly identical to Guava/otto, EventBus is written from scratch with Android in mind and brings some unique features.
-* **Simple to use thread transitions:** Events can be received in Android's main thread, even if they were posted in a background thread. Subscribers that want to be called on the main thread call registerForMainThread() instead of register(). For example, UI updates become trivial for state changes caused by background workers. And because of the decoupling, 
+* **Thread transitions:** Events can be received in Android's main thread, even if they were posted in a background thread. Subscribers that want to be called on the main thread call registerForMainThread() instead of register(). For example, UI updates become trivial for state changes caused by background workers.
 * **NOT based on annotations:** Querying annotations are slow on Android, especially before Android 4.0. Have a look at this [Android bug report](http://code.google.com/p/android/issues/detail?id=7811)
 * **Based on conventions:** Event handling methods are called "onEvent" (you could supply different names, but this is not encouraged).
-* **Performanced optimized:** Who wants to be the first whos benchmarks it against otto? :D
+* **Performanced optimized:** Who wants to be the first to benchmark it against otto? :D
 * **Tiny:** The jar is less than 20 KBytes.
 * **Convenience singleton:** You can get a process wide event bus instance by calling EventBus.getDefault(). You can still call new EventBus() to create any number of local busses.
 * **Subscriber and event inheritance:** Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.
