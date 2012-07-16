@@ -72,6 +72,18 @@ public class EventBusMultithreadedTest extends TestCase {
         runThreadsMixedEventType(40);
     }
 
+    public void testPostMixedEventType01Thread_ObjectMainThread() throws InterruptedException {
+        runThreadsMixedEventType_registerObjectForMainThread(1);
+    }
+
+    public void testPostMixedEventType04Threads_ObjectMainThread() throws InterruptedException {
+        runThreadsMixedEventType_registerObjectForMainThread(4);
+    }
+
+    public void testPostMixedEventType40Threads_ObjectMainThread() throws InterruptedException {
+        runThreadsMixedEventType_registerObjectForMainThread(40);
+    }
+
     public void testSubscribeUnSubscribeAndPostMixedEventType() throws InterruptedException {
         List<SubscribeUnsubscribeThread> threads = new ArrayList<SubscribeUnsubscribeThread>();
         for (int i = 0; i < 10; i++) {
@@ -105,8 +117,32 @@ public class EventBusMultithreadedTest extends TestCase {
     }
 
     private void runThreadsMixedEventType(int threadCount) throws InterruptedException {
-        int iterations = COUNT / threadCount / 2;
         eventBus.register(this);
+        runThreadsMixedEventTypeAfterRegister(threadCount);
+        // Consider integer division precision, do not simplify
+        int expectedCount = (threadCount * (COUNT / threadCount / 2)) * 2;
+        assertEquals(expectedCount, countObjectEvent.intValue());
+    }
+
+    private void runThreadsMixedEventType_registerObjectForMainThread(int threadCount) throws InterruptedException {
+        eventBus.register(this, String.class, Integer.class);
+        eventBus.registerForMainThread(this, Object.class);
+        runThreadsMixedEventTypeAfterRegister(threadCount);
+        // Consider integer division precision, do not simplify
+        int expectedCount = (threadCount * (COUNT / threadCount / 2)) * 2;
+        // Wait for main thread event delivery
+        for (int i = 0; i < 5000; i++) {
+            if (countObjectEvent.intValue() == expectedCount) {
+                break;
+            } else {
+                Thread.sleep(1);
+            }
+        }
+        assertEquals(expectedCount, countObjectEvent.intValue());
+    }
+
+    private void runThreadsMixedEventTypeAfterRegister(int threadCount) throws InterruptedException {
+        int iterations = COUNT / threadCount / 2;
 
         CountDownLatch latch = new CountDownLatch(2 * threadCount + 1);
         List<PosterThread> threadsString = startThreads(latch, threadCount, iterations, "Hello");
@@ -124,7 +160,6 @@ public class EventBusMultithreadedTest extends TestCase {
         int expectedCount = threadCount * iterations;
         assertEquals(expectedCount, countStringEvent.intValue());
         assertEquals(expectedCount, countIntegerEvent.intValue());
-        assertEquals(expectedCount * 2, countObjectEvent.intValue());
     }
 
     private long triggerAndWaitForThreads(List<PosterThread> threads, CountDownLatch latch) throws InterruptedException {

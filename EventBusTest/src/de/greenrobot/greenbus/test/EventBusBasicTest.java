@@ -102,17 +102,18 @@ public class EventBusBasicTest extends TestCase {
     public void testPostMultipleTimes() {
         eventBus.register(this, String.class);
         String event = "Hello";
-        int count = 100;
+        int count = 1000;
         long start = System.currentTimeMillis();
-        //Debug.startMethodTracing("testPostMultipleTimes" + count);
+        Debug.startMethodTracing("testPostMultipleTimes" + count);
         for (int i = 0; i < count; i++) {
             eventBus.post(event);
         }
-        //Debug.stopMethodTracing();
+        Debug.stopMethodTracing();
         long time = System.currentTimeMillis() - start;
         Log.d(EventBus.TAG, "Posted " + count + " events in " + time + "ms");
         assertEquals(event, lastStringEvent);
         assertEquals(count, countStringEvent);
+        
     }
 
     public void testPostAfterUnregister() {

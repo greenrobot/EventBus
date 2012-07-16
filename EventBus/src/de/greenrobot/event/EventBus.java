@@ -20,11 +20,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 /**
@@ -38,13 +40,21 @@ public class EventBus {
 
     private static final EventBus defaultInstance = new EventBus();
 
+    public enum ThreadMode {
+        /** Subscriber will be called in the same thread, which is posting the event. */
+        PostThread,
+        /** Subscriber will be called in Android's main thread (sometimes referred to as UI thread). */
+        MainThread,
+        /* BackgroundThread */
+    }
+
     private static final Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
 
-    private final ThreadLocal<List<Object>> eventsQueuedForCurrentThread = new ThreadLocal<List<Object>>() {
+    private final ThreadLocal<List<Object>> currentThreadEventQueue = new ThreadLocal<List<Object>>() {
         @Override
         protected List<Object> initialValue() {
             return new ArrayList<Object>();
@@ -60,6 +70,8 @@ public class EventBus {
 
     private String defaultMethodName = "onEvent";
 
+    private PostViaHandler mainThreadPoster;
+
     public static EventBus getDefault() {
         return defaultInstance;
     }
@@ -67,17 +79,22 @@ public class EventBus {
     public EventBus() {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
+        mainThreadPoster = new PostViaHandler(Looper.getMainLooper());
     }
 
     public void register(Object subscriber) {
-        register(subscriber, defaultMethodName);
+        register(subscriber, defaultMethodName, ThreadMode.PostThread);
     }
 
-    public void register(Object subscriber, String methodName) {
+    public void registerForMainThread(Object subscriber) {
+        register(subscriber, defaultMethodName, ThreadMode.MainThread);
+    }
+
+    public void register(Object subscriber, String methodName, ThreadMode threadMode) {
         List<Method> subscriberMethods = findSubscriberMethods(subscriber.getClass(), methodName);
         for (Method method : subscriberMethods) {
             Class<?> eventType = method.getParameterTypes()[0];
-            subscribe(subscriber, method, eventType);
+            subscribe(subscriber, method, eventType, threadMode);
         }
     }
 
@@ -125,22 +142,26 @@ public class EventBus {
     }
 
     public void register(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, defaultMethodName, eventType, moreEventTypes);
+        register(subscriber, defaultMethodName, ThreadMode.PostThread, eventType, moreEventTypes);
     }
 
-    public synchronized void register(Object subscriber, String methodName, Class<?> eventType,
+    public void registerForMainThread(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
+        register(subscriber, defaultMethodName, ThreadMode.MainThread, eventType, moreEventTypes);
+    }
+
+    public synchronized void register(Object subscriber, String methodName, ThreadMode threadMode, Class<?> eventType,
             Class<?>... moreEventTypes) {
         Class<?> subscriberClass = subscriber.getClass();
         Method method = findSubscriberMethod(subscriberClass, methodName, eventType);
-        subscribe(subscriber, method, eventType);
+        subscribe(subscriber, method, eventType, threadMode);
 
         for (Class<?> anothereventType : moreEventTypes) {
             method = findSubscriberMethod(subscriberClass, methodName, anothereventType);
-            subscribe(subscriber, method, anothereventType);
+            subscribe(subscriber, method, anothereventType, threadMode);
         }
     }
 
-    private void subscribe(Object subscriber, Method subscriberMethod, Class<?> eventType) {
+    private void subscribe(Object subscriber, Method subscriberMethod, Class<?> eventType, ThreadMode threadMode) {
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions == null) {
             subscriptions = new CopyOnWriteArrayList<Subscription>();
@@ -155,7 +176,7 @@ public class EventBus {
         }
 
         subscriberMethod.setAccessible(true);
-        Subscription subscription = new Subscription(subscriber, subscriberMethod);
+        Subscription subscription = new Subscription(subscriber, subscriberMethod, threadMode);
         subscriptions.add(subscription);
 
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
@@ -229,7 +250,7 @@ public class EventBus {
 
     /** Posts the given event to the event bus. */
     public void post(Object event) {
-        List<Object> eventQueue = eventsQueuedForCurrentThread.get();
+        List<Object> eventQueue = currentThreadEventQueue.get();
         eventQueue.add(event);
 
         BooleanWrapper isPosting = currentThreadIsPosting.get();
@@ -259,7 +280,13 @@ public class EventBus {
             }
             if (subscriptions != null) {
                 for (Subscription subscription : subscriptions) {
-                    postToSubscribtion(subscription, event);
+                    if (subscription.threadMode == ThreadMode.PostThread) {
+                        postToSubscribtion(subscription, event);
+                    } else if (subscription.threadMode == ThreadMode.MainThread) {
+                        mainThreadPoster.enqueue(event, subscription);
+                    } else {
+                        throw new IllegalStateException("Unknown thread mode: " + subscription.threadMode);
+                    }
                 }
                 subscriptionFound = true;
             }
@@ -288,7 +315,7 @@ public class EventBus {
     }
 
     /** Recurses through super interfaces. */
-    private void addInterfaces(List<Class<?>> eventTypes, Class<?>[] interfaces) {
+    static void addInterfaces(List<Class<?>> eventTypes, Class<?>[] interfaces) {
         for (Class<?> interfaceClass : interfaces) {
             if (!eventTypes.contains(interfaceClass)) {
                 eventTypes.add(interfaceClass);
@@ -297,7 +324,7 @@ public class EventBus {
         }
     }
 
-    private void postToSubscribtion(Subscription subscription, Object event) throws Error {
+    static void postToSubscribtion(Subscription subscription, Object event) throws Error {
         try {
             subscription.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
@@ -315,10 +342,12 @@ public class EventBus {
     final static class Subscription {
         final Object subscriber;
         final Method method;
+        final ThreadMode threadMode;
 
-        Subscription(Object subscriber, Method method) {
+        Subscription(Object subscriber, Method method, ThreadMode threadMode) {
             this.subscriber = subscriber;
             this.method = method;
+            this.threadMode = threadMode;
         }
 
         @Override
@@ -342,6 +371,32 @@ public class EventBus {
     /** For ThreadLocal, much faster to set than storing a new Boolean. */
     final static class BooleanWrapper {
         boolean value;
+    }
+
+    final static class PostViaHandler extends Handler {
+
+        PostViaHandler(Looper looper) {
+            super(looper);
+        }
+
+        void enqueue(Object event, Subscription subscription) {
+            PendingPost pendingPost = PendingPost.obtainPendingPost(event, subscription);
+            Message message = obtainMessage();
+            message.obj = pendingPost;
+            if (!sendMessage(message)) {
+                throw new RuntimeException("Could not send handler message");
+            }
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            PendingPost pendingPost = (PendingPost) msg.obj;
+            Object event = pendingPost.event;
+            Subscription subscription = pendingPost.subscription;
+            PendingPost.releasePendingPost(pendingPost);
+            postToSubscribtion(subscription, event);
+        }
+
     }
 
 }
