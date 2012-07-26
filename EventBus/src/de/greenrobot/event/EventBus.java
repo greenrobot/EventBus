@@ -215,7 +215,11 @@ public class EventBus {
                 unubscribeByEventType(subscriber, eventType);
                 subscribedClasses.remove(eventType);
             }
+            if (subscribedClasses.isEmpty()) {
+                typesBySubscriber.remove(subscriber);
+            }
         } else {
+            typesBySubscriber.remove(subscriber);
             Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
         }
     }
@@ -246,6 +250,7 @@ public class EventBus {
         } else {
             Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
         }
+        typesBySubscriber.remove(subscriber);
     }
 
     /** Posts the given event to the event bus. */
