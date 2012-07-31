@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event.test;
 
+import java.lang.ref.WeakReference;
+
 import junit.framework.TestCase;
 import android.app.Activity;
 import android.os.Debug;
@@ -79,6 +81,38 @@ public class EventBusBasicTest extends TestCase {
         eventBus.unregister(this, String.class);
     }
 
+    public void testUnregisterNotLeaking() {
+        EventBusBasicTest subscriber = new EventBusBasicTest();
+        eventBus.register(subscriber);
+        eventBus.unregister(subscriber);
+
+        WeakReference<EventBusBasicTest> ref = new WeakReference<EventBusBasicTest>(subscriber);
+        subscriber = null;
+        assertSubscriberNotReferenced(ref);
+    }
+
+    public void testUnregisterForClassNotLeaking() {
+        EventBusBasicTest subscriber = new EventBusBasicTest();
+        eventBus.register(subscriber, String.class);
+        eventBus.unregister(subscriber, String.class);
+
+        WeakReference<EventBusBasicTest> ref = new WeakReference<EventBusBasicTest>(subscriber);
+        subscriber = null;
+        assertSubscriberNotReferenced(ref);
+    }
+
+    private void assertSubscriberNotReferenced(WeakReference<EventBusBasicTest> ref) {
+        EventBusBasicTest subscriberTest = new EventBusBasicTest();
+        WeakReference<EventBusBasicTest> refTest = new WeakReference<EventBusBasicTest>(subscriberTest);
+        subscriberTest = null;
+
+        // Yeah, in theory is is questionable (in practice just fine so far...)
+        System.gc();
+
+        assertNull(refTest.get());
+        assertNull(ref.get());
+    }
+
     public void testRegisterTwice() {
         eventBus.register(this, String.class);
         try {
@@ -113,7 +147,7 @@ public class EventBusBasicTest extends TestCase {
         Log.d(EventBus.TAG, "Posted " + count + " events in " + time + "ms");
         assertEquals(event, lastStringEvent);
         assertEquals(count, countStringEvent);
-        
+
     }
 
     public void testPostAfterUnregister() {

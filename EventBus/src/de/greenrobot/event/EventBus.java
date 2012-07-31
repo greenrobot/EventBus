@@ -210,10 +210,13 @@ public class EventBus {
             throw new IllegalArgumentException("Provide at least one event class");
         }
         List<Class<?>> subscribedClasses = typesBySubscriber.get(subscriber);
-        if (subscribedClasses != null && !subscribedClasses.isEmpty()) {
+        if (subscribedClasses != null) {
             for (Class<?> eventType : eventTypes) {
                 unubscribeByEventType(subscriber, eventType);
                 subscribedClasses.remove(eventType);
+            }
+            if (subscribedClasses.isEmpty()) {
+                typesBySubscriber.remove(subscriber);
             }
         } else {
             Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
@@ -238,11 +241,11 @@ public class EventBus {
     /** Unregisters the given subscriber from all event classes. */
     public synchronized void unregister(Object subscriber) {
         List<Class<?>> subscribedTypes = typesBySubscriber.get(subscriber);
-        if (subscribedTypes != null && !subscribedTypes.isEmpty()) {
+        if (subscribedTypes != null) {
             for (Class<?> eventType : subscribedTypes) {
                 unubscribeByEventType(subscriber, eventType);
             }
-            subscribedTypes.clear();
+            typesBySubscriber.remove(subscriber);
         } else {
             Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
         }
