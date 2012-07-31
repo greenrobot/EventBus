@@ -42,6 +42,9 @@ FAQ
 
 Release History
 ---------------
+### V1.0.1 (2012-07-31): Important bug fix release
+Please update! Now, EventBus.unregister releases all internal references to the subscriber.
+
 ### V1.0.0 (2012-07-16): First public release
 
 License
