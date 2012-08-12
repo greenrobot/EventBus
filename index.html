@@ -74,7 +74,11 @@
 <strong>Subscriber and event inheritance:</strong> Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.</li>
 <li>
 <strong>Selective registration:</strong> It's possible to register only for specific event types. This also allows subscribers to register only some of their event handling methods for main thread event delivery.</li>
-</ul><h2>Example</h2>
+</ul><h2>Performance</h2>
+
+<p>EventBus is optimized for performance. We will release extensive benchmark results (and a benchmark app) soon. For now, we can say that posting events is around <strong>77,000 events per second</strong> on a Samsung S3 (1,4 GHz, single threaded, Android 4.0.4). On a dated device like the Nexus S, it is still 38,000 events per second (1 GHz single core, Android 4.1.1). And because EventBus does not use annotations, registering event subscribers is fast, too. Unlike most other event based systems for Android, the performance impact is neglectable.</p>
+
+<h2>Example</h2>
 
 <p>TODO</p>
 
