@@ -25,8 +25,8 @@ final class PostViaHandler extends Handler {
         super(looper);
     }
 
-    void enqueue(Object event, Subscription subscription) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(event, subscription);
+    void enqueue(Subscription subscription, Object event) {
+        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         Message message = obtainMessage();
         message.obj = pendingPost;
         if (!sendMessage(message)) {

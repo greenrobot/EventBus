@@ -297,7 +297,7 @@ public class EventBus {
         if (subscription.threadMode == ThreadMode.PostThread) {
             postToSubscribtion(subscription, event);
         } else if (subscription.threadMode == ThreadMode.MainThread) {
-            mainThreadPoster.enqueue(event, subscription);
+            mainThreadPoster.enqueue(subscription, event);
         } else if (subscription.threadMode == ThreadMode.BackgroundThread) {
             backgroundPoster.enqueue(subscription, event);
         } else {

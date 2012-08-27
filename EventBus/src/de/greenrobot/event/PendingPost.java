@@ -30,7 +30,7 @@ final class PendingPost {
         this.subscription = subscription;
     }
 
-    static PendingPost obtainPendingPost(Object event, Subscription subscription) {
+    static PendingPost obtainPendingPost(Subscription subscription, Object event) {
         synchronized (pendingPostPool) {
             int size = pendingPostPool.size();
             if (size > 0) {
