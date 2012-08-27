@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
@@ -65,8 +64,7 @@ public class EventBus {
     private String defaultMethodName = "onEvent";
 
     private PostViaHandler mainThreadPoster;
-    private volatile HandlerThread backgroundPosterHandlerThread;
-    private volatile PostViaHandler backgroundThreadPoster;
+    private BackgroundPoster backgroundPoster;
 
     public static EventBus getDefault() {
         return defaultInstance;
@@ -76,6 +74,7 @@ public class EventBus {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
         mainThreadPoster = new PostViaHandler(Looper.getMainLooper());
+        backgroundPoster = new BackgroundPoster(this);
     }
 
     public void register(Object subscriber) {
@@ -284,32 +283,25 @@ public class EventBus {
             }
             if (subscriptions != null) {
                 for (Subscription subscription : subscriptions) {
-                    if (subscription.threadMode == ThreadMode.PostThread) {
-                        postToSubscribtion(subscription, event);
-                    } else if (subscription.threadMode == ThreadMode.MainThread) {
-                        mainThreadPoster.enqueue(event, subscription);
-                    } else if (subscription.threadMode == ThreadMode.BackgroundThread) {
-                        if (backgroundThreadPoster == null) {
-                            synchronized (this) {
-                                if (backgroundThreadPoster == null) {
-                                    backgroundPosterHandlerThread = new HandlerThread("EventBus-Background-Poster-"
-                                            + (++backgroundPosterThreadNr));
-                                    backgroundPosterHandlerThread.start();
-                                    backgroundThreadPoster = new PostViaHandler(
-                                            backgroundPosterHandlerThread.getLooper());
-                                }
-                            }
-                        }
-                        backgroundThreadPoster.enqueue(event, subscription);
-                    } else {
-                        throw new IllegalStateException("Unknown thread mode: " + subscription.threadMode);
-                    }
+                    postToSubscription(subscription, event);
                 }
                 subscriptionFound = true;
             }
         }
         if (!subscriptionFound) {
             Log.d(TAG, "No subscripers registered for event " + event.getClass());
+        }
+    }
+
+    private void postToSubscription(Subscription subscription, Object event) {
+        if (subscription.threadMode == ThreadMode.PostThread) {
+            postToSubscribtion(subscription, event);
+        } else if (subscription.threadMode == ThreadMode.MainThread) {
+            mainThreadPoster.enqueue(event, subscription);
+        } else if (subscription.threadMode == ThreadMode.BackgroundThread) {
+            backgroundPoster.enqueue(subscription, event);
+        } else {
+            throw new IllegalStateException("Unknown thread mode: " + subscription.threadMode);
         }
     }
 
