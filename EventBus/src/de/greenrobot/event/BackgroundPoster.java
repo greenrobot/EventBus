@@ -70,7 +70,7 @@ class BackgroundPoster implements Runnable {
                         }
                     }
                     if (pendingPost != null) {
-                        EventBus.postToSubscribtion(pendingPost.subscription, pendingPost.event);
+                        EventBus.postToSubscription(pendingPost);
                     }
                 }
             } catch (InterruptedException e) {

@@ -37,10 +37,7 @@ final class PostViaHandler extends Handler {
     @Override
     public void handleMessage(Message msg) {
         PendingPost pendingPost = (PendingPost) msg.obj;
-        Object event = pendingPost.event;
-        Subscription subscription = pendingPost.subscription;
-        PendingPost.releasePendingPost(pendingPost);
-        EventBus.postToSubscribtion(subscription, event);
+        EventBus.postToSubscription(pendingPost);
     }
 
 }

@@ -333,6 +333,13 @@ public class EventBus {
         }
     }
 
+    static void postToSubscription(PendingPost pendingPost) {
+        Object event = pendingPost.event;
+        Subscription subscription = pendingPost.subscription;
+        PendingPost.releasePendingPost(pendingPost);
+        EventBus.postToSubscribtion(subscription, event);
+    }
+
     static void postToSubscribtion(Subscription subscription, Object event) throws Error {
         try {
             subscription.method.invoke(subscription.subscriber, event);
