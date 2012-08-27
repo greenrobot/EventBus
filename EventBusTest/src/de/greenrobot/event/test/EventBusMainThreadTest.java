@@ -17,33 +17,18 @@ package de.greenrobot.event.test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import android.app.Application;
 import android.os.Looper;
-import android.test.ApplicationTestCase;
-import de.greenrobot.event.EventBus;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusMainThreadTest extends ApplicationTestCase<Application> {
-
-    private EventBus eventBus;
-
-    private final AtomicInteger eventCount = new AtomicInteger();
-    private volatile String lastEvent;
-    private volatile Thread lastThread;
+public class EventBusMainThreadTest extends AbstractEventBusTest {
 
     private BackgroundPoster backgroundPoster;
 
-    public EventBusMainThreadTest() {
-        super(Application.class);
-    }
-
     protected void setUp() throws Exception {
         super.setUp();
-        eventBus = new EventBus();
         backgroundPoster = new BackgroundPoster();
         backgroundPoster.start();
     }
@@ -53,10 +38,6 @@ public class EventBusMainThreadTest extends ApplicationTestCase<Application> {
         backgroundPoster.shutdown();
         backgroundPoster.join();
         super.tearDown();
-    }
-
-    public void testTestThreadIsNotMainThread() {
-        assertFalse(Looper.getMainLooper().getThread().equals(Thread.currentThread()));
     }
 
     public void testPost_ThreadModePostThread() throws InterruptedException {
@@ -91,29 +72,15 @@ public class EventBusMainThreadTest extends ApplicationTestCase<Application> {
         assertEquals(backgroundPoster, lastThread);
     }
 
-    private void waitForEventCount(int count, int maxMillis) throws InterruptedException {
-        for (int i = 0; i < maxMillis; i++) {
-            if (eventCount.get() == count) {
-                break;
-            } else {
-                Thread.sleep(1);
-            }
-        }
-        assertEquals(count, eventCount.get());
-    }
-
     public void onEvent(String event) {
-        lastEvent = event;
-        lastThread = Thread.currentThread();
-        // Must the the last one because we wait for this
-        eventCount.incrementAndGet();
+        trackEvent(event);
     }
 
     class BackgroundPoster extends Thread {
         private boolean running = true;
         private List<Object> eventQ = new ArrayList<Object>();
         private List<Object> eventsDone = new ArrayList<Object>();
-        
+
         public BackgroundPoster() {
             super("BackgroundPoster");
         }

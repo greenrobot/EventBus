@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
@@ -40,12 +41,14 @@ public class EventBus {
 
     private static final EventBus defaultInstance = new EventBus();
 
+    /** Used for naming the thread. */
+    private static int backgroundPosterThreadNr;
+
     public enum ThreadMode {
         /** Subscriber will be called in the same thread, which is posting the event. */
         PostThread,
         /** Subscriber will be called in Android's main thread (sometimes referred to as UI thread). */
-        MainThread,
-        /* BackgroundThread */
+        MainThread, BackgroundThread
     }
 
     private static final Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
@@ -71,6 +74,8 @@ public class EventBus {
     private String defaultMethodName = "onEvent";
 
     private PostViaHandler mainThreadPoster;
+    private volatile HandlerThread backgroundPosterHandlerThread;
+    private volatile PostViaHandler backgroundThreadPoster;
 
     public static EventBus getDefault() {
         return defaultInstance;
@@ -98,8 +103,8 @@ public class EventBus {
         }
     }
 
-    private List<Method> findSubscriberMethods(Class<?> subscriberClass, String methodName) {
-        String key = subscriberClass.getName() + '.' + methodName;
+    private List<Method> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
+        String key = subscriberClass.getName() + '.' + eventMethodName;
         List<Method> subscriberMethods;
         synchronized (methodCache) {
             subscriberMethods = methodCache.get(key);
@@ -119,12 +124,17 @@ public class EventBus {
 
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
-                if (method.getName().equals(methodName)) {
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    if (parameterTypes.length == 1) {
-                        if (eventTypesFound.add(parameterTypes[0])) {
-                            // Only add if not already found in a sub class
-                            subscriberMethods.add(method);
+                String methodName = method.getName();
+                if (methodName.startsWith(eventMethodName)) {
+                    String modifierString = methodName.substring(eventMethodName.length());
+                    if (modifierString.length() == 0 || modifierString.equals("MainThread")
+                            || modifierString.equals("BackgroundThread")) {
+                        Class<?>[] parameterTypes = method.getParameterTypes();
+                        if (parameterTypes.length == 1) {
+                            if (eventTypesFound.add(parameterTypes[0])) {
+                                // Only add if not already found in a sub class
+                                subscriberMethods.add(method);
+                            }
                         }
                     }
                 }
@@ -132,7 +142,7 @@ public class EventBus {
             clazz = clazz.getSuperclass();
         }
         if (subscriberMethods.isEmpty()) {
-            throw new RuntimeException("Subscriber " + subscriberClass + " has no methods called " + methodName);
+            throw new RuntimeException("Subscriber " + subscriberClass + " has no methods called " + eventMethodName);
         } else {
             synchronized (methodCache) {
                 methodCache.put(key, subscriberMethods);
@@ -287,6 +297,19 @@ public class EventBus {
                         postToSubscribtion(subscription, event);
                     } else if (subscription.threadMode == ThreadMode.MainThread) {
                         mainThreadPoster.enqueue(event, subscription);
+                    } else if (subscription.threadMode == ThreadMode.BackgroundThread) {
+                        if (backgroundThreadPoster == null) {
+                            synchronized (this) {
+                                if (backgroundThreadPoster == null) {
+                                    backgroundPosterHandlerThread = new HandlerThread("EventBus-Background-Poster-"
+                                            + (++backgroundPosterThreadNr));
+                                    backgroundPosterHandlerThread.start();
+                                    backgroundThreadPoster = new PostViaHandler(
+                                            backgroundPosterHandlerThread.getLooper());
+                                }
+                            }
+                        }
+                        backgroundThreadPoster.enqueue(event, subscription);
                     } else {
                         throw new IllegalStateException("Unknown thread mode: " + subscription.threadMode);
                     }
