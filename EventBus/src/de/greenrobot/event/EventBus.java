@@ -24,10 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 /**
@@ -43,13 +41,6 @@ public class EventBus {
 
     /** Used for naming the thread. */
     private static int backgroundPosterThreadNr;
-
-    public enum ThreadMode {
-        /** Subscriber will be called in the same thread, which is posting the event. */
-        PostThread,
-        /** Subscriber will be called in Android's main thread (sometimes referred to as UI thread). */
-        MainThread, BackgroundThread
-    }
 
     private static final Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
@@ -365,64 +356,9 @@ public class EventBus {
         }
     }
 
-    final static class Subscription {
-        final Object subscriber;
-        final Method method;
-        final ThreadMode threadMode;
-
-        Subscription(Object subscriber, Method method, ThreadMode threadMode) {
-            this.subscriber = subscriber;
-            this.method = method;
-            this.threadMode = threadMode;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (other instanceof Subscription) {
-                Subscription otherSubscription = (Subscription) other;
-                // Super slow (improve once used): http://code.google.com/p/android/issues/detail?id=7811
-                return subscriber == otherSubscription.subscriber && method.equals(otherSubscription.method);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            // Check performance once used
-            return subscriber.hashCode() + method.hashCode();
-        }
-    }
-
     /** For ThreadLocal, much faster to set than storing a new Boolean. */
     final static class BooleanWrapper {
         boolean value;
-    }
-
-    final static class PostViaHandler extends Handler {
-
-        PostViaHandler(Looper looper) {
-            super(looper);
-        }
-
-        void enqueue(Object event, Subscription subscription) {
-            PendingPost pendingPost = PendingPost.obtainPendingPost(event, subscription);
-            Message message = obtainMessage();
-            message.obj = pendingPost;
-            if (!sendMessage(message)) {
-                throw new RuntimeException("Could not send handler message");
-            }
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            PendingPost pendingPost = (PendingPost) msg.obj;
-            Object event = pendingPost.event;
-            Subscription subscription = pendingPost.subscription;
-            PendingPost.releasePendingPost(pendingPost);
-            postToSubscribtion(subscription, event);
-        }
-
     }
 
 }

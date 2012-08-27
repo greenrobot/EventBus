@@ -3,7 +3,6 @@ package de.greenrobot.event;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus.Subscription;
 
 final class PendingPost {
     private final static List<PendingPost> pendingPostPool = new ArrayList<PendingPost>();

@@ -16,7 +16,7 @@
 package de.greenrobot.event.test;
 
 import android.os.Looper;
-import de.greenrobot.event.EventBus.ThreadMode;
+import de.greenrobot.event.ThreadMode;
 
 /**
  * @author Markus Junginger, greenrobot
