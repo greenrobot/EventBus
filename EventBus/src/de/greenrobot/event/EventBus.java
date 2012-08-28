@@ -49,6 +49,7 @@ public final class EventBus {
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
+    private final Map<Class<?>, Object> stickyEvents;
 
     private final ThreadLocal<List<Object>> currentThreadEventQueue = new ThreadLocal<List<Object>>() {
         @Override
@@ -86,7 +87,7 @@ public final class EventBus {
         }
         skipMethodNameVerificationForClasses.put(clazz, clazz);
     }
-    
+
     /** For unit test primarily. */
     public static void clearSkipMethodNameVerifications() {
         skipMethodNameVerificationForClasses.clear();
@@ -95,6 +96,7 @@ public final class EventBus {
     public EventBus() {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
+        stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
         mainThreadPoster = new HandlerPoster(Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
@@ -214,6 +216,11 @@ public final class EventBus {
             typesBySubscriber.put(subscriber, subscribedEvents);
         }
         subscribedEvents.add(eventType);
+
+        Object stickyEvent = stickyEvents.get(eventType);
+        if (stickyEvent != null) {
+            postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+        }
     }
 
     /** Unregisters the given subscriber for the given event classes. */
@@ -282,6 +289,12 @@ public final class EventBus {
                 isPosting.value = false;
             }
         }
+    }
+
+    /** Posts the given event to the event bus. */
+    public void postSticky(Object event) {
+        post(event);
+        stickyEvents.put(event.getClass(), event);
     }
 
     private void postSingleEvent(Object event, boolean isMainThread) throws Error {
