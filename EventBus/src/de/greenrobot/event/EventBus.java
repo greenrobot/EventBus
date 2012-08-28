@@ -124,6 +124,8 @@ public final class EventBus {
                             threadMode = ThreadMode.MainThread;
                         } else if (modifierString.equals("BackgroundThread")) {
                             threadMode = ThreadMode.BackgroundThread;
+                        } else if (modifierString.equals("Async")) {
+                            threadMode = ThreadMode.Async;
                         } else {
                             throw new EventBusException("Illegal onEvent method, check for typos: " + method);
                         }

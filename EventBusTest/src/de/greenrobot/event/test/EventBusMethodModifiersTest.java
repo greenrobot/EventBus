@@ -24,7 +24,7 @@ public class EventBusMethodModifiersTest extends AbstractEventBusTest {
         eventBus.register(this);
         String event = "Hello";
         eventBus.post(event);
-        // TODO waitForEventCount(3, 1000);
+        waitForEventCount(4, 1000);
     }
 
     public void onEvent(String event) {
@@ -36,6 +36,10 @@ public class EventBusMethodModifiersTest extends AbstractEventBusTest {
     }
 
     public void onEventBackgroundThread(String event) {
+        trackEvent(event);
+    }
+    
+    public void onEventAsync(String event) {
         trackEvent(event);
     }
 }

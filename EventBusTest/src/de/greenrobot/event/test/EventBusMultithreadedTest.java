@@ -38,9 +38,12 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
     private final AtomicInteger countStringEvent = new AtomicInteger();
     private final AtomicInteger countIntegerEvent = new AtomicInteger();
     private final AtomicInteger countObjectEvent = new AtomicInteger();
+    private final AtomicInteger countIntTestEvent = new AtomicInteger();
 
     private String lastStringEvent;
     private Integer lastIntegerEvent;
+
+    private IntTestEvent lastIntTestEvent;
 
     public void testPost01Thread() throws InterruptedException {
         runThreadsSingleEventType(1);
@@ -105,29 +108,36 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
 
     private void runThreadsMixedEventType(int threadCount) throws InterruptedException {
         eventBus.register(this);
-        int iterations = COUNT / threadCount / 2;
+        int eventTypeCount = 3;
+        int iterations = COUNT / threadCount / eventTypeCount;
 
-        CountDownLatch latch = new CountDownLatch(2 * threadCount + 1);
+        CountDownLatch latch = new CountDownLatch(eventTypeCount * threadCount + 1);
         List<PosterThread> threadsString = startThreads(latch, threadCount, iterations, "Hello");
         List<PosterThread> threadsInteger = startThreads(latch, threadCount, iterations, 42);
+        List<PosterThread> threadsIntTestEvent = startThreads(latch, threadCount, iterations, new IntTestEvent(7));
+
         List<PosterThread> threads = new ArrayList<PosterThread>();
         threads.addAll(threadsString);
         threads.addAll(threadsInteger);
+        threads.addAll(threadsIntTestEvent);
         long time = triggerAndWaitForThreads(threads, latch);
 
-        Log.d(EventBus.TAG, threadCount * 2 + " mixed threads posted " + iterations + " events each in " + time + "ms");
+        Log.d(EventBus.TAG, threadCount * eventTypeCount + " mixed threads posted " + iterations + " events each in "
+                + time + "ms");
 
-        int expectedCount1 = threadCount * iterations;
-        waitForEventCount(expectedCount1 * 4, 5000);
+        int expectedCountEach = threadCount * iterations;
+        int expectedCountTotal = expectedCountEach * eventTypeCount * 2;
+        waitForEventCount(expectedCountTotal, 5000);
 
         assertEquals("Hello", lastStringEvent);
         assertEquals(42, lastIntegerEvent.intValue());
+        assertEquals(7, lastIntTestEvent.value);
 
-        assertEquals(expectedCount1, countStringEvent.intValue());
-        assertEquals(expectedCount1, countIntegerEvent.intValue());
-        // Consider integer division precision, do not simplify
-        int expectedCount = (threadCount * (COUNT / threadCount / 2)) * 2;
-        assertEquals(expectedCount, countObjectEvent.intValue());
+        assertEquals(expectedCountEach, countStringEvent.intValue());
+        assertEquals(expectedCountEach, countIntegerEvent.intValue());
+        assertEquals(expectedCountEach, countIntTestEvent.intValue());
+
+        assertEquals(expectedCountEach * eventTypeCount, countObjectEvent.intValue());
     }
 
     private long triggerAndWaitForThreads(List<PosterThread> threads, CountDownLatch latch) throws InterruptedException {
@@ -163,6 +173,12 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
     public void onEventMainThread(Integer event) {
         lastIntegerEvent = event;
         countIntegerEvent.incrementAndGet();
+        trackEvent(event);
+    }
+
+    public void onEventAsync(IntTestEvent event) {
+        countIntTestEvent.incrementAndGet();
+        lastIntTestEvent = event;
         trackEvent(event);
     }
 
@@ -232,6 +248,10 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         }
 
         public void onEvent(Object event) {
+            assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+        }
+
+        public void onEventAsync(Object event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }
     }
