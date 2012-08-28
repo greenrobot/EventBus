@@ -20,11 +20,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.os.Debug;
 import android.os.Looper;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
-import de.greenrobot.event.test.EventBusMultithreadedTest.PosterThread;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -71,7 +69,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
     public void testSubscribeUnSubscribeAndPostMixedEventType() throws InterruptedException {
         List<SubscribeUnsubscribeThread> threads = new ArrayList<SubscribeUnsubscribeThread>();
 
-        Debug.startMethodTracing("testSubscribeUnSubscribeAndPostMixedEventType");
+        // Debug.startMethodTracing("testSubscribeUnSubscribeAndPostMixedEventType");
         for (int i = 0; i < 10; i++) {
             SubscribeUnsubscribeThread thread = new SubscribeUnsubscribeThread();
             thread.start();
@@ -84,7 +82,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         for (SubscribeUnsubscribeThread thread : threads) {
             thread.join();
         }
-        Debug.stopMethodTracing();
+        // Debug.stopMethodTracing();
     }
 
     private void runThreadsSingleEventType(int threadCount) throws InterruptedException {

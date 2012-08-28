@@ -22,7 +22,7 @@ import android.util.Log;
 
 /**
  * Posts events in background.
- *  
+ * 
  * @author Markus
  */
 class BackgroundPoster implements Runnable {
@@ -39,7 +39,7 @@ class BackgroundPoster implements Runnable {
         queue = new PendingPostQueue();
     }
 
-    public void enqueue(Subscription subscription, Object event)  {
+    public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
             queue.enqueue(pendingPost);
@@ -49,7 +49,7 @@ class BackgroundPoster implements Runnable {
             }
         }
     }
-    
+
     @Override
     public void run() {
         try {
@@ -66,9 +66,7 @@ class BackgroundPoster implements Runnable {
                             }
                         }
                     }
-                    if (pendingPost != null) {
-                        EventBus.invokeSubscriber(pendingPost);
-                    }
+                    EventBus.invokeSubscriber(pendingPost);
                 }
             } catch (InterruptedException e) {
                 Log.w("Event", Thread.currentThread().getName() + " was interruppted", e);
@@ -77,6 +75,5 @@ class BackgroundPoster implements Runnable {
             executorRunning = false;
         }
     }
-
 
 }

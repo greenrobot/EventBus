@@ -18,26 +18,62 @@ package de.greenrobot.event;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 
 final class PostViaHandler extends Handler {
 
-    PostViaHandler(Looper looper) {
+    private final PendingPostQueue queue;
+    private final int maxMillisInsideHandleMessage;
+    private boolean handlerActive;
+
+    PostViaHandler(Looper looper, int maxMillisInsideHandleMessage) {
         super(looper);
+        this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
+        queue = new PendingPostQueue();
     }
 
     void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
-        Message message = obtainMessage();
-        message.obj = pendingPost;
-        if (!sendMessage(message)) {
-            throw new RuntimeException("Could not send handler message");
+        synchronized (this) {
+            queue.enqueue(pendingPost);
+            if (!handlerActive) {
+                handlerActive = true;
+                if (!sendMessage(obtainMessage())) {
+                    throw new EventBusException("Could not send handler message");
+                }
+            }
         }
     }
 
     @Override
     public void handleMessage(Message msg) {
-        PendingPost pendingPost = (PendingPost) msg.obj;
-        EventBus.invokeSubscriber(pendingPost);
+        boolean rescheduled = false;
+        try {
+            long started = SystemClock.uptimeMillis();
+            while (true) {
+                PendingPost pendingPost = queue.poll();
+                if (pendingPost == null) {
+                    synchronized (this) {
+                        // Check again, this time in synchronized
+                        pendingPost = queue.poll();
+                        if (pendingPost == null) {
+                            handlerActive = false;
+                            return;
+                        }
+                    }
+                }
+                EventBus.invokeSubscriber(pendingPost);
+                long timeInMethod = SystemClock.uptimeMillis() - started;
+                if (timeInMethod >= maxMillisInsideHandleMessage) {
+                    if (!sendMessage(obtainMessage())) {
+                        throw new EventBusException("Could not send handler message");
+                    }
+                    rescheduled = true;
+                    return;
+                }
+            }
+        } finally {
+            handlerActive = rescheduled;
+        }
     }
-
 }

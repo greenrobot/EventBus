@@ -70,7 +70,7 @@ public class EventBus {
     public EventBus() {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
-        mainThreadPoster = new PostViaHandler(Looper.getMainLooper());
+        mainThreadPoster = new PostViaHandler(Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
     }
 
