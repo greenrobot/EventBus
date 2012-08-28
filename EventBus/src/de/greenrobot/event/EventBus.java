@@ -119,7 +119,7 @@ public class EventBus {
                         } else if (modifierString.equals("BackgroundThread")) {
                             threadMode = ThreadMode.BackgroundThread;
                         } else {
-                            throw new RuntimeException("Illegal onEvent method, check for typos: " + method);
+                            throw new EventBusException("Illegal onEvent method, check for typos: " + method);
                         }
                         Class<?> eventType = parameterTypes[0];
                         String methodKey = methodName + ">" + eventType.getName();
@@ -326,7 +326,7 @@ public class EventBus {
         }
     }
 
-    static void postToSubscription(PendingPost pendingPost) {
+    static void invokeSubscriber(PendingPost pendingPost) {
         Object event = pendingPost.event;
         Subscription subscription = pendingPost.subscription;
         PendingPost.releasePendingPost(pendingPost);

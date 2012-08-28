@@ -20,21 +20,16 @@ final class Subscription {
     final Object subscriber;
     final SubscriberMethod subscriberMethod;
     
-    /** Used for efficient comparison */
-    final String methodString;
-
     Subscription(Object subscriber, SubscriberMethod subscriberMethod) {
         this.subscriber = subscriber;
         this.subscriberMethod = subscriberMethod;
-        this.methodString = subscriberMethod.method.toString();
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof Subscription) {
             Subscription otherSubscription = (Subscription) other;
-            // Don't use method.equals because of http://code.google.com/p/android/issues/detail?id=7811#c6
-            return subscriber == otherSubscription.subscriber && methodString.equals(otherSubscription.methodString);
+            return subscriber == otherSubscription.subscriber && subscriberMethod.equals(otherSubscription.subscriberMethod);
         } else {
             return false;
         }
@@ -42,6 +37,6 @@ final class Subscription {
 
     @Override
     public int hashCode() {
-        return subscriber.hashCode() + methodString.hashCode();
+        return subscriber.hashCode() + subscriberMethod.methodString.hashCode();
     }
 }

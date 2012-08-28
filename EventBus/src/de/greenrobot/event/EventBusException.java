@@ -15,29 +15,20 @@
  */
 package de.greenrobot.event;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
+public class EventBusException extends RuntimeException {
 
-final class PostViaHandler extends Handler {
+    private static final long serialVersionUID = -2912559384646531479L;
 
-    PostViaHandler(Looper looper) {
-        super(looper);
+    public EventBusException(String detailMessage) {
+        super(detailMessage);
     }
 
-    void enqueue(Subscription subscription, Object event) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
-        Message message = obtainMessage();
-        message.obj = pendingPost;
-        if (!sendMessage(message)) {
-            throw new RuntimeException("Could not send handler message");
-        }
+    public EventBusException(Throwable throwable) {
+        super(throwable);
     }
 
-    @Override
-    public void handleMessage(Message msg) {
-        PendingPost pendingPost = (PendingPost) msg.obj;
-        EventBus.invokeSubscriber(pendingPost);
+    public EventBusException(String detailMessage, Throwable throwable) {
+        super(detailMessage, throwable);
     }
 
 }

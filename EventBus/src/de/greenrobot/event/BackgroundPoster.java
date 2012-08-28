@@ -15,11 +15,8 @@
  */
 package de.greenrobot.event;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import android.util.Log;
 
@@ -32,20 +29,20 @@ class BackgroundPoster implements Runnable {
 
     private static ExecutorService executorService = Executors.newCachedThreadPool();
 
-    private final BlockingQueue<PendingPost> queue;
+    private final PendingPostQueue queue;
     private volatile boolean executorRunning;
 
     private final EventBus eventBus;
 
     BackgroundPoster(EventBus eventBus) {
         this.eventBus = eventBus;
-        queue = new LinkedBlockingQueue<PendingPost>();
+        queue = new PendingPostQueue();
     }
 
     public void enqueue(Subscription subscription, Object event)  {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
-            queue.add(pendingPost);
+            queue.enqueue(pendingPost);
             if (!executorRunning) {
                 executorRunning = true;
                 executorService.execute(this);
@@ -58,7 +55,7 @@ class BackgroundPoster implements Runnable {
         try {
             try {
                 while (true) {
-                    PendingPost pendingPost = queue.poll(1, TimeUnit.SECONDS);
+                    PendingPost pendingPost = queue.poll(1000);
                     if (pendingPost == null) {
                         synchronized (this) {
                             // Check again, this time in synchronized
@@ -70,7 +67,7 @@ class BackgroundPoster implements Runnable {
                         }
                     }
                     if (pendingPost != null) {
-                        EventBus.postToSubscription(pendingPost);
+                        EventBus.invokeSubscriber(pendingPost);
                     }
                 }
             } catch (InterruptedException e) {

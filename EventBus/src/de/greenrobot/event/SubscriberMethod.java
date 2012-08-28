@@ -21,19 +21,21 @@ final class SubscriberMethod {
     final Method method;
     final ThreadMode threadMode;
     final Class<?> eventType;
+    /** Used for efficient comparison */
+    final String methodString;
 
     SubscriberMethod(Method method, ThreadMode threadMode, Class<?> eventType) {
         this.method = method;
         this.threadMode = threadMode;
         this.eventType = eventType;
+        this.methodString = method.toString();
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof SubscriberMethod) {
-            SubscriberMethod otherSubscription = (SubscriberMethod) other;
-            // Super slow (improve once used): http://code.google.com/p/android/issues/detail?id=7811
-            return method.equals(otherSubscription.method);
+            // Don't use method.equals because of http://code.google.com/p/android/issues/detail?id=7811#c6
+            return methodString.equals(((SubscriberMethod) other).methodString);
         } else {
             return false;
         }
