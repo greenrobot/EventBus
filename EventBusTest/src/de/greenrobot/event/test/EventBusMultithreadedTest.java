@@ -73,12 +73,13 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         List<SubscribeUnsubscribeThread> threads = new ArrayList<SubscribeUnsubscribeThread>();
 
         // Debug.startMethodTracing("testSubscribeUnSubscribeAndPostMixedEventType");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             SubscribeUnsubscribeThread thread = new SubscribeUnsubscribeThread();
             thread.start();
             threads.add(thread);
         }
-        runThreadsMixedEventType(10);
+        // This test takes a bit longer, so just use fraction the regular count
+        runThreadsMixedEventType(COUNT / 4, 5);
         for (SubscribeUnsubscribeThread thread : threads) {
             thread.shutdown();
         }
@@ -107,9 +108,13 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
     }
 
     private void runThreadsMixedEventType(int threadCount) throws InterruptedException {
+        runThreadsMixedEventType(COUNT, threadCount);
+    }
+
+    private void runThreadsMixedEventType(int count, int threadCount) throws InterruptedException {
         eventBus.register(this);
         int eventTypeCount = 3;
-        int iterations = COUNT / threadCount / eventTypeCount;
+        int iterations = count / threadCount / eventTypeCount;
 
         CountDownLatch latch = new CountDownLatch(eventTypeCount * threadCount + 1);
         List<PosterThread> threadsString = startThreads(latch, threadCount, iterations, "Hello");
