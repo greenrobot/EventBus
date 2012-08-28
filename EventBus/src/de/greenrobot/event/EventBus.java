@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +37,7 @@ import android.util.Log;
  */
 public final class EventBus {
     static ExecutorService executorService = Executors.newCachedThreadPool();
-    
+
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
@@ -44,6 +45,7 @@ public final class EventBus {
 
     private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
+    private static final Map<Class<?>, Class<?>> skipMethodNameVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
@@ -70,6 +72,24 @@ public final class EventBus {
 
     public static EventBus getDefault() {
         return defaultInstance;
+    }
+
+    /** For unit test primarily. */
+    public static void clearCaches() {
+        methodCache.clear();
+        eventTypesCache.clear();
+    }
+
+    public static void skipMethodNameVerificationFor(Class<?> clazz) {
+        if (!methodCache.isEmpty()) {
+            throw new IllegalStateException("This method must be called before registering anything");
+        }
+        skipMethodNameVerificationForClasses.put(clazz, clazz);
+    }
+    
+    /** For unit test primarily. */
+    public static void clearSkipMethodNameVerifications() {
+        skipMethodNameVerificationForClasses.clear();
     }
 
     public EventBus() {
@@ -127,7 +147,11 @@ public final class EventBus {
                         } else if (modifierString.equals("Async")) {
                             threadMode = ThreadMode.Async;
                         } else {
-                            throw new EventBusException("Illegal onEvent method, check for typos: " + method);
+                            if (skipMethodNameVerificationForClasses.containsKey(clazz)) {
+                                continue;
+                            } else {
+                                throw new EventBusException("Illegal onEvent method, check for typos: " + method);
+                            }
                         }
                         Class<?> eventType = parameterTypes[0];
                         String methodKey = methodName + ">" + eventType.getName();
@@ -141,7 +165,7 @@ public final class EventBus {
             clazz = clazz.getSuperclass();
         }
         if (subscriberMethods.isEmpty()) {
-            throw new RuntimeException("Subscriber " + subscriberClass + " has no methods called " + eventMethodName);
+            throw new EventBusException("Subscriber " + subscriberClass + " has no methods called " + eventMethodName);
         } else {
             synchronized (methodCache) {
                 methodCache.put(key, subscriberMethods);
@@ -302,8 +326,8 @@ public final class EventBus {
             }
             break;
         case Async:
-                asyncPoster.enqueue(subscription, event);
-                break;
+            asyncPoster.enqueue(subscription, event);
+            break;
         default:
             throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }
