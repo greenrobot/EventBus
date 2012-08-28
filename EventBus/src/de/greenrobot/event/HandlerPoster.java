@@ -20,13 +20,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 
-final class PostViaHandler extends Handler {
+final class HandlerPoster extends Handler {
 
     private final PendingPostQueue queue;
     private final int maxMillisInsideHandleMessage;
     private boolean handlerActive;
 
-    PostViaHandler(Looper looper, int maxMillisInsideHandleMessage) {
+    HandlerPoster(Looper looper, int maxMillisInsideHandleMessage) {
         super(looper);
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
         queue = new PendingPostQueue();

@@ -60,7 +60,7 @@ public class EventBus {
 
     private String defaultMethodName = "onEvent";
 
-    private PostViaHandler mainThreadPoster;
+    private HandlerPoster mainThreadPoster;
     private BackgroundPoster backgroundPoster;
 
     public static EventBus getDefault() {
@@ -70,7 +70,7 @@ public class EventBus {
     public EventBus() {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
-        mainThreadPoster = new PostViaHandler(Looper.getMainLooper(), 10);
+        mainThreadPoster = new HandlerPoster(Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
     }
 
