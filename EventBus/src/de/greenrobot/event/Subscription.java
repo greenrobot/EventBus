@@ -15,7 +15,6 @@
  */
 package de.greenrobot.event;
 
-
 final class Subscription {
     final Object subscriber;
     final SubscriberMethod subscriberMethod;

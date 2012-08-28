@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import android.os.Looper;
 import android.util.Log;
@@ -32,7 +34,9 @@ import android.util.Log;
  * 
  * @author Markus Junginger, greenrobot
  */
-public class EventBus {
+public final class EventBus {
+    static ExecutorService executorService = Executors.newCachedThreadPool();
+    
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
@@ -60,8 +64,9 @@ public class EventBus {
 
     private String defaultMethodName = "onEvent";
 
-    private HandlerPoster mainThreadPoster;
-    private BackgroundPoster backgroundPoster;
+    private final HandlerPoster mainThreadPoster;
+    private final BackgroundPoster backgroundPoster;
+    private final AsyncPoster asyncPoster;
 
     public static EventBus getDefault() {
         return defaultInstance;
@@ -72,6 +77,7 @@ public class EventBus {
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
         mainThreadPoster = new HandlerPoster(Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
+        asyncPoster = new AsyncPoster(this);
     }
 
     public void register(Object subscriber) {
@@ -293,6 +299,9 @@ public class EventBus {
                 invokeSubscriber(subscription, event);
             }
             break;
+        case Async:
+                asyncPoster.enqueue(subscription, event);
+                break;
         default:
             throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }

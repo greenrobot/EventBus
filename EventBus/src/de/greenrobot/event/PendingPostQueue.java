@@ -1,10 +1,13 @@
 package de.greenrobot.event;
 
-public class PendingPostQueue {
+final class PendingPostQueue {
     private PendingPost head;
     private PendingPost tail;
 
     synchronized void enqueue(PendingPost pendingPost) {
+        if (pendingPost == null) {
+            throw new NullPointerException("null cannot be enqueued");
+        }
         if (tail != null) {
             tail.next = pendingPost;
             tail = pendingPost;
