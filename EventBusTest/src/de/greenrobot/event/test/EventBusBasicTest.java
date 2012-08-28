@@ -19,7 +19,6 @@ import java.lang.ref.WeakReference;
 
 import junit.framework.TestCase;
 import android.app.Activity;
-import android.os.Debug;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
 

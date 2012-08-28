@@ -35,7 +35,7 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     protected EventBus eventBus;
 
     protected final AtomicInteger eventCount = new AtomicInteger();
-    protected final List<Object> eventsReceived = new CopyOnWriteArrayList<Object>();
+    protected final List<Object> eventsReceived;
 
     protected volatile Object lastEvent;
     protected volatile Thread lastThread;
@@ -43,7 +43,16 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     private EventPostHandler mainPoster;
 
     public AbstractEventBusTest() {
+        this(false);
+    }
+
+    public AbstractEventBusTest(boolean collectEventsReceived) {
         super(Application.class);
+        if (collectEventsReceived) {
+            eventsReceived = new CopyOnWriteArrayList<Object>();
+        } else {
+            eventsReceived = null;
+        }
     }
 
     protected void setUp() throws Exception {
@@ -57,27 +66,33 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
         mainPoster.post(event);
     }
 
-    protected void waitForEventCount(int count, int maxMillis) throws InterruptedException {
+    protected void waitForEventCount(int expectedCount, int maxMillis) throws InterruptedException {
         for (int i = 0; i < maxMillis; i++) {
-            if (eventCount.get() == count) {
+            int currentCount = eventCount.get();
+            if (currentCount == expectedCount) {
                 break;
+            } else if (currentCount > expectedCount) {
+                fail("Current count (" + currentCount + ") is already higher than expected count (" + expectedCount
+                        + ")");
             } else {
                 Thread.sleep(1);
             }
         }
-        assertEquals(count, eventCount.get());
+        assertEquals(expectedCount, eventCount.get());
     }
 
     protected void trackEvent(Object event) {
         lastEvent = event;
         lastThread = Thread.currentThread();
-        eventsReceived.add(event);
+        if (eventsReceived != null) {
+            eventsReceived.add(event);
+        }
         // Must the the last one because we wait for this
         eventCount.incrementAndGet();
     }
 
     @SuppressLint("HandlerLeak")
-    class  EventPostHandler extends Handler {
+    class EventPostHandler extends Handler {
         public EventPostHandler(Looper looper) {
             super(looper);
         }

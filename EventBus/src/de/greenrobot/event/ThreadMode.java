@@ -21,5 +21,7 @@ public enum ThreadMode {
     /** Subscriber will be called in Android's main thread (sometimes referred to as UI thread). */
     MainThread,
     /** Subscriber will be called in a background thread */
-    BackgroundThread
+    BackgroundThread,
+    /** TODO */
+    Async
 }

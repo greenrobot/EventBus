@@ -40,15 +40,8 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
         super.tearDown();
     }
 
-    public void testPost_ThreadModePostThread() throws InterruptedException {
+    public void testPost() throws InterruptedException {
         eventBus.register(this);
-        eventBus.post("Hello");
-        assertEquals("Hello", lastEvent);
-        assertEquals(Thread.currentThread(), lastThread);
-    }
-
-    public void testPost_ThreadModeMainThread() throws InterruptedException {
-        eventBus.registerForMainThread(this);
         eventBus.post("Hello");
         waitForEventCount(1, 1000);
 
@@ -56,23 +49,15 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
         assertEquals(Looper.getMainLooper().getThread(), lastThread);
     }
 
-    public void testPostInBackgroundThread_ThreadModeMainThread() throws InterruptedException {
-        eventBus.registerForMainThread(this);
+    public void testPostInBackgroundThread() throws InterruptedException {
+        eventBus.register(this);
         backgroundPoster.post("Hello");
         waitForEventCount(1, 1000);
         assertEquals("Hello", lastEvent);
         assertEquals(Looper.getMainLooper().getThread(), lastThread);
     }
 
-    public void testPostInBackgroundThread_ThreadModePostThread() throws InterruptedException {
-        eventBus.register(this);
-        backgroundPoster.post("Hello");
-        waitForEventCount(1, 1000);
-        assertEquals("Hello", lastEvent);
-        assertEquals(backgroundPoster, lastThread);
-    }
-
-    public void onEvent(String event) {
+    public void onEventMainThread(String event) {
         trackEvent(event);
     }
 

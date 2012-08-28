@@ -16,7 +16,6 @@
 package de.greenrobot.event.test;
 
 import android.os.Looper;
-import de.greenrobot.event.ThreadMode;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -33,7 +32,7 @@ public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
     }
 
     public void testPostFromMain() throws InterruptedException {
-        eventBus.register(this, "onEvent", ThreadMode.BackgroundThread);
+        eventBus.register(this, "onEvent");
         postInMainThread("Hello");
         waitForEventCount(1, 1000);
         assertEquals("Hello", lastEvent);

@@ -38,10 +38,7 @@ public class EventBus {
 
     private static final EventBus defaultInstance = new EventBus();
 
-    /** Used for naming the thread. */
-    private static int backgroundPosterThreadNr;
-
-    private static final Map<String, List<Method>> methodCache = new HashMap<String, List<Method>>();
+    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
@@ -78,33 +75,28 @@ public class EventBus {
     }
 
     public void register(Object subscriber) {
-        register(subscriber, defaultMethodName, ThreadMode.PostThread);
+        register(subscriber, defaultMethodName);
     }
 
-    public void registerForMainThread(Object subscriber) {
-        register(subscriber, defaultMethodName, ThreadMode.MainThread);
-    }
-
-    public void register(Object subscriber, String methodName, ThreadMode threadMode) {
-        List<Method> subscriberMethods = findSubscriberMethods(subscriber.getClass(), methodName);
-        for (Method method : subscriberMethods) {
-            Class<?> eventType = method.getParameterTypes()[0];
-            subscribe(subscriber, method, eventType, threadMode);
+    public void register(Object subscriber, String methodName) {
+        List<SubscriberMethod> subscriberMethods = findSubscriberMethods(subscriber.getClass(), methodName);
+        for (SubscriberMethod subscriberMethod : subscriberMethods) {
+            subscribe(subscriber, subscriberMethod);
         }
     }
 
-    private List<Method> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
+    private List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
         String key = subscriberClass.getName() + '.' + eventMethodName;
-        List<Method> subscriberMethods;
+        List<SubscriberMethod> subscriberMethods;
         synchronized (methodCache) {
             subscriberMethods = methodCache.get(key);
         }
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        subscriberMethods = new ArrayList<Method>();
+        subscriberMethods = new ArrayList<SubscriberMethod>();
         Class<?> clazz = subscriberClass;
-        HashSet<Class<?>> eventTypesFound = new HashSet<Class<?>>();
+        HashSet<String> eventTypesFound = new HashSet<String>();
         while (clazz != null) {
             String name = clazz.getName();
             if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
@@ -116,15 +108,24 @@ public class EventBus {
             for (Method method : methods) {
                 String methodName = method.getName();
                 if (methodName.startsWith(eventMethodName)) {
-                    String modifierString = methodName.substring(eventMethodName.length());
-                    if (modifierString.length() == 0 || modifierString.equals("MainThread")
-                            || modifierString.equals("BackgroundThread")) {
-                        Class<?>[] parameterTypes = method.getParameterTypes();
-                        if (parameterTypes.length == 1) {
-                            if (eventTypesFound.add(parameterTypes[0])) {
-                                // Only add if not already found in a sub class
-                                subscriberMethods.add(method);
-                            }
+                    Class<?>[] parameterTypes = method.getParameterTypes();
+                    if (parameterTypes.length == 1) {
+                        String modifierString = methodName.substring(eventMethodName.length());
+                        ThreadMode threadMode;
+                        if (modifierString.length() == 0) {
+                            threadMode = ThreadMode.PostThread;
+                        } else if (modifierString.equals("MainThread")) {
+                            threadMode = ThreadMode.MainThread;
+                        } else if (modifierString.equals("BackgroundThread")) {
+                            threadMode = ThreadMode.BackgroundThread;
+                        } else {
+                            throw new RuntimeException("Illegal onEvent method, check for typos: " + method);
+                        }
+                        Class<?> eventType = parameterTypes[0];
+                        String methodKey = methodName + ">" + eventType.getName();
+                        if (eventTypesFound.add(methodKey)) {
+                            // Only add if not already found in a sub class
+                            subscriberMethods.add(new SubscriberMethod(method, threadMode, eventType));
                         }
                     }
                 }
@@ -142,42 +143,38 @@ public class EventBus {
     }
 
     public void register(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, defaultMethodName, ThreadMode.PostThread, eventType, moreEventTypes);
+        register(subscriber, defaultMethodName, eventType, moreEventTypes);
     }
 
-    public void registerForMainThread(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, defaultMethodName, ThreadMode.MainThread, eventType, moreEventTypes);
-    }
-
-    public synchronized void register(Object subscriber, String methodName, ThreadMode threadMode, Class<?> eventType,
+    public synchronized void register(Object subscriber, String methodName, Class<?> eventType,
             Class<?>... moreEventTypes) {
         Class<?> subscriberClass = subscriber.getClass();
-        Method method = findSubscriberMethod(subscriberClass, methodName, eventType);
-        subscribe(subscriber, method, eventType, threadMode);
-
-        for (Class<?> anothereventType : moreEventTypes) {
-            method = findSubscriberMethod(subscriberClass, methodName, anothereventType);
-            subscribe(subscriber, method, anothereventType, threadMode);
+        List<SubscriberMethod> subscriberMethods = findSubscriberMethods(subscriberClass, methodName);
+        for (SubscriberMethod subscriberMethod : subscriberMethods) {
+            if (eventType == subscriberMethod.eventType) {
+                subscribe(subscriber, subscriberMethod);
+            }
         }
     }
 
-    private void subscribe(Object subscriber, Method subscriberMethod, Class<?> eventType, ThreadMode threadMode) {
+    private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
+        Class<?> eventType = subscriberMethod.eventType;
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
+        Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
         if (subscriptions == null) {
             subscriptions = new CopyOnWriteArrayList<Subscription>();
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             for (Subscription subscription : subscriptions) {
-                if (subscription.subscriber == subscriber) {
+                if (subscription.equals(newSubscription)) {
                     throw new RuntimeException("Subscriber " + subscriber.getClass() + " already registered to event "
                             + eventType);
                 }
             }
         }
 
-        subscriberMethod.setAccessible(true);
-        Subscription subscription = new Subscription(subscriber, subscriberMethod, threadMode);
-        subscriptions.add(subscription);
+        subscriberMethod.method.setAccessible(true);
+        subscriptions.add(newSubscription);
 
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
         if (subscribedEvents == null) {
@@ -185,23 +182,6 @@ public class EventBus {
             typesBySubscriber.put(subscriber, subscribedEvents);
         }
         subscribedEvents.add(eventType);
-    }
-
-    /**
-     * Class.getMethod is slow on Android 2.3 (and probably other versions), so use getDeclaredMethod and go up in the
-     * class hierarchy if neccessary.
-     */
-    private Method findSubscriberMethod(Class<?> subscriberClass, String methodName, Class<?> eventType) {
-        Class<?> clazz = subscriberClass;
-        while (clazz != null) {
-            try {
-                return clazz.getDeclaredMethod(methodName, eventType);
-            } catch (NoSuchMethodException ex) {
-                clazz = clazz.getSuperclass();
-            }
-        }
-        throw new RuntimeException("Method " + methodName + " not found  in " + subscriberClass
-                + " (must have single parameter of event type " + eventType + ")");
     }
 
     /** Unregisters the given subscriber for the given event classes. */
@@ -260,10 +240,11 @@ public class EventBus {
         if (isPosting.value) {
             return;
         } else {
+            boolean isMainThread = Looper.getMainLooper() == Looper.myLooper();
             isPosting.value = true;
             try {
                 while (!eventQueue.isEmpty()) {
-                    postSingleEvent(eventQueue.remove(0));
+                    postSingleEvent(eventQueue.remove(0), isMainThread);
                 }
             } finally {
                 isPosting.value = false;
@@ -271,7 +252,7 @@ public class EventBus {
         }
     }
 
-    private void postSingleEvent(Object event) throws Error {
+    private void postSingleEvent(Object event, boolean isMainThread) throws Error {
         List<Class<?>> eventTypes = findEventTypes(event.getClass());
         boolean subscriptionFound = false;
         int countTypes = eventTypes.size();
@@ -283,7 +264,7 @@ public class EventBus {
             }
             if (subscriptions != null) {
                 for (Subscription subscription : subscriptions) {
-                    postToSubscription(subscription, event);
+                    postToSubscription(subscription, event, isMainThread);
                 }
                 subscriptionFound = true;
             }
@@ -293,15 +274,27 @@ public class EventBus {
         }
     }
 
-    private void postToSubscription(Subscription subscription, Object event) {
-        if (subscription.threadMode == ThreadMode.PostThread) {
-            postToSubscribtion(subscription, event);
-        } else if (subscription.threadMode == ThreadMode.MainThread) {
-            mainThreadPoster.enqueue(subscription, event);
-        } else if (subscription.threadMode == ThreadMode.BackgroundThread) {
-            backgroundPoster.enqueue(subscription, event);
-        } else {
-            throw new IllegalStateException("Unknown thread mode: " + subscription.threadMode);
+    private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
+        switch (subscription.subscriberMethod.threadMode) {
+        case PostThread:
+            invokeSubscriber(subscription, event);
+            break;
+        case MainThread:
+            if (isMainThread) {
+                invokeSubscriber(subscription, event);
+            } else {
+                mainThreadPoster.enqueue(subscription, event);
+            }
+            break;
+        case BackgroundThread:
+            if (isMainThread) {
+                backgroundPoster.enqueue(subscription, event);
+            } else {
+                invokeSubscriber(subscription, event);
+            }
+            break;
+        default:
+            throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }
     }
 
@@ -337,12 +330,12 @@ public class EventBus {
         Object event = pendingPost.event;
         Subscription subscription = pendingPost.subscription;
         PendingPost.releasePendingPost(pendingPost);
-        EventBus.postToSubscribtion(subscription, event);
+        EventBus.invokeSubscriber(subscription, event);
     }
 
-    static void postToSubscribtion(Subscription subscription, Object event) throws Error {
+    static void invokeSubscriber(Subscription subscription, Object event) throws Error {
         try {
-            subscription.method.invoke(subscription.subscriber, event);
+            subscription.subscriberMethod.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
