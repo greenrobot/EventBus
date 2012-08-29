@@ -43,12 +43,15 @@ FAQ
 Release History
 ---------------
 ### V2.0.0 (2012-0X-XX)
-* Event methods define for themselves in which thread they get called. This is done by providing "modifiers" to the method name, e.g. onEvent is still called in the same thread as it was posted, but onEventMainThread will be called by the main thread without further configuration.
+* Event methods define for themselves in which thread they get called. This is done by providing "modifiers" to the method name, e.g. onEventMainThread is called by the main thread without further configuration. Have a look at the JavaDoc of the enum ThreadMode for all available thread modes.
 * The event method modifiers replace registerForMainThread methods. Moving this information to the method itself should make things clearer.
 * Using event method modifiers, subscribers can receive the same event type in different threads if they choose to.
-* New "BackgroundThread" modifier for onEvent handler methods are called in a background thread. If an event is posted from a non-main thread, handler methods will be called directly. If posted from the main thread, EventBus will use a background thread to call the handler methods.
-* Delivery of multiple events in the main thread got significantly faster.
-* Fixed some event leakage.
+* New "BackgroundThread" modifier for onEvent handler methods ensures that event handler methods are called in a background thread. If an event is posted from a non-main thread, handler methods will be called directly. If posted from the main thread, EventBus will use a background thread to call the handler methods.
+* New "Async" modifier for onEvent handler methods ensures that each event handler method is called completely asynchronously.
+* Better performace: Delivery of multiple events in the main thread got significantly faster.
+* Added sticky events, which are inspired by sticky broadcasts of the Android system. EventBus keeps the most recent sticky events in memory. Subscribers registering with the new method registerSticky, will receive sticky events right away. You can also query and remove sticky events (methods getStickyEvent and removeStickyEvent).
+* Bug fixes
+* Internal refactorings, moved inner classes of EventBus to separate files to keep the code more managable.
 
 ### V1.0.1 (2012-07-31): Important bug fix release
 Please update! Now, EventBus.unregister releases all internal references to the subscriber.
