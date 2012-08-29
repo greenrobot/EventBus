@@ -39,7 +39,7 @@ public final class EventBus {
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
-    private static final EventBus defaultInstance = new EventBus();
+    private static volatile EventBus defaultInstance;
 
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
@@ -69,6 +69,13 @@ public final class EventBus {
     private final SubscriberMethodFinder subscriberMethodFinder;
 
     public static EventBus getDefault() {
+        if (defaultInstance == null) {
+            synchronized (EventBus.class) {
+                if (defaultInstance == null) {
+                    defaultInstance = new EventBus();
+                }
+            }
+        }
         return defaultInstance;
     }
 
