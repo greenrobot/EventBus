@@ -177,6 +177,16 @@ public class EventBusBasicTest extends TestCase {
         assertEquals("Hello", lastStringEvent);
     }
 
+    public void testRegisterAndPostTwoTypesExplicit() {
+        eventBus.register(this, String.class, Integer.class);
+        eventBus.post(42);
+        eventBus.post("Hello");
+        assertEquals(1, countIntEvent);
+        assertEquals(1, countStringEvent);
+        assertEquals(42, lastIntEvent);
+        assertEquals("Hello", lastStringEvent);
+    }
+
     public void testRegisterUnregisterAndPostTwoTypes() {
         eventBus.register(this);
         eventBus.unregister(this, String.class);

@@ -103,13 +103,25 @@ public final class EventBus {
     }
 
     public void register(Object subscriber) {
-        register(subscriber, defaultMethodName);
+        register(subscriber, defaultMethodName, false);
     }
 
     public void register(Object subscriber, String methodName) {
+        register(subscriber, methodName, false);
+    }
+
+    public void registerSticky(Object subscriber) {
+        register(subscriber, defaultMethodName, true);
+    }
+
+    public void registerSticky(Object subscriber, String methodName) {
+        register(subscriber, methodName, true);
+    }
+
+    private void register(Object subscriber, String methodName, boolean sticky) {
         List<SubscriberMethod> subscriberMethods = findSubscriberMethods(subscriber.getClass(), methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
-            subscribe(subscriber, subscriberMethod);
+            subscribe(subscriber, subscriberMethod, sticky);
         }
     }
 
@@ -177,21 +189,42 @@ public final class EventBus {
     }
 
     public void register(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, defaultMethodName, eventType, moreEventTypes);
+        register(subscriber, defaultMethodName, false, eventType, moreEventTypes);
     }
 
     public synchronized void register(Object subscriber, String methodName, Class<?> eventType,
+            Class<?>... moreEventTypes) {
+        register(subscriber, methodName, false, eventType, moreEventTypes);
+    }
+
+    public void registerSticky(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
+        register(subscriber, defaultMethodName, true, eventType, moreEventTypes);
+    }
+
+    public synchronized void registerSticky(Object subscriber, String methodName, Class<?> eventType,
+            Class<?>... moreEventTypes) {
+        register(subscriber, methodName, true, eventType, moreEventTypes);
+    }
+
+    private synchronized void register(Object subscriber, String methodName, boolean sticky, Class<?> eventType,
             Class<?>... moreEventTypes) {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = findSubscriberMethods(subscriberClass, methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             if (eventType == subscriberMethod.eventType) {
-                subscribe(subscriber, subscriberMethod);
+                subscribe(subscriber, subscriberMethod, sticky);
+            } else if (moreEventTypes != null) {
+                for (Class<?> eventType2 : moreEventTypes) {
+                    if (eventType2 == subscriberMethod.eventType) {
+                        subscribe(subscriber, subscriberMethod, sticky);
+                        break;
+                    }
+                }
             }
         }
     }
 
-    private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
+    private void subscribe(Object subscriber, SubscriberMethod subscriberMethod, boolean sticky) {
         Class<?> eventType = subscriberMethod.eventType;
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
@@ -217,9 +250,14 @@ public final class EventBus {
         }
         subscribedEvents.add(eventType);
 
-        Object stickyEvent = stickyEvents.get(eventType);
-        if (stickyEvent != null) {
-            postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+        if (sticky) {
+            Object stickyEvent;
+            synchronized (stickyEvents) {
+                stickyEvent = stickyEvents.get(eventType);
+            }
+            if (stickyEvent != null) {
+                postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+            }
         }
     }
 
@@ -294,7 +332,41 @@ public final class EventBus {
     /** Posts the given event to the event bus. */
     public void postSticky(Object event) {
         post(event);
-        stickyEvents.put(event.getClass(), event);
+        synchronized (stickyEvents) {
+            stickyEvents.put(event.getClass(), event);
+        }
+    }
+
+    /** Gets the most recent sticky event for the given type. */
+    public Object getStickyEvent(Class<?> eventType) {
+        synchronized (stickyEvents) {
+            return stickyEvents.get(eventType);
+        }
+    }
+
+    /** Remove and gets the recent sticky event for the given type. */
+    public Object removeStickyEvent(Class<?> eventType) {
+        synchronized (stickyEvents) {
+            return stickyEvents.remove(eventType);
+        }
+    }
+
+    /**
+     * Removes the sticky event if it equals to the given event.
+     * 
+     * @return true if the events matched and the sticky event was removed.
+     */
+    public boolean removeStickyEvent(Object event) {
+        synchronized (stickyEvents) {
+            Class<? extends Object> eventType = event.getClass();
+            Object existingEvent = stickyEvents.get(eventType);
+            if (event.equals(existingEvent)) {
+                stickyEvents.remove(eventType);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     private void postSingleEvent(Object event, boolean isMainThread) throws Error {

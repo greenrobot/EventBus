@@ -21,11 +21,39 @@ package de.greenrobot.event.test;
  */
 public class EventBusStickyEventTest extends AbstractEventBusTest {
 
-    public void testPostInCurrentThread() throws InterruptedException {
+    public void testPostSticky() throws InterruptedException {
         eventBus.postSticky("Sticky");
-        eventBus.register(this);
+        eventBus.registerSticky(this);
         assertEquals("Sticky", lastEvent);
         assertEquals(Thread.currentThread(), lastThread);
+    }
+
+    public void testPostStickyTwice() throws InterruptedException {
+        eventBus.postSticky("Sticky");
+        eventBus.postSticky("NewSticky");
+        eventBus.registerSticky(this);
+        assertEquals("NewSticky", lastEvent);
+        assertEquals(Thread.currentThread(), lastThread);
+    }
+
+    public void testPostStickyWithRegisterAndUnregister() throws InterruptedException {
+        eventBus.registerSticky(this);
+        eventBus.postSticky("Sticky");
+        assertEquals("Sticky", lastEvent);
+
+        eventBus.unregister(this);
+        eventBus.registerSticky(this);
+        assertEquals("Sticky", lastEvent);
+        assertEquals(2, eventCount.intValue());
+        
+        eventBus.postSticky("NewSticky");
+        assertEquals(3, eventCount.intValue());
+        assertEquals("NewSticky", lastEvent);
+        
+        eventBus.unregister(this);
+        eventBus.registerSticky(this);
+        assertEquals(4, eventCount.intValue());
+        assertEquals("NewSticky", lastEvent);
     }
 
     public void onEvent(String event) {
