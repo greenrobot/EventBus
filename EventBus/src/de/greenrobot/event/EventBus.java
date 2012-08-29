@@ -16,10 +16,8 @@
 package de.greenrobot.event;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,9 +41,7 @@ public final class EventBus {
 
     private static final EventBus defaultInstance = new EventBus();
 
-    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
-    private static final Map<Class<?>, Class<?>> skipMethodNameVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
@@ -70,6 +66,7 @@ public final class EventBus {
     private final HandlerPoster mainThreadPoster;
     private final BackgroundPoster backgroundPoster;
     private final AsyncPoster asyncPoster;
+    private final SubscriberMethodFinder subscriberMethodFinder;
 
     public static EventBus getDefault() {
         return defaultInstance;
@@ -77,20 +74,17 @@ public final class EventBus {
 
     /** For unit test primarily. */
     public static void clearCaches() {
-        methodCache.clear();
+        SubscriberMethodFinder.clearCaches();
         eventTypesCache.clear();
     }
 
     public static void skipMethodNameVerificationFor(Class<?> clazz) {
-        if (!methodCache.isEmpty()) {
-            throw new IllegalStateException("This method must be called before registering anything");
-        }
-        skipMethodNameVerificationForClasses.put(clazz, clazz);
+        SubscriberMethodFinder.skipMethodNameVerificationFor(clazz);
     }
 
     /** For unit test primarily. */
     public static void clearSkipMethodNameVerifications() {
-        skipMethodNameVerificationForClasses.clear();
+        SubscriberMethodFinder.clearSkipMethodNameVerifications();
     }
 
     public EventBus() {
@@ -100,6 +94,7 @@ public final class EventBus {
         mainThreadPoster = new HandlerPoster(Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
+        subscriberMethodFinder = new SubscriberMethodFinder();
     }
 
     public void register(Object subscriber) {
@@ -119,72 +114,10 @@ public final class EventBus {
     }
 
     private void register(Object subscriber, String methodName, boolean sticky) {
-        List<SubscriberMethod> subscriberMethods = findSubscriberMethods(subscriber.getClass(), methodName);
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass(),
+                methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky);
-        }
-    }
-
-    private List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
-        String key = subscriberClass.getName() + '.' + eventMethodName;
-        List<SubscriberMethod> subscriberMethods;
-        synchronized (methodCache) {
-            subscriberMethods = methodCache.get(key);
-        }
-        if (subscriberMethods != null) {
-            return subscriberMethods;
-        }
-        subscriberMethods = new ArrayList<SubscriberMethod>();
-        Class<?> clazz = subscriberClass;
-        HashSet<String> eventTypesFound = new HashSet<String>();
-        while (clazz != null) {
-            String name = clazz.getName();
-            if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
-                // Skip system classes, this just degrades performance
-                break;
-            }
-
-            Method[] methods = clazz.getDeclaredMethods();
-            for (Method method : methods) {
-                String methodName = method.getName();
-                if (methodName.startsWith(eventMethodName)) {
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    if (parameterTypes.length == 1) {
-                        String modifierString = methodName.substring(eventMethodName.length());
-                        ThreadMode threadMode;
-                        if (modifierString.length() == 0) {
-                            threadMode = ThreadMode.PostThread;
-                        } else if (modifierString.equals("MainThread")) {
-                            threadMode = ThreadMode.MainThread;
-                        } else if (modifierString.equals("BackgroundThread")) {
-                            threadMode = ThreadMode.BackgroundThread;
-                        } else if (modifierString.equals("Async")) {
-                            threadMode = ThreadMode.Async;
-                        } else {
-                            if (skipMethodNameVerificationForClasses.containsKey(clazz)) {
-                                continue;
-                            } else {
-                                throw new EventBusException("Illegal onEvent method, check for typos: " + method);
-                            }
-                        }
-                        Class<?> eventType = parameterTypes[0];
-                        String methodKey = methodName + ">" + eventType.getName();
-                        if (eventTypesFound.add(methodKey)) {
-                            // Only add if not already found in a sub class
-                            subscriberMethods.add(new SubscriberMethod(method, threadMode, eventType));
-                        }
-                    }
-                }
-            }
-            clazz = clazz.getSuperclass();
-        }
-        if (subscriberMethods.isEmpty()) {
-            throw new EventBusException("Subscriber " + subscriberClass + " has no methods called " + eventMethodName);
-        } else {
-            synchronized (methodCache) {
-                methodCache.put(key, subscriberMethods);
-            }
-            return subscriberMethods;
         }
     }
 
@@ -209,7 +142,8 @@ public final class EventBus {
     private synchronized void register(Object subscriber, String methodName, boolean sticky, Class<?> eventType,
             Class<?>... moreEventTypes) {
         Class<?> subscriberClass = subscriber.getClass();
-        List<SubscriberMethod> subscriberMethods = findSubscriberMethods(subscriberClass, methodName);
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass,
+                methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             if (eventType == subscriberMethod.eventType) {
                 subscribe(subscriber, subscriberMethod, sticky);
