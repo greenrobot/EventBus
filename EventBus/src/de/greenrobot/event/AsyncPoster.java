@@ -15,10 +15,6 @@
  */
 package de.greenrobot.event;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import android.util.Log;
 
 /**
  * Posts events in background.
