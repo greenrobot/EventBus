@@ -68,6 +68,9 @@ public final class EventBus {
     private final AsyncPoster asyncPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
 
+    private boolean subscribed;
+    private boolean logSubscriberExceptions;
+
     public static EventBus getDefault() {
         if (defaultInstance == null) {
             synchronized (EventBus.class) {
@@ -102,6 +105,18 @@ public final class EventBus {
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder();
+        logSubscriberExceptions = true;
+    }
+
+    /**
+     * Before registering any subscribers, use this method to configure if EventBus should log exceptions thrown by
+     * subscribers (default: true).
+     */
+    public void configureLogSubscriberExceptions(boolean logSubscriberExceptions) {
+        if (subscribed) {
+            throw new EventBusException("This method must be called before any registration");
+        }
+        this.logSubscriberExceptions = logSubscriberExceptions;
     }
 
     public void register(Object subscriber) {
@@ -166,6 +181,7 @@ public final class EventBus {
     }
 
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod, boolean sticky) {
+        subscribed = true;
         Class<?> eventType = subscriberMethod.eventType;
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
@@ -399,10 +415,20 @@ public final class EventBus {
             subscription.subscriberMethod.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
-            Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
-                    + subscription.subscriber.getClass(), cause);
-            if (cause instanceof Error) {
-                throw (Error) cause;
+            if (event instanceof SubscriberExceptionEvent) {
+                // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
+                Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                        + " threw an exception", cause);
+                SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
+                Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
+                        + exEvent.causingSubscriber, exEvent.throwable);
+            } else {
+                if (logSubscriberExceptions) {
+                    Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                            + subscription.subscriber.getClass(), cause);
+                }
+                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(cause, event, subscription.subscriber);
+                post(exEvent);
             }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Unexpected exception", e);
@@ -412,6 +438,11 @@ public final class EventBus {
     /** For ThreadLocal, much faster to set than storing a new Boolean. */
     final static class BooleanWrapper {
         boolean value;
+    }
+
+    // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
+    /* public */interface PostCallback {
+        void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
 
 }

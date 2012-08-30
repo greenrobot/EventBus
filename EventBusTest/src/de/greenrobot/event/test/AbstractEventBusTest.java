@@ -109,5 +109,9 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
         }
 
     }
+    
+    protected void assertEventCount(int expectedEventCount) {
+        assertEquals(expectedEventCount, eventCount.intValue());
+    }
 
 }

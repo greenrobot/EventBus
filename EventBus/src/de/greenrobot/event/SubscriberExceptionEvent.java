@@ -21,12 +21,12 @@ package de.greenrobot.event;
  * 
  * @author Markus
  */
-public class BackgroundExceptionEvent {
+public final class SubscriberExceptionEvent {
     public final Throwable throwable;
     public final Object causingEvent;
     public final Object causingSubscriber;
 
-    public BackgroundExceptionEvent(Throwable throwable, Object causingEvent, Object causingSubscriber) {
+    public SubscriberExceptionEvent(Throwable throwable, Object causingEvent, Object causingSubscriber) {
         this.throwable = throwable;
         this.causingEvent = causingEvent;
         this.causingSubscriber = causingSubscriber;

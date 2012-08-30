@@ -42,7 +42,7 @@ FAQ
 
 Release History
 ---------------
-### V2.0.0 (2012-0X-XX)
+### V2.0.0 (2012-0X-XX) Major feature release
 * Event methods define for themselves in which thread they get called. This is done by providing "modifiers" to the method name, e.g. onEventMainThread is called by the main thread without further configuration. Have a look at the JavaDoc of the enum ThreadMode for all available thread modes.
 * The event method modifiers replace registerForMainThread methods. Moving this information to the method itself should make things clearer.
 * Using event method modifiers, subscribers can receive the same event type in different threads if they choose to.
@@ -50,8 +50,8 @@ Release History
 * New "Async" modifier for onEvent handler methods ensures that each event handler method is called completely asynchronously.
 * Better performace: Delivery of multiple events in the main thread got significantly faster.
 * Added sticky events, which are inspired by sticky broadcasts of the Android system. EventBus keeps the most recent sticky events in memory. Subscribers registering with the new method registerSticky, will receive sticky events right away. You can also query and remove sticky events (methods getStickyEvent and removeStickyEvent).
-* Bug fixes
-* Internal refactorings, moved inner classes of EventBus to separate files to keep the code more managable.
+* By listening to SubscriberExceptionEvent, it is possible to react to Exceptions occuring in subscribers.
+* Bug fixes, and internal refactorings
 
 ### V1.0.1 (2012-07-31): Important bug fix release
 Please update! Now, EventBus.unregister releases all internal references to the subscriber.
