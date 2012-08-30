@@ -16,8 +16,7 @@
 package de.greenrobot.event;
 
 /**
- * TODO Implement a consistent exception handling. One part of this could be posting this class as event when the
- * background thread or async poster step on an exception.
+ * This Event is posted by EventBus when an exception occurs inside a subscriber's event handling method.
  * 
  * @author Markus
  */
