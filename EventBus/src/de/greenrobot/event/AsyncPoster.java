@@ -44,7 +44,7 @@ class AsyncPoster implements Runnable {
         if(pendingPost == null) {
             throw new IllegalStateException("No pending post available");
         }
-        EventBus.invokeSubscriber(pendingPost);
+        eventBus.invokeSubscriber(pendingPost);
     }
 
 }

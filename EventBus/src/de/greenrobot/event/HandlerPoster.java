@@ -24,10 +24,12 @@ final class HandlerPoster extends Handler {
 
     private final PendingPostQueue queue;
     private final int maxMillisInsideHandleMessage;
+    private final EventBus eventBus;
     private boolean handlerActive;
 
-    HandlerPoster(Looper looper, int maxMillisInsideHandleMessage) {
+    HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
         super(looper);
+        this.eventBus = eventBus;
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
         queue = new PendingPostQueue();
     }
@@ -62,7 +64,7 @@ final class HandlerPoster extends Handler {
                         }
                     }
                 }
-                EventBus.invokeSubscriber(pendingPost);
+                eventBus.invokeSubscriber(pendingPost);
                 long timeInMethod = SystemClock.uptimeMillis() - started;
                 if (timeInMethod >= maxMillisInsideHandleMessage) {
                     if (!sendMessage(obtainMessage())) {

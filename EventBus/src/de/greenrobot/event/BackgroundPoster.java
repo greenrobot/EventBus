@@ -61,7 +61,7 @@ final class BackgroundPoster implements Runnable {
                             }
                         }
                     }
-                    EventBus.invokeSubscriber(pendingPost);
+                    eventBus.invokeSubscriber(pendingPost);
                 }
             } catch (InterruptedException e) {
                 Log.w("Event", Thread.currentThread().getName() + " was interruppted", e);

@@ -98,7 +98,7 @@ public final class EventBus {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
         stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
-        mainThreadPoster = new HandlerPoster(Looper.getMainLooper(), 10);
+        mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder();
@@ -387,14 +387,14 @@ public final class EventBus {
         }
     }
 
-    static void invokeSubscriber(PendingPost pendingPost) {
+    void invokeSubscriber(PendingPost pendingPost) {
         Object event = pendingPost.event;
         Subscription subscription = pendingPost.subscription;
         PendingPost.releasePendingPost(pendingPost);
-        EventBus.invokeSubscriber(subscription, event);
+        invokeSubscriber(subscription, event);
     }
 
-    static void invokeSubscriber(Subscription subscription, Object event) throws Error {
+    void invokeSubscriber(Subscription subscription, Object event) throws Error {
         try {
             subscription.subscriberMethod.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
