@@ -427,7 +427,7 @@ public final class EventBus {
                     Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
                             + subscription.subscriber.getClass(), cause);
                 }
-                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(cause, event, subscription.subscriber);
+                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event, subscription.subscriber);
                 post(exEvent);
             }
         } catch (IllegalAccessException e) {
