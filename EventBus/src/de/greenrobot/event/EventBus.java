@@ -190,8 +190,8 @@ public final class EventBus {
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             for (Subscription subscription : subscriptions) {
-                if (subscription == newSubscription) {
-                    throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
+                if (subscription.equals(newSubscription)) {
+                    throw new RuntimeException("Subscriber " + subscriber.getClass() + " already registered to event "
                             + eventType);
                 }
             }
@@ -427,8 +427,7 @@ public final class EventBus {
                     Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
                             + subscription.subscriber.getClass(), cause);
                 }
-                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
-                        subscription.subscriber);
+                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event, subscription.subscriber);
                 post(exEvent);
             }
         } catch (IllegalAccessException e) {
