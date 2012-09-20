@@ -284,7 +284,7 @@ public class EventBus {
             if (subscriptions != null) {
                 for (Subscription subscription : subscriptions) {
                     if (subscription.threadMode == ThreadMode.PostThread) {
-                        postToSubscribtion(subscription, event);
+                        postToSubscription(subscription, event);
                     } else if (subscription.threadMode == ThreadMode.MainThread) {
                         mainThreadPoster.enqueue(event, subscription);
                     } else {
@@ -327,7 +327,7 @@ public class EventBus {
         }
     }
 
-    static void postToSubscribtion(Subscription subscription, Object event) throws Error {
+    static void postToSubscription(Subscription subscription, Object event) throws Error {
         try {
             subscription.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
@@ -397,7 +397,7 @@ public class EventBus {
             Object event = pendingPost.event;
             Subscription subscription = pendingPost.subscription;
             PendingPost.releasePendingPost(pendingPost);
-            postToSubscribtion(subscription, event);
+            postToSubscription(subscription, event);
         }
 
     }
