@@ -327,7 +327,8 @@ public final class EventBus {
     }
 
     private void postSingleEvent(Object event, boolean isMainThread) throws Error {
-        List<Class<?>> eventTypes = findEventTypes(event.getClass());
+        Class<? extends Object> eventClass = event.getClass();
+        List<Class<?>> eventTypes = findEventTypes(eventClass);
         boolean subscriptionFound = false;
         int countTypes = eventTypes.size();
         for (int h = 0; h < countTypes; h++) {
@@ -344,7 +345,10 @@ public final class EventBus {
             }
         }
         if (!subscriptionFound) {
-            Log.d(TAG, "No subscripers registered for event " + event.getClass());
+            Log.d(TAG, "No subscripers registered for event " + eventClass);
+            if (eventClass != NoSubscriberEvent.class && eventClass != SubscriberExceptionEvent.class) {
+                post(new NoSubscriberEvent(this, event));
+            }
         }
     }
 

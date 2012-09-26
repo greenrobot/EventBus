@@ -48,7 +48,7 @@ Release History
 * Using event method modifiers, subscribers can receive the same event type in different threads if they choose to.
 * New "BackgroundThread" modifier for onEvent handler methods ensures that event handler methods are called in a background thread. If an event is posted from a non-main thread, handler methods will be called directly. If posted from the main thread, EventBus will use a background thread to call the handler methods.
 * New "Async" modifier for onEvent handler methods ensures that each event handler method is called completely asynchronously.
-* Better performace: Delivery of multiple events in the main thread got significantly faster.
+* Better performance: Delivery of multiple events in the main thread got significantly faster.
 * Added sticky events, which are inspired by sticky broadcasts of the Android system. EventBus keeps the most recent sticky events in memory. Subscribers registering with the new method registerSticky, will receive sticky events right away. You can also query and remove sticky events (methods getStickyEvent and removeStickyEvent).
 * By listening to SubscriberExceptionEvent, it is possible to react to Exceptions occuring in subscribers.
 * Bug fixes, and internal refactorings
