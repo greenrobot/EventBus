@@ -1,10 +1,13 @@
-package de.greenrobot.eventperf;
+package de.greenrobot.eventperf.testsubject;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import android.content.Context;
 import de.greenrobot.event.EventBus;
+import de.greenrobot.eventperf.Test;
+import de.greenrobot.eventperf.TestEvent;
+import de.greenrobot.eventperf.TestParams;
 
 public abstract class TestEventBus extends Test {
 
