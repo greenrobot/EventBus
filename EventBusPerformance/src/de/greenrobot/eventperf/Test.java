@@ -10,6 +10,7 @@ public abstract class Test {
     protected AtomicLong eventsReceivedCount = new AtomicLong();
     protected long primaryResultMillis;
     protected int primaryResultCount;
+    protected String otherTestResults;
 
     protected boolean canceled;
 
@@ -40,16 +41,16 @@ public abstract class Test {
         }
     }
 
-    public double getPrimaryResultRate() {
-        if (primaryResultMillis > 0) {
-            return (1000 * primaryResultCount) / primaryResultMillis;
-        } else {
-            return Double.NaN;
-        }
+    public long getPrimaryResultMillis() {
+        return primaryResultMillis;
     }
 
-    protected String getOtherTestResults() {
-        return null;
+    public double getPrimaryResultRate() {
+        return primaryResultCount / (primaryResultMillis / 1000d);
+    }
+
+    public String getOtherTestResults() {
+        return otherTestResults;
     }
 
 }

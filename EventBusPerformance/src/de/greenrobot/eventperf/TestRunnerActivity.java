@@ -2,6 +2,8 @@ package de.greenrobot.eventperf;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.SpannableString;
 import android.view.View;
 import android.widget.TextView;
 import de.greenrobot.event.EventBus;
@@ -36,7 +38,15 @@ public class TestRunnerActivity extends Activity {
 
     public void onEventMainThread(TestFinishedEvent event) {
         TextView textView = (TextView) findViewById(R.id.textViewResult);
-        textView.append(event.test.getDisplayName() + "\n" + event.test.getPrimaryResultRate() + "\n");
+        Test test = event.test;
+        String text = "<b>" + test.getDisplayName() + "</b><br/>" + //
+                test.getPrimaryResultMillis() + " ms<br/>" + //
+                ((int) test.getPrimaryResultRate()) + " per second<br/>";
+        if (test.getOtherTestResults() != null) {
+            text += test.getOtherTestResults();
+        }
+        text += "<br/>----------------<br/>";
+        textView.append(Html.fromHtml(text));
         if (event.isLastEvent) {
             findViewById(R.id.buttonCancel).setVisibility(View.GONE);
             findViewById(R.id.textViewTestRunning).setVisibility(View.GONE);
