@@ -13,21 +13,21 @@ public abstract class TestEventBus extends Test {
 
     private final EventBus eventBus;
     private final ArrayList<Object> subscribers;
-    Class<?> subscriberClass;
-    private final int iterations;
-    private int expectedEventCount;
+    private final Class<?> subscriberClass;
+    private final int eventCount;
+    private final int expectedEventCount;
 
     public TestEventBus(Context context, TestParams params) {
         super(context, params);
         eventBus = new EventBus();
         subscribers = new ArrayList<Object>();
-        iterations = params.getIterations();
-        expectedEventCount = iterations * params.getSubscriberCount();
+        eventCount = params.getEventCount();
+        expectedEventCount = eventCount * params.getSubscriberCount();
+        subscriberClass = getSubscriberClassForThreadMode();
     }
 
     @Override
     public void prepareTest() {
-        subscriberClass = getSubscriberClassForThreadMode();
         try {
             Constructor<?> constructor = subscriberClass.getConstructor(TestEventBus.class);
             for (int i = 0; i < params.getSubscriberCount(); i++) {
@@ -67,7 +67,7 @@ public abstract class TestEventBus extends Test {
 
         public void runTest() {
             long timeStart = System.currentTimeMillis();
-            for (int i = 0; i < super.iterations; i++) {
+            for (int i = 0; i < super.eventCount; i++) {
                 super.eventBus.post(new TestEvent());
                 if (canceled) {
                     break;
@@ -88,6 +88,26 @@ public abstract class TestEventBus extends Test {
         @Override
         public String getDisplayName() {
             return "EventBus Post Events";
+        }
+    }
+
+    public static class Register extends TestEventBus {
+        public Register(Context context, TestParams params) {
+            super(context, params);
+        }
+
+        public void runTest() {
+            long timeStart = System.currentTimeMillis();
+            super.registerSubscribers();
+            long timeEnd = System.currentTimeMillis();
+
+            primaryResultMillis = timeEnd - timeStart;
+            primaryResultCount = params.getPublisherCount();
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "EventBus Register Subscribers";
         }
     }
 

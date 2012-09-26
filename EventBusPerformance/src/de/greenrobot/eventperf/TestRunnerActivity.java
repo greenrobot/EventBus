@@ -17,11 +17,13 @@ public class TestRunnerActivity extends Activity {
 
     private TestRunner testRunner;
     private EventBus controlBus;
+    private TextView textViewResult;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_runtests);
+        textViewResult = (TextView) findViewById(R.id.textViewResult);
         controlBus = new EventBus();
         controlBus.register(this);
     }
@@ -32,12 +34,16 @@ public class TestRunnerActivity extends Activity {
         if (testRunner == null) {
             TestParams testParams = (TestParams) getIntent().getSerializableExtra("params");
             testRunner = new TestRunner(getApplicationContext(), testParams, controlBus);
+
+            if (testParams.getTestNumber() == 1) {
+                textViewResult.append("Events: " + testParams.getEventCount() + "\n");
+            }
+            textViewResult.append("Subscribers: " + testParams.getSubscriberCount() + "\n\n");
             testRunner.start();
         }
     }
 
     public void onEventMainThread(TestFinishedEvent event) {
-        TextView textView = (TextView) findViewById(R.id.textViewResult);
         Test test = event.test;
         String text = "<b>" + test.getDisplayName() + "</b><br/>" + //
                 test.getPrimaryResultMillis() + " ms<br/>" + //
@@ -46,7 +52,7 @@ public class TestRunnerActivity extends Activity {
             text += test.getOtherTestResults();
         }
         text += "<br/>----------------<br/>";
-        textView.append(Html.fromHtml(text));
+        textViewResult.append(Html.fromHtml(text));
         if (event.isLastEvent) {
             findViewById(R.id.buttonCancel).setVisibility(View.GONE);
             findViewById(R.id.textViewTestRunning).setVisibility(View.GONE);

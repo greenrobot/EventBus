@@ -8,18 +8,19 @@ import de.greenrobot.event.ThreadMode;
 public class TestParams implements Serializable {
     private static final long serialVersionUID = -2739435088947740809L;
 
-    private int iterations;
+    private int eventCount;
     private int subscriberCount;
     private int publisherCount;
     private ThreadMode threadMode;
+    private int testNumber;
     private ArrayList<Class<? extends Test>> testClasses;
 
-    public int getIterations() {
-        return iterations;
+    public int getEventCount() {
+        return eventCount;
     }
 
-    public void setIterations(int iterations) {
-        this.iterations = iterations;
+    public void setEventCount(int iterations) {
+        this.eventCount = iterations;
     }
 
     public int getSubscriberCount() {
@@ -53,4 +54,13 @@ public class TestParams implements Serializable {
     public void setTestClasses(ArrayList<Class<? extends Test>> testClasses) {
         this.testClasses = testClasses;
     }
+
+    public int getTestNumber() {
+        return testNumber;
+    }
+
+    public void setTestNumber(int testNumber) {
+        this.testNumber = testNumber;
+    }
+
 }

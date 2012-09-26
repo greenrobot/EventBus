@@ -16,7 +16,7 @@ import de.greenrobot.eventperf.testsubject.TestEventBus;
 public class TestSetupActivity extends Activity {
 
     @SuppressWarnings("rawtypes")
-    static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class };
+    static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class, TestEventBus.Register.class };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,13 +51,14 @@ public class TestSetupActivity extends Activity {
         params.setThreadMode(threadMode);
 
         EditText editTextEvent = (EditText) findViewById(R.id.editTextEvent);
-        params.setIterations(Integer.parseInt(editTextEvent.getText().toString()));
+        params.setEventCount(Integer.parseInt(editTextEvent.getText().toString()));
 
         EditText editTextSubscriber = (EditText) findViewById(R.id.editTextSubscribe);
         params.setSubscriberCount(Integer.parseInt(editTextSubscriber.getText().toString()));
 
         Spinner spinnerTestToRun = (Spinner) findViewById(R.id.spinnerTestToRun);
         int testPos = spinnerTestToRun.getSelectedItemPosition();
+        params.setTestNumber(testPos + 1);
         ArrayList<Class<? extends Test>> testClasses = initTestClasses(testPos);
         params.setTestClasses(testClasses);
 
