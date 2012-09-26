@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Performance</string>
+    <string name="test_eventBus">EventBus</string>
+    <string name="test_otto">OttoBus</string>
+    <string name="test_broadcast">Broadcast</string>
+    <string name="test_localBroadcast">Local Broadcast</string>
+    <string name="eventViewText">Events:</string>
+    <string name="subscriberViewText">Subscribers:</string>
+    <string name="buttonStartText">Start</string>
+
+    <string-array name="spinnerTestsToRun">
+        <item>Post Events</item>
+        <item>Register Subscribers</item>
+        <item>Register Subscribers (1. time)</item>
+    </string-array>
+    <string-array name="spinnerThreadModes">
+        <item>PostThread</item>
+        <item>MainThread</item>
+        <item>BackgroundThread</item>
+        <item>Async</item>
+    </string-array>
+
+    <string name="testIsRunningText">Test Is \nRunning!</string>
+    <string name="buttonCancelText">Cancel</string>
+
+</resources>

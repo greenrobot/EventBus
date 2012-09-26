@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical" >
+
+    <Spinner
+        android:id="@+id/spinnerTestToRun"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:entries="@array/spinnerTestsToRun" />
+
+    <ScrollView
+        android:id="@+id/scrollViewSettings"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+
+        <LinearLayout
+            android:id="@+id/LinearLayout2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
+            <CheckBox
+                android:id="@+id/checkBoxEventBus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="checkEventBus"
+                android:text="@string/test_eventBus" />
+
+            <Spinner
+                android:id="@+id/spinnerThread"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:entries="@array/spinnerThreadModes" />
+
+            <CheckBox
+                android:id="@+id/checkBoxOtto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/test_otto" />
+
+            <CheckBox
+                android:id="@+id/checkBoxBroadcast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/test_broadcast" />
+
+            <CheckBox
+                android:id="@+id/checkBoxLocalBroadcast"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:text="@string/test_localBroadcast" />
+
+            <RelativeLayout
+                android:id="@+id/relativeLayoutForEvents"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="18dp" >
+
+                <EditText
+                    android:id="@+id/editTextEvent"
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:inputType="number"
+                    android:text="1000" />
+
+                <TextView
+                    android:id="@+id/eventView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/editTextEvent"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/editTextEvent"
+                    android:text="@string/eventViewText" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/relativeLayoutForSubscribers"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="8dp" >
+
+                <EditText
+                    android:id="@+id/editTextSubscribe"
+                    android:layout_width="90dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:inputType="number"
+                    android:text="1" />
+
+                <TextView
+                    android:id="@+id/subscribe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@+id/editTextSubscribe"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/editTextSubscribe"
+                    android:text="@string/subscriberViewText" />
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/buttonStart"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:onClick="startClick"
+        android:text="@string/buttonStartText" />
+
+</LinearLayout>
