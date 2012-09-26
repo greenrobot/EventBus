@@ -31,22 +31,25 @@ public class TestRunner extends Thread {
     }
 
     public void run() {
-        // Let the main thread calm down and clean up
-        System.gc();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-        }
-        System.gc();
 
         int idx = 0;
         for (Test test : tests) {
+            // Clean up and let the main thread calm down
+            System.gc();
+            try {
+                Thread.sleep(200);
+                System.gc();
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+            }
+
             test.prepareTest();
             if (!canceled) {
                 test.runTest();
             }
             if (!canceled) {
-                controlBus.post(new TestFinishedEvent(test, idx == tests.size() - 1));
+                boolean isLastEvent = idx == tests.size() - 1;
+                controlBus.post(new TestFinishedEvent(test, isLastEvent));
             }
             idx++;
         }

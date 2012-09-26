@@ -9,10 +9,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="#88dddddd"
-        android:padding="10dp"
+        android:background="#88666666"
         android:gravity="center"
-        android:text="@string/testIsRunningText" />
+        android:padding="15dp"
+        android:text="@string/testIsRunningText"
+        android:textColor="#ffffff"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <ScrollView
         android:id="@+id/scrollViewResults"
@@ -26,7 +29,6 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp" />
-
     </ScrollView>
 
     <Button

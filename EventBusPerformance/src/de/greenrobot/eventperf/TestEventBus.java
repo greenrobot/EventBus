@@ -77,9 +77,9 @@ public abstract class TestEventBus extends Test {
             primaryResultMillis = timeAfterPosting - timeStart;
             primaryResultCount = super.expectedEventCount;
             long deliveredMillis = timeAllReceived - timeStart;
-            int deliveryRate = (int) (super.iterations / (deliveredMillis / 1000d));
+            int deliveryRate = (int) (primaryResultCount / (deliveredMillis / 1000d));
             otherTestResults = "Post and delivery time: " + deliveredMillis + " ms<br/>" + //
-                    "Post and delivery rate: " + deliveryRate + "/second";
+                    "Post and delivery rate: " + deliveryRate + "/s";
         }
 
         @Override
@@ -110,11 +110,6 @@ public abstract class TestEventBus extends Test {
         public void onEventAsync(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "EventBus";
     }
 
     private void registerSubscribers() {
