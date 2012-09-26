@@ -16,7 +16,10 @@ import de.greenrobot.eventperf.testsubject.TestEventBus;
 public class TestSetupActivity extends Activity {
 
     @SuppressWarnings("rawtypes")
-    static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class, TestEventBus.Register.class };
+    static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class,//
+            TestEventBus.RegisterOneByOne.class,//
+            TestEventBus.RegisterAll.class //
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

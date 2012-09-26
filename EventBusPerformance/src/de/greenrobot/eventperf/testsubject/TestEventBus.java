@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.os.SystemClock;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
@@ -91,8 +92,8 @@ public abstract class TestEventBus extends Test {
         }
     }
 
-    public static class Register extends TestEventBus {
-        public Register(Context context, TestParams params) {
+    public static class RegisterAll extends TestEventBus {
+        public RegisterAll(Context context, TestParams params) {
             super(context, params);
         }
 
@@ -102,7 +103,35 @@ public abstract class TestEventBus extends Test {
             long timeEnd = System.currentTimeMillis();
 
             primaryResultMillis = timeEnd - timeStart;
-            primaryResultCount = params.getPublisherCount();
+            primaryResultCount = params.getSubscriberCount();
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "EventBus Register Subscribers";
+        }
+    }
+
+    public static class RegisterOneByOne extends TestEventBus {
+        public RegisterOneByOne(Context context, TestParams params) {
+            super(context, params);
+        }
+
+        public void runTest() {
+            long time = 0;
+            for (Object subscriber : super.subscribers) {
+                long beforeRegister = System.nanoTime();
+                super.eventBus.register(subscriber);
+                long timeRegister = System.nanoTime() - beforeRegister;
+                time += timeRegister;
+                super.eventBus.unregister(subscriber);
+                if (canceled) {
+                    return;
+                }
+            }
+
+            primaryResultMillis = time / 1000000;
+            primaryResultCount = params.getSubscriberCount();
         }
 
         @Override

@@ -13,6 +13,7 @@
     <string-array name="spinnerTestsToRun">
         <item>Post Events</item>
         <item>Register Subscribers</item>
+        <item>Register Subscribers (all, no unregister)</item>
         <item>Register Subscribers (1. time)</item>
     </string-array>
     <string-array name="spinnerThreadModes">
