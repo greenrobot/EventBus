@@ -31,8 +31,9 @@ public class TestSetupActivity extends Activity {
         spinnerRun.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             public void onItemSelected(AdapterView<?> adapter, View v, int pos, long lng) {
-                boolean hasEventCount = pos == 0;
-                findViewById(R.id.relativeLayoutForEvents).setVisibility(hasEventCount ? View.VISIBLE : View.GONE);
+                int eventsVisibility = pos == 0 ? View.VISIBLE : View.GONE;
+                findViewById(R.id.relativeLayoutForEvents).setVisibility(eventsVisibility);
+                findViewById(R.id.spinnerThread).setVisibility(eventsVisibility);
             }
 
             public void onNothingSelected(AdapterView<?> arg0) {

@@ -89,7 +89,7 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Post Events";
+            return "EventBus Post Events, " + params.getThreadMode();
         }
     }
 
@@ -109,7 +109,7 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register Subscribers";
+            return "EventBus Register, no unregister";
         }
     }
 
@@ -146,7 +146,7 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register Subscribers";
+            return "EventBus Register";
         }
     }
 
@@ -162,7 +162,7 @@ public abstract class TestEventBus extends Test {
                 throw new RuntimeException(e);
             }
         }
-        
+
         @Override
         public String getDisplayName() {
             return "EventBus Register, first time";
