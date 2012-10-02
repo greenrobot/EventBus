@@ -18,7 +18,8 @@ public class TestSetupActivity extends Activity {
     @SuppressWarnings("rawtypes")
     static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class,//
             TestEventBus.RegisterOneByOne.class,//
-            TestEventBus.RegisterAll.class //
+            TestEventBus.RegisterAll.class, //
+            TestEventBus.RegisterFirstTime.class
     };
 
     @Override

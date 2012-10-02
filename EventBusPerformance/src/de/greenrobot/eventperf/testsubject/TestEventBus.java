@@ -1,6 +1,7 @@
 package de.greenrobot.eventperf.testsubject;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -113,6 +114,8 @@ public abstract class TestEventBus extends Test {
     }
 
     public static class RegisterOneByOne extends TestEventBus {
+        protected Method clearCachesMethod;
+
         public RegisterOneByOne(Context context, TestParams params) {
             super(context, params);
         }
@@ -120,6 +123,13 @@ public abstract class TestEventBus extends Test {
         public void runTest() {
             long time = 0;
             for (Object subscriber : super.subscribers) {
+                if (clearCachesMethod != null) {
+                    try {
+                        clearCachesMethod.invoke(null);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 long beforeRegister = System.nanoTime();
                 super.eventBus.register(subscriber);
                 long timeRegister = System.nanoTime() - beforeRegister;
@@ -138,6 +148,26 @@ public abstract class TestEventBus extends Test {
         public String getDisplayName() {
             return "EventBus Register Subscribers";
         }
+    }
+
+    public static class RegisterFirstTime extends RegisterOneByOne {
+
+        public RegisterFirstTime(Context context, TestParams params) {
+            super(context, params);
+            try {
+                Class<?> clazz = Class.forName("de.greenrobot.event.SubscriberMethodFinder");
+                clearCachesMethod = clazz.getDeclaredMethod("clearCaches");
+                clearCachesMethod.setAccessible(true);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        
+        @Override
+        public String getDisplayName() {
+            return "EventBus Register, first time";
+        }
+
     }
 
     public class SubscribeClassEventBusDefault {

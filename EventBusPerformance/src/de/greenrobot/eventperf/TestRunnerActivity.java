@@ -3,7 +3,6 @@ package de.greenrobot.eventperf;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.Html;
-import android.text.SpannableString;
 import android.view.View;
 import android.widget.TextView;
 import de.greenrobot.event.EventBus;
