@@ -9,10 +9,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:background="#88666666"
+        android:background="#88333333"
         android:gravity="center"
         android:padding="15dp"
-        android:text="@string/testIsRunningText"
+        android:text="@string/testIsRunning"
         android:textColor="#ffffff"
         android:textSize="30sp"
         android:textStyle="bold" />
@@ -34,10 +34,21 @@
     <Button
         android:id="@+id/buttonCancel"
         android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/buttonKillProcess"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_margin="16dp"
         android:onClick="onClickCancel"
-        android:text="@string/buttonCancelText" />
+        android:text="@string/buttonCancel" />
+
+    <Button
+        android:id="@+id/buttonKillProcess"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:onClick="onClickKillProcess"
+        android:text="@string/buttonKillProcess"
+        android:visibility="gone" />
 
 </RelativeLayout>

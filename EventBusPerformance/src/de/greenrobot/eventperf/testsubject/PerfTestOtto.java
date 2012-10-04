@@ -1,36 +1,45 @@
 package de.greenrobot.eventperf.testsubject;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import android.app.Activity;
 import android.content.Context;
-import de.greenrobot.event.EventBus;
+import android.os.Looper;
+
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+import com.squareup.otto.ThreadEnforcer;
+
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;
 
-public abstract class TestEventBus extends Test {
+public abstract class PerfTestOtto extends Test {
 
-    private final EventBus eventBus;
+    private final Bus eventBus;
     private final ArrayList<Object> subscribers;
     private final Class<?> subscriberClass;
     private final int eventCount;
     private final int expectedEventCount;
 
-    public TestEventBus(Context context, TestParams params) {
+    public PerfTestOtto(Context context, TestParams params) {
         super(context, params);
-        eventBus = new EventBus();
+        eventBus = new Bus(ThreadEnforcer.ANY);
         subscribers = new ArrayList<Object>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
-        subscriberClass = getSubscriberClassForThreadMode();
+        subscriberClass = Subscriber.class;
     }
 
     @Override
     public void prepareTest() {
+        Looper.prepare();
+
         try {
-            Constructor<?> constructor = subscriberClass.getConstructor(TestEventBus.class);
+            Constructor<?> constructor = subscriberClass.getConstructor(PerfTestOtto.class);
             for (int i = 0; i < params.getSubscriberCount(); i++) {
                 Object subscriber = constructor.newInstance(this);
                 subscribers.add(subscriber);
@@ -40,22 +49,7 @@ public abstract class TestEventBus extends Test {
         }
     }
 
-    private Class<?> getSubscriberClassForThreadMode() {
-        switch (params.getThreadMode()) {
-        case MainThread:
-            return SubscribeClassEventBusMain.class;
-        case BackgroundThread:
-            return SubscribeClassEventBusBackground.class;
-        case Async:
-            return SubscriberClassEventBusAsync.class;
-        case PostThread:
-            return SubscribeClassEventBusDefault.class;
-        default:
-            throw new RuntimeException("Unknown: " + params.getThreadMode());
-        }
-    }
-
-    public static class Post extends TestEventBus {
+    public static class Post extends PerfTestOtto {
         public Post(Context context, TestParams params) {
             super(context, params);
         }
@@ -88,11 +82,11 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Post Events, " + params.getThreadMode();
+            return "Otto Post Events";
         }
     }
 
-    public static class RegisterAll extends TestEventBus {
+    public static class RegisterAll extends PerfTestOtto {
         public RegisterAll(Context context, TestParams params) {
             super(context, params);
         }
@@ -108,23 +102,24 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register, no unregister";
+            return "Otto Register, no unregister";
         }
     }
 
-    public static class RegisterOneByOne extends TestEventBus {
-        protected Method clearCachesMethod;
+    public static class RegisterOneByOne extends PerfTestOtto {
+        protected Field cacheField;
 
         public RegisterOneByOne(Context context, TestParams params) {
             super(context, params);
         }
 
+        @SuppressWarnings("rawtypes")
         public void runTest() {
             long time = 0;
             for (Object subscriber : super.subscribers) {
-                if (clearCachesMethod != null) {
+                if (cacheField != null) {
                     try {
-                        clearCachesMethod.invoke(null);
+                        cacheField.set(null, new HashMap());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -145,7 +140,7 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register";
+            return "Otto Register";
         }
     }
 
@@ -154,9 +149,9 @@ public abstract class TestEventBus extends Test {
         public RegisterFirstTime(Context context, TestParams params) {
             super(context, params);
             try {
-                Class<?> clazz = Class.forName("de.greenrobot.event.SubscriberMethodFinder");
-                clearCachesMethod = clazz.getDeclaredMethod("clearCaches");
-                clearCachesMethod.setAccessible(true);
+                Class<?> clazz = Class.forName("com.squareup.otto.AnnotatedHandlerFinder");
+                cacheField = clazz.getDeclaredField("SUBSCRIBERS_CACHE");
+                cacheField.setAccessible(true);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -164,12 +159,16 @@ public abstract class TestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register, first time";
+            return "Otto Register, first time";
         }
 
     }
 
-    public class SubscribeClassEventBusDefault {
+    public class Subscriber extends Activity {
+        public Subscriber() {
+        }
+
+        @Subscribe
         public void onEvent(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
@@ -188,69 +187,7 @@ public abstract class TestEventBus extends Test {
 
         public void dummy5() {
         }
-    }
 
-    public class SubscribeClassEventBusMain {
-        public void onEventMainThread(TestEvent event) {
-            eventsReceivedCount.incrementAndGet();
-        }
-
-        public void dummy() {
-        }
-
-        public void dummy2() {
-        }
-
-        public void dummy3() {
-        }
-
-        public void dummy4() {
-        }
-
-        public void dummy5() {
-        }
-    }
-
-    public class SubscribeClassEventBusBackground {
-        public void onEventBackgroundThread(TestEvent event) {
-            eventsReceivedCount.incrementAndGet();
-        }
-
-        public void dummy() {
-        }
-
-        public void dummy2() {
-        }
-
-        public void dummy3() {
-        }
-
-        public void dummy4() {
-        }
-
-        public void dummy5() {
-        }
-    }
-
-    public class SubscriberClassEventBusAsync {
-        public void onEventAsync(TestEvent event) {
-            eventsReceivedCount.incrementAndGet();
-        }
-
-        public void dummy() {
-        }
-
-        public void dummy2() {
-        }
-
-        public void dummy3() {
-        }
-
-        public void dummy4() {
-        }
-
-        public void dummy5() {
-        }
     }
 
     private void registerSubscribers() {

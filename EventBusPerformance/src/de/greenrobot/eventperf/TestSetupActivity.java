@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import de.greenrobot.event.ThreadMode;
+import de.greenrobot.eventperf.testsubject.PerfTestOtto;
 import de.greenrobot.eventperf.testsubject.TestEventBus;
 
 public class TestSetupActivity extends Activity {
@@ -19,8 +20,12 @@ public class TestSetupActivity extends Activity {
     static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class,//
             TestEventBus.RegisterOneByOne.class,//
             TestEventBus.RegisterAll.class, //
-            TestEventBus.RegisterFirstTime.class
-    };
+            TestEventBus.RegisterFirstTime.class };
+
+    static final Class[] TEST_CLASSES_OTTO = { PerfTestOtto.Post.class,//
+            PerfTestOtto.RegisterOneByOne.class,//
+            PerfTestOtto.RegisterAll.class, //
+            PerfTestOtto.RegisterFirstTime.class };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +90,7 @@ public class TestSetupActivity extends Activity {
             testClasses.add(TEST_CLASSES_EVENTBUS[testPos]);
         }
         if (checkBoxOtto.isChecked()) {
+            testClasses.add(TEST_CLASSES_OTTO[testPos]);
         }
         if (checkBoxBroadcast.isChecked()) {
         }

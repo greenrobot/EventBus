@@ -23,7 +23,8 @@
         <item>Async</item>
     </string-array>
 
-    <string name="testIsRunningText">Test Is \nRunning!</string>
-    <string name="buttonCancelText">Cancel</string>
-
+    <string name="testIsRunning">Test Is \nRunning!</string>
+    <string name="buttonCancel">Cancel</string>
+    <string name="buttonKillProcess">Kill Process</string>
+    
 </resources>

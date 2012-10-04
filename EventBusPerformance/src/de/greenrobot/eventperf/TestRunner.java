@@ -37,9 +37,9 @@ public class TestRunner extends Thread {
             // Clean up and let the main thread calm down
             System.gc();
             try {
-                Thread.sleep(200);
+                Thread.sleep(300);
                 System.gc();
-                Thread.sleep(200);
+                Thread.sleep(300);
             } catch (InterruptedException e) {
             }
 

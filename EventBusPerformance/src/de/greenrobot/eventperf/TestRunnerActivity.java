@@ -2,6 +2,7 @@ package de.greenrobot.eventperf;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Process;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -55,6 +56,7 @@ public class TestRunnerActivity extends Activity {
         if (event.isLastEvent) {
             findViewById(R.id.buttonCancel).setVisibility(View.GONE);
             findViewById(R.id.textViewTestRunning).setVisibility(View.GONE);
+            findViewById(R.id.buttonKillProcess).setVisibility(View.VISIBLE);
         }
     }
 
@@ -65,6 +67,10 @@ public class TestRunnerActivity extends Activity {
             testRunner = null;
         }
         finish();
+    }
+
+    public void onClickKillProcess(View view) {
+        Process.killProcess(Process.myPid());
     }
 
     public void onDestroy() {
