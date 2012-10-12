@@ -70,14 +70,9 @@ public abstract class PerfTestOtto extends Test {
             }
             long timeAfterPosting = System.nanoTime();
             waitForReceivedEventCount(super.expectedEventCount);
-            long timeAllReceived = System.nanoTime();
 
             primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
             primaryResultCount = super.expectedEventCount;
-            long deliveredMillis = timeAllReceived - timeStart;
-            int deliveryRate = (int) (primaryResultCount / (deliveredMillis / 1000d));
-            otherTestResults = "Post and delivery time: " + deliveredMillis + " ms<br/>" + //
-                    "Post and delivery rate: " + deliveryRate + "/s";
         }
 
         @Override

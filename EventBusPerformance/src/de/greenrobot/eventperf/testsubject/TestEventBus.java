@@ -78,11 +78,11 @@ public abstract class TestEventBus extends Test {
             waitForReceivedEventCount(super.expectedEventCount);
             long timeAllReceived = System.nanoTime();
 
-            primaryResultMicros =( timeAfterPosting - timeStart) / 1000;
+            primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
             primaryResultCount = super.expectedEventCount;
-            long deliveredMillis = timeAllReceived - timeStart;
-            int deliveryRate = (int) (primaryResultCount / (deliveredMillis / 1000000d));
-            otherTestResults = "Post and delivery time: " + deliveredMillis + " ms<br/>" + //
+            long deliveredMicros = (timeAllReceived - timeStart) / 1000;
+            int deliveryRate = (int) (primaryResultCount / (deliveredMicros / 1000000d));
+            otherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
                     "Post and delivery rate: " + deliveryRate + "/s";
         }
 
