@@ -8,7 +8,7 @@ public abstract class Test {
     protected final Context context;
     protected final TestParams params;
     protected AtomicLong eventsReceivedCount = new AtomicLong();
-    protected long primaryResultMillis;
+    protected long primaryResultMicros;
     protected int primaryResultCount;
     protected String otherTestResults;
 
@@ -41,12 +41,12 @@ public abstract class Test {
         }
     }
 
-    public long getPrimaryResultMillis() {
-        return primaryResultMillis;
+    public long getPrimaryResultMicros() {
+        return primaryResultMicros;
     }
 
     public double getPrimaryResultRate() {
-        return primaryResultCount / (primaryResultMillis / 1000d);
+        return primaryResultCount / (primaryResultMicros / 1000000d);
     }
 
     public String getOtherTestResults() {

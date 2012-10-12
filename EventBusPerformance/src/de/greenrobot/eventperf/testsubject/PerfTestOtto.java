@@ -61,18 +61,18 @@ public abstract class PerfTestOtto extends Test {
         }
 
         public void runTest() {
-            long timeStart = System.currentTimeMillis();
+            long timeStart = System.nanoTime();
             for (int i = 0; i < super.eventCount; i++) {
                 super.eventBus.post(new TestEvent());
                 if (canceled) {
                     break;
                 }
             }
-            long timeAfterPosting = System.currentTimeMillis();
+            long timeAfterPosting = System.nanoTime();
             waitForReceivedEventCount(super.expectedEventCount);
-            long timeAllReceived = System.currentTimeMillis();
+            long timeAllReceived = System.nanoTime();
 
-            primaryResultMillis = timeAfterPosting - timeStart;
+            primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
             primaryResultCount = super.expectedEventCount;
             long deliveredMillis = timeAllReceived - timeStart;
             int deliveryRate = (int) (primaryResultCount / (deliveredMillis / 1000d));
@@ -92,11 +92,11 @@ public abstract class PerfTestOtto extends Test {
         }
 
         public void runTest() {
-            long timeStart = System.currentTimeMillis();
+            long timeStart = System.nanoTime();
             super.registerSubscribers();
-            long timeEnd = System.currentTimeMillis();
+            long timeEnd = System.nanoTime();
 
-            primaryResultMillis = timeEnd - timeStart;
+            primaryResultMicros = (timeEnd - timeStart) / 1000;
             primaryResultCount = params.getSubscriberCount();
         }
 
@@ -134,7 +134,7 @@ public abstract class PerfTestOtto extends Test {
                 }
             }
 
-            primaryResultMillis = time / 1000000;
+            primaryResultMicros = time / 1000;
             primaryResultCount = params.getSubscriberCount();
         }
 
