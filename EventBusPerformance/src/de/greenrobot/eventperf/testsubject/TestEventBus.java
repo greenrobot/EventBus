@@ -98,11 +98,9 @@ public abstract class TestEventBus extends Test {
         }
 
         public void runTest() {
-            long timeStart = System.nanoTime();
-            super.registerSubscribers();
-            long timeEnd = System.nanoTime();
-
-            primaryResultMicros = (timeEnd - timeStart) / 1000;
+            super.registerUnregisterOneSubscribers();
+            long timeNanos = super.registerSubscribers();
+            primaryResultMicros = timeNanos / 1000;
             primaryResultCount = params.getSubscriberCount();
         }
 
@@ -121,6 +119,10 @@ public abstract class TestEventBus extends Test {
 
         public void runTest() {
             long time = 0;
+            if (clearCachesMethod == null) {
+                // Skip first registration unless just the first registration is tested
+                super.registerUnregisterOneSubscribers();
+            }
             for (Object subscriber : super.subscribers) {
                 if (clearCachesMethod != null) {
                     try {
@@ -253,12 +255,25 @@ public abstract class TestEventBus extends Test {
         }
     }
 
-    private void registerSubscribers() {
+    private long registerSubscribers() {
+        long time = 0;
         for (Object subscriber : subscribers) {
+            long timeStart = System.nanoTime();
             eventBus.register(subscriber);
+            long timeEnd = System.nanoTime();
+            time += timeEnd - timeStart;
             if (canceled) {
-                return;
+                return 0;
             }
+        }
+        return time;
+    }
+
+    private void registerUnregisterOneSubscribers() {
+        if (!subscribers.isEmpty()) {
+            Object subscriber = subscribers.get(0);
+            eventBus.register(subscriber);
+            eventBus.unregister(subscriber);
         }
     }
 
