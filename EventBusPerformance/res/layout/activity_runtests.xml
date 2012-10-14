@@ -28,7 +28,7 @@
             android:id="@+id/textViewResult"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
     </ScrollView>
 
     <Button
