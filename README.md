@@ -33,7 +33,7 @@ While the API is partly identical to Guava/otto, EventBus is written from scratc
 
 Example
 -------
-TODO
+In the folder EventBusSamples you can find a simple demo on how EventBus allows the communication between two Fragments and one IntentService keeping them loose coupled. 
 
 FAQ
 ---
