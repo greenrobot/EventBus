@@ -29,7 +29,11 @@ import android.os.Looper;
 import android.util.Log;
 
 /**
- * Class based event bus, optimized for Android. By default, subscribers will handle events in methods named "onEvent".
+ * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)} to the
+ * bus, which delivers it to subscribers that have matching handler methods for the event type. To receive events,
+ * subscribers must register themselves to the bus using the {@link #register(Object)} method. Once registered,
+ * subscribers receive events until the call of {@link #unregister(Object)}. By default, subscribers will handle events
+ * in methods named "onEvent".
  * 
  * @author Markus Junginger, greenrobot
  */
@@ -71,6 +75,7 @@ public final class EventBus {
     private boolean subscribed;
     private boolean logSubscriberExceptions;
 
+    /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
         if (defaultInstance == null) {
             synchronized (EventBus.class) {
@@ -88,15 +93,20 @@ public final class EventBus {
         eventTypesCache.clear();
     }
 
-    public static void skipMethodNameVerificationFor(Class<?> clazz) {
-        SubscriberMethodFinder.skipMethodNameVerificationFor(clazz);
-    }
-
-    /** For unit test primarily. */
+    /**
+     * Configuration method that has to be called public static void skipMethodNameVerificationFor(Class<?> clazz) {
+     * SubscriberMethodFinder.skipMethodNameVerificationFor(clazz); }
+     * 
+     * /** For unit test primarily.
+     */
     public static void clearSkipMethodNameVerifications() {
         SubscriberMethodFinder.clearSkipMethodNameVerifications();
     }
 
+    /**
+     * Creates a new EventBus instance; each instance is a separate scope in which events are delivered. To use a
+     * central bus, consider {@link #getDefault()}.
+     */
     public EventBus() {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
@@ -119,18 +129,38 @@ public final class EventBus {
         this.logSubscriberExceptions = logSubscriberExceptions;
     }
 
+    /**
+     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they are
+     * no longer interested in receiving events.
+     * 
+     * Subscribers have event handling methods that are identified by their name, typically called "onEvent". Event
+     * handling methods must have exactly one parameter, the event. If the event handling method is to be called in a
+     * specific thread, a modifier is appended to the method name. Valid modifiers match one of the {@link ThreadMode}
+     * enums. For example, if a method is to be called in the UI/main thread by EventBus, it would be called
+     * "onEventMainThread".
+     */
     public void register(Object subscriber) {
         register(subscriber, defaultMethodName, false);
     }
 
+    /**
+     * Like {@link #register(Object)}, but allows to define a custom method name for event handler methods.
+     */
     public void register(Object subscriber, String methodName) {
         register(subscriber, methodName, false);
     }
 
+    /**
+     * Like {@link #register(Object)}, but also triggers delivery of the most recent sticky event (posted with
+     * {@link #postSticky(Object)}) to the given subscriber.
+     */
     public void registerSticky(Object subscriber) {
         register(subscriber, defaultMethodName, true);
     }
 
+    /**
+     * Like {@link #registerSticky(Object)}, but allows to define a custom method name for event handler methods.
+     */
     public void registerSticky(Object subscriber, String methodName) {
         register(subscriber, methodName, true);
     }
@@ -143,19 +173,31 @@ public final class EventBus {
         }
     }
 
+    /**
+     * Like {@link #register(Object)}, but only registers the subscriber for the given event types.
+     */
     public void register(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
         register(subscriber, defaultMethodName, false, eventType, moreEventTypes);
     }
 
+    /**
+     * Like {@link #register(Object, String)}, but only registers the subscriber for the given event types.
+     */
     public synchronized void register(Object subscriber, String methodName, Class<?> eventType,
             Class<?>... moreEventTypes) {
         register(subscriber, methodName, false, eventType, moreEventTypes);
     }
 
+    /**
+     * Like {@link #registerSticky(Object)}, but only registers the subscriber for the given event types.
+     */
     public void registerSticky(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
         register(subscriber, defaultMethodName, true, eventType, moreEventTypes);
     }
 
+    /**
+     * Like {@link #registerSticky(Object, String)}, but only registers the subscriber for the given event types.
+     */
     public synchronized void registerSticky(Object subscriber, String methodName, Class<?> eventType,
             Class<?>... moreEventTypes) {
         register(subscriber, methodName, true, eventType, moreEventTypes);
@@ -286,7 +328,11 @@ public final class EventBus {
         }
     }
 
-    /** Posts the given event to the event bus. */
+    /**
+     * Posts the given event to the event bus and holds on to the event (because it is sticky). The most recent sticky
+     * event of an event's type is kept in memory for future access. This can be {@link #registerSticky(Object)} or
+     * {@link #getStickyEvent(Class)}.
+     */
     public void postSticky(Object event) {
         post(event);
         synchronized (stickyEvents) {
@@ -294,14 +340,22 @@ public final class EventBus {
         }
     }
 
-    /** Gets the most recent sticky event for the given type. */
+    /**
+     * Gets the most recent sticky event for the given type.
+     * 
+     * @see #postSticky(Object)
+     */
     public Object getStickyEvent(Class<?> eventType) {
         synchronized (stickyEvents) {
             return stickyEvents.get(eventType);
         }
     }
 
-    /** Remove and gets the recent sticky event for the given type. */
+    /**
+     * Remove and gets the recent sticky event for the given type.
+     * 
+     * @see #postSticky(Object)
+     */
     public Object removeStickyEvent(Class<?> eventType) {
         synchronized (stickyEvents) {
             return stickyEvents.remove(eventType);

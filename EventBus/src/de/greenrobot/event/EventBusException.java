@@ -15,6 +15,12 @@
  */
 package de.greenrobot.event;
 
+/**
+ * An {@link RuntimeException} thrown in cases something went wrong inside EventBus.
+ * 
+ * @author Markus
+ * 
+ */
 public class EventBusException extends RuntimeException {
 
     private static final long serialVersionUID = -2912559384646531479L;

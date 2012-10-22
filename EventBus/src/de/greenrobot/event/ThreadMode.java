@@ -17,7 +17,9 @@ package de.greenrobot.event;
 
 /**
  * Each event handler method has a thread mode, which determines in which thread the method is to be called by EventBus.
+ * EventBus takes care of threading independently from the posting thread.
  * 
+ * @see EventBus#register(Object)
  * @author Markus
  */
 public enum ThreadMode {
