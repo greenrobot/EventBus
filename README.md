@@ -61,10 +61,25 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
         <td>Annotations</td>
     </tr>	
     <tr>
-        <th>Cache recent events</th>
-        <td>Sticky events</td>
-        <td>Can be coded using producers</td>
+        <th>Event inheritance</th>
+        <td>Yes</td>
+        <td>Yes</td>
     </tr>	
+    <tr>
+        <th>Subscriber inheritance</th>
+        <td>Yes</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <th>Cache most recent events</th>
+        <td>Yes, sticky events</td>
+        <td>No</td>
+    </tr>
+    <tr>
+        <th>Event producers (e.g. for coding cached events)</th>
+        <td>No</td>
+        <td>Yes</td>
+    </tr>
     <tr>
         <th>Event delivery in posting thread</th>
         <td>Yes (Default)</td>
@@ -89,7 +104,7 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
 
 Besides features, performance is another differentiator. To compare performance, we created an Android application, which is also part of this repository (EventBusPerformance). You can also run the app on your phone to benchmark different scenarios.
 
-Performance Results:
+Benchmark results indicate that EventBus is significantly faster in almost every scenario:
 <table>
     <tr>
         <th></th>
@@ -138,7 +153,7 @@ FAQ
 
 Release History
 ---------------
-### V2.0.0 (2012-0X-XX) Major feature release
+### V2.0.0 (2012-10-23) Major feature release
 * Event methods define for themselves in which thread they get called. This is done by providing "modifiers" to the method name, e.g. onEventMainThread is called by the main thread without further configuration. Have a look at the JavaDoc of the enum ThreadMode for all available thread modes.
 * The event method modifiers replace registerForMainThread methods. Moving this information to the method itself should make things clearer.
 * Using event method modifiers, subscribers can receive the same event type in different threads if they choose to.
