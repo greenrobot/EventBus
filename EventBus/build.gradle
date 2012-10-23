@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile('com.google.android:android:1.6_r2')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+
+    }
+}

@@ -1,3 +1,5 @@
 /gen
 /bin
 /release
+/build
+/.gradle
