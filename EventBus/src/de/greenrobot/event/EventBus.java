@@ -94,11 +94,14 @@ public final class EventBus {
     }
 
     /**
-     * Configuration method that has to be called public static void skipMethodNameVerificationFor(Class<?> clazz) {
-     * SubscriberMethodFinder.skipMethodNameVerificationFor(clazz); }
-     * 
-     * /** For unit test primarily.
+     * Method name verification is done for methods starting with onEvent to avoid typos; using this method you can
+     * exclude subscriber classes from this check.
      */
+    public static void skipMethodNameVerificationFor(Class<?> clazz) {
+        SubscriberMethodFinder.skipMethodNameVerificationFor(clazz);
+    }
+
+    /** For unit test primarily. */
     public static void clearSkipMethodNameVerifications() {
         SubscriberMethodFinder.clearSkipMethodNameVerifications();
     }
