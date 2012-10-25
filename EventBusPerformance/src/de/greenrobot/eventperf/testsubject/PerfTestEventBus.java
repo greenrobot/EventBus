@@ -10,7 +10,7 @@ import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;
 
-public abstract class TestEventBus extends Test {
+public abstract class PerfTestEventBus extends Test {
 
     private final EventBus eventBus;
     private final ArrayList<Object> subscribers;
@@ -18,7 +18,7 @@ public abstract class TestEventBus extends Test {
     private final int eventCount;
     private final int expectedEventCount;
 
-    public TestEventBus(Context context, TestParams params) {
+    public PerfTestEventBus(Context context, TestParams params) {
         super(context, params);
         eventBus = new EventBus();
         subscribers = new ArrayList<Object>();
@@ -30,7 +30,7 @@ public abstract class TestEventBus extends Test {
     @Override
     public void prepareTest() {
         try {
-            Constructor<?> constructor = subscriberClass.getConstructor(TestEventBus.class);
+            Constructor<?> constructor = subscriberClass.getConstructor(PerfTestEventBus.class);
             for (int i = 0; i < params.getSubscriberCount(); i++) {
                 Object subscriber = constructor.newInstance(this);
                 subscribers.add(subscriber);
@@ -55,7 +55,7 @@ public abstract class TestEventBus extends Test {
         }
     }
 
-    public static class Post extends TestEventBus {
+    public static class Post extends PerfTestEventBus {
         public Post(Context context, TestParams params) {
             super(context, params);
         }
@@ -92,7 +92,7 @@ public abstract class TestEventBus extends Test {
         }
     }
 
-    public static class RegisterAll extends TestEventBus {
+    public static class RegisterAll extends PerfTestEventBus {
         public RegisterAll(Context context, TestParams params) {
             super(context, params);
         }
@@ -110,7 +110,7 @@ public abstract class TestEventBus extends Test {
         }
     }
 
-    public static class RegisterOneByOne extends TestEventBus {
+    public static class RegisterOneByOne extends PerfTestEventBus {
         protected Method clearCachesMethod;
 
         public RegisterOneByOne(Context context, TestParams params) {

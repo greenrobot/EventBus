@@ -12,15 +12,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import de.greenrobot.event.ThreadMode;
 import de.greenrobot.eventperf.testsubject.PerfTestOtto;
-import de.greenrobot.eventperf.testsubject.TestEventBus;
+import de.greenrobot.eventperf.testsubject.PerfTestEventBus;
 
 public class TestSetupActivity extends Activity {
 
     @SuppressWarnings("rawtypes")
-    static final Class[] TEST_CLASSES_EVENTBUS = { TestEventBus.Post.class,//
-            TestEventBus.RegisterOneByOne.class,//
-            TestEventBus.RegisterAll.class, //
-            TestEventBus.RegisterFirstTime.class };
+    static final Class[] TEST_CLASSES_EVENTBUS = { PerfTestEventBus.Post.class,//
+            PerfTestEventBus.RegisterOneByOne.class,//
+            PerfTestEventBus.RegisterAll.class, //
+            PerfTestEventBus.RegisterFirstTime.class };
 
     static final Class[] TEST_CLASSES_OTTO = { PerfTestOtto.Post.class,//
             PerfTestOtto.RegisterOneByOne.class,//
