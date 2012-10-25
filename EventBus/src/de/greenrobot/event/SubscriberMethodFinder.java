@@ -27,7 +27,6 @@ class SubscriberMethodFinder {
     private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
     private static final Map<Class<?>, Class<?>> skipMethodNameVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
 
-    
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
         String key = subscriberClass.getName() + '.' + eventMethodName;
         List<SubscriberMethod> subscriberMethods;
@@ -40,6 +39,7 @@ class SubscriberMethodFinder {
         subscriberMethods = new ArrayList<SubscriberMethod>();
         Class<?> clazz = subscriberClass;
         HashSet<String> eventTypesFound = new HashSet<String>();
+        StringBuilder methodKeyBuilder = new StringBuilder();
         while (clazz != null) {
             String name = clazz.getName();
             if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
@@ -71,7 +71,10 @@ class SubscriberMethodFinder {
                             }
                         }
                         Class<?> eventType = parameterTypes[0];
-                        String methodKey = methodName + ">" + eventType.getName();
+                        methodKeyBuilder.setLength(0);
+                        methodKeyBuilder.append(methodName);
+                        methodKeyBuilder.append('>').append(eventType.getName());
+                        String methodKey = methodKeyBuilder.toString();
                         if (eventTypesFound.add(methodKey)) {
                             // Only add if not already found in a sub class
                             subscriberMethods.add(new SubscriberMethod(method, threadMode, eventType));
@@ -90,12 +93,11 @@ class SubscriberMethodFinder {
             return subscriberMethods;
         }
     }
-    
-    
+
     static void clearCaches() {
         methodCache.clear();
     }
-    
+
     static void skipMethodNameVerificationFor(Class<?> clazz) {
         if (!methodCache.isEmpty()) {
             throw new IllegalStateException("This method must be called before registering anything");
