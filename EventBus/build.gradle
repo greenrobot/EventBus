@@ -2,6 +2,7 @@ apply plugin: 'java'
 
 group = 'de.greenrobot.eventbus'
 version = '2.0.1'
+sourceCompatibility = 1.6
 
 repositories {
     mavenCentral()
