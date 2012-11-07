@@ -45,8 +45,8 @@ Using Sticky events are used similarly to standard events:
 3. Post sticky events to the bus:<br/>
 <code>eventBus.postSticky(event);</code>
 4. Unregister subscriber:<br/>
-<code>eventBus.unregisterSticky(this);</code> OR <br />
-<code>eventBus.unregisterSticky(this, AnyEventType.class);</code> to explicitly unregister this event as sticky.
+<code>eventBus.unregister(this);</code> OR <br />
+<code>eventBus.unregister(this, AnyEventType.class);</code> to explicitly unregister this event as sticky.
 
 Additional Features and Notes
 -----------------------------
