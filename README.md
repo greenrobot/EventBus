@@ -33,7 +33,20 @@ Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
 
-API-wise events are made sticky by using postSticky(Object event) instead of post(Object event). Subscribers that want to get previously posted sticky events, use registerSticky(...) instead of register(...). Alternatively, the last sticky event of a certain event type can be queried by using getStickyEvent(Class<?> eventType).
+API-wise events are made sticky by using <code>postSticky(Object event)</code> instead of <code>post(Object event)</code>.<br />Subscribers that want to get previously posted sticky events, use <code>registerSticky(...)</code> instead of <code>register(...)</code>. Alternatively, the last sticky event of a certain event type can be queried by using <code>getStickyEvent(Class<?> eventType)</code>.
+
+Using Sticky events are used similarly to standard events:
+
+1. Implement any number of event handling methods in the subscriber:<br/>
+<code>public void onEvent(AnyEventType event) {}</code>
+2. Register sticky subscribers:<br/>
+<code>eventBus.registerSticky(this);</code> OR <br />
+<code>eventBus.registerSticky(this, AnyEventType.class);</code> to explicitly register this event as sticky.
+3. Post sticky events to the bus:<br/>
+<code>eventBus.postSticky(event);</code>
+4. Unregister subscriber:<br/>
+<code>eventBus.unregisterSticky(this);</code> OR <br />
+<code>eventBus.unregisterSticky(this, AnyEventType.class);</code> to explicitly unregister this event as sticky.
 
 Additional Features and Notes
 -----------------------------
