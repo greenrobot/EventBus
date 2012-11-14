@@ -171,11 +171,14 @@ public class ErrorDialogManager {
             if (name.equals("android.support.v4.app.FragmentActivity")) {
                 isSupport = true;
                 break;
-            }
-            if (name.equals("android.app.Activity")) {
+            } else if (name.startsWith("com.actionbarsherlock.app")
+                    && (name.endsWith(".SherlockActivity") || name.endsWith(".SherlockListActivity") || name
+                            .endsWith(".SherlockPreferenceActivity"))) {
+                throw new RuntimeException("Please use SherlockFragmentActivity. Illegal activity: " + name);
+            } else if (name.equals("android.app.Activity")) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                     throw new RuntimeException(
-                            "Illegal activity. Either use Android 3.0+ or android.support.v4.app.FragmentActivity");
+                            "Illegal activity without fragment support. Either use Android 3.0+ or android.support.v4.app.FragmentActivity.");
                 }
                 break;
             }
