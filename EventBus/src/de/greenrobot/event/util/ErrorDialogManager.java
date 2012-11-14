@@ -9,6 +9,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import de.greenrobot.event.EventBus;
 
 /**
@@ -44,6 +45,13 @@ public class ErrorDialogManager {
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {
+            if (factory.config.logExceptions) {
+                String tag = factory.config.tagForLoggingExceptions;
+                if (tag == null) {
+                    tag = EventBus.TAG;
+                }
+                Log.i(tag, "Opening error dialog for exception", event.throwable);
+            }
             // Execute pending commits before finding to avoid multiple error fragments being shown
             FragmentManager fm = getFragmentManager();
             fm.executePendingTransactions();

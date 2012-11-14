@@ -10,6 +10,8 @@ public class ErrorDialogConfig {
     final int defaultErrorMsgId;
     final ExceptionToResourceMapping mapping;
 
+    boolean logExceptions = true;
+    String tagForLoggingExceptions;
     int defaultDialogIconId;
     Class<?> defaultEventTypeOnDialogClosed;
 
@@ -41,6 +43,14 @@ public class ErrorDialogConfig {
 
     public void setDefaultEventTypeOnDialogClosed(Class<?> defaultEventTypeOnDialogClosed) {
         this.defaultEventTypeOnDialogClosed = defaultEventTypeOnDialogClosed;
+    }
+    
+    public void disableExceptionLogging() {
+        logExceptions=false;
+    }
+
+    public void setTagForLoggingExceptions(String tagForLoggingExceptions) {
+        this.tagForLoggingExceptions = tagForLoggingExceptions;
     }
     
 }
