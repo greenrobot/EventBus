@@ -10,7 +10,7 @@ import android.support.v4.app.Fragment;
  * Factory to allow injecting a more complex exception mapping; typically you would subclass one of {@link Honeycomb} or
  * {@link Support}.
  */
-abstract class ErrorDialogFragmentFactory<T> {
+public abstract class ErrorDialogFragmentFactory<T> {
     protected final ErrorDialogConfig config;
 
     protected ErrorDialogFragmentFactory(ErrorDialogConfig config) {
