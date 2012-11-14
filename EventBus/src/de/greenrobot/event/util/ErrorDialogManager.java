@@ -31,17 +31,19 @@ public class ErrorDialogManager {
     public static class SupportManagerFragment extends Fragment {
         protected boolean finishAfterDialog;
         protected Bundle argumentsForErrorDialog;
+        private EventBus eventBus;
 
         @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            EventBus.getDefault().register(this);
+        public void onResume() {
+            super.onResume();
+            eventBus = ErrorDialogManager.factory.config.getEventBus();
+            eventBus.register(this);
         }
 
         @Override
-        public void onDetach() {
-            EventBus.getDefault().unregister(this);
-            super.onDetach();
+        public void onPause() {
+            eventBus.unregister(this);
+            super.onPause();
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {
@@ -83,17 +85,19 @@ public class ErrorDialogManager {
     public static class HoneycombManagerFragment extends android.app.Fragment {
         protected boolean finishAfterDialog;
         protected Bundle argumentsForErrorDialog;
+        private EventBus eventBus;
 
         @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            EventBus.getDefault().register(this);
+        public void onResume() {
+            super.onResume();
+            eventBus = ErrorDialogManager.factory.config.getEventBus();
+            eventBus.register(this);
         }
 
         @Override
-        public void onDetach() {
-            EventBus.getDefault().unregister(this);
-            super.onDetach();
+        public void onPause() {
+            eventBus.unregister(this);
+            super.onPause();
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {

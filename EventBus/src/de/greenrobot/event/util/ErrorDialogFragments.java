@@ -13,10 +13,10 @@ import android.support.v4.app.DialogFragment;
 import de.greenrobot.event.EventBus;
 
 public class ErrorDialogFragments {
-    /** Icon res ID to use for all error dialogs. May be configured by each app (optional). */
+    /** TODO Use config:  Icon res ID to use for all error dialogs. May be configured by each app (optional). */
     public static int ERROR_DIALOG_ICON = 0;
 
-    /** Event class to be fired on dismissing the dialog by the user. May be configured by each app. */
+    /** TODO Use config:  Event class to be fired on dismissing the dialog by the user. May be configured by each app. */
     public static Class<?> EVENT_TYPE_ON_CLICK;
 
     public static Dialog createDialog(Context context, Bundle arguments, OnClickListener onClickListener) {
@@ -38,7 +38,8 @@ public class ErrorDialogFragments {
             } catch (Exception e) {
                 throw new RuntimeException("Event cannot be constructed", e);
             }
-            EventBus.getDefault().post(event);
+            EventBus eventBus = ErrorDialogManager.factory.config.getEventBus();
+            eventBus.post(event);
         }
         boolean finish = arguments.getBoolean(ErrorDialogManager.KEY_FINISH_AFTER_DIALOG, false);
         if (finish && activity != null) {
