@@ -9,7 +9,9 @@ repositories {
 }
 
 dependencies {
-    compile('com.google.android:android:1.6_r2')
+    compile('com.google.android:android:4.0.1.2')
+    compile('com.google.android:annotations:4.1.1.4')
+    compile('com.google.android:support-v4:r7')
 }
 
 sourceSets {

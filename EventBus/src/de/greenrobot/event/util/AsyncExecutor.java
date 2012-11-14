@@ -19,9 +19,8 @@ import java.lang.reflect.Constructor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import de.greenrobot.event.EventBus;
-
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /**
  * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events of any
