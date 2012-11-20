@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-
 /**
  * Factory to allow injecting a more complex exception mapping; typically you would subclass one of {@link Honeycomb} or
  * {@link Support}.
@@ -23,7 +22,12 @@ public abstract class ErrorDialogFragmentFactory<T> {
      * @param argumentsForErrorDialog
      * @param finishAfterDialog
      */
-    protected T prepareErrorFragment(ThrowableFailureEvent event, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
+    protected T prepareErrorFragment(ThrowableFailureEvent event, boolean finishAfterDialog,
+            Bundle argumentsForErrorDialog) {
+        if (event.isSuppressErrorUi()) {
+            // Show nothing by default
+            return null;
+        }
         Bundle bundle;
         if (argumentsForErrorDialog != null) {
             bundle = (Bundle) argumentsForErrorDialog.clone();

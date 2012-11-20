@@ -47,13 +47,7 @@ public class ErrorDialogManager {
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {
-            if (factory.config.logExceptions) {
-                String tag = factory.config.tagForLoggingExceptions;
-                if (tag == null) {
-                    tag = EventBus.TAG;
-                }
-                Log.i(tag, "Opening error dialog for exception", event.throwable);
-            }
+            checkLogException(event);
             // Execute pending commits before finding to avoid multiple error fragments being shown
             FragmentManager fm = getFragmentManager();
             fm.executePendingTransactions();
@@ -66,7 +60,9 @@ public class ErrorDialogManager {
 
             android.support.v4.app.DialogFragment errorFragment = (android.support.v4.app.DialogFragment) factory
                     .prepareErrorFragment(event, finishAfterDialog, argumentsForErrorDialog);
-            errorFragment.show(fm, TAG_ERROR_DIALOG);
+            if (errorFragment != null) {
+                errorFragment.show(fm, TAG_ERROR_DIALOG);
+            }
         }
 
         public static void attachTo(Activity activity, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
@@ -101,6 +97,8 @@ public class ErrorDialogManager {
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {
+            checkLogException(event);
+
             // Execute pending commits before finding to avoid multiple error fragments being shown
             android.app.FragmentManager fm = getFragmentManager();
             fm.executePendingTransactions();
@@ -114,7 +112,9 @@ public class ErrorDialogManager {
 
             android.app.DialogFragment errorFragment = (android.app.DialogFragment) factory.prepareErrorFragment(event,
                     finishAfterDialog, argumentsForErrorDialog);
-            errorFragment.show(fm, TAG_ERROR_DIALOG);
+            if (errorFragment != null) {
+                errorFragment.show(fm, TAG_ERROR_DIALOG);
+            }
         }
 
         public static void attachTo(Activity activity, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
@@ -185,4 +185,15 @@ public class ErrorDialogManager {
         }
         return isSupport;
     }
+    
+    protected static void checkLogException(ThrowableFailureEvent event) {
+        if (factory.config.logExceptions) {
+            String tag = factory.config.tagForLoggingExceptions;
+            if (tag == null) {
+                tag = EventBus.TAG;
+            }
+            Log.i(tag, "Error dialog manager received exception", event.throwable);
+        }
+    }
+
 }
