@@ -145,13 +145,10 @@ Benchmark results indicate that EventBus is significantly faster in almost every
 ProGuard configuration
 ----------------------
 ProGuard obfuscates method names. However, the onEvent methods must not renamed because they are accessed using reflection. Use the following snip in your ProGuard configuration file (proguard.cfg):
-<code>
--keepclassmembers class ** {
-
-    public void onEvent*(**);
-
+<pre><code>-keepclassmembers class \*\* {
+    public void onEvent\*(\*\*);
 }
-</code>
+</code></pre>
 
 Example
 -------
