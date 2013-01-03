@@ -32,12 +32,26 @@ public class ErrorDialogManager {
         protected boolean finishAfterDialog;
         protected Bundle argumentsForErrorDialog;
         private EventBus eventBus;
+        private boolean skipRegisterOnNextResume;
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            eventBus = ErrorDialogManager.factory.config.getEventBus();
+            eventBus.register(this);
+            skipRegisterOnNextResume = true;
+        }
 
         @Override
         public void onResume() {
             super.onResume();
-            eventBus = ErrorDialogManager.factory.config.getEventBus();
-            eventBus.register(this);
+            if (skipRegisterOnNextResume) {
+                // registered in onCreate, skip registration in this run
+                skipRegisterOnNextResume = false;
+            } else {
+                eventBus = ErrorDialogManager.factory.config.getEventBus();
+                eventBus.register(this);
+            }
         }
 
         @Override
@@ -71,6 +85,7 @@ public class ErrorDialogManager {
             if (fragment == null) {
                 fragment = new SupportManagerFragment();
                 fm.beginTransaction().add(fragment, TAG_ERROR_DIALOG_MANAGER).commit();
+                fm.executePendingTransactions();
             }
             fragment.finishAfterDialog = finishAfterDialog;
             fragment.argumentsForErrorDialog = argumentsForErrorDialog;
@@ -124,6 +139,7 @@ public class ErrorDialogManager {
             if (fragment == null) {
                 fragment = new HoneycombManagerFragment();
                 fm.beginTransaction().add(fragment, TAG_ERROR_DIALOG_MANAGER).commit();
+                fm.executePendingTransactions();
             }
             fragment.finishAfterDialog = finishAfterDialog;
             fragment.argumentsForErrorDialog = argumentsForErrorDialog;
@@ -185,7 +201,7 @@ public class ErrorDialogManager {
         }
         return isSupport;
     }
-    
+
     protected static void checkLogException(ThrowableFailureEvent event) {
         if (factory.config.logExceptions) {
             String tag = factory.config.tagForLoggingExceptions;
