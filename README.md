@@ -9,7 +9,7 @@ In EventBus, subscribers implement event handling methods and register themselve
 Using EventBus takes four simple steps:
 
 1. Implement any number of event handling methods in the subscriber:<br/>
-<code>public void onEvent(AnyEventType event)</code>
+<code>public void onEvent(AnyEventType event) {}</code>
 2. Register subscribers:<br/>
 <code>eventBus.register(this);</code>
 3. Post events to the bus:<br/>
