@@ -337,10 +337,11 @@ public final class EventBus {
      * {@link #getStickyEvent(Class)}.
      */
     public void postSticky(Object event) {
-        post(event);
         synchronized (stickyEvents) {
             stickyEvents.put(event.getClass(), event);
         }
+        // Should be posted after it is putted, in case the subscriber wants to remove immediately
+        post(event);
     }
 
     /**
