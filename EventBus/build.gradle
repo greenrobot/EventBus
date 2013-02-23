@@ -1,15 +1,26 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
-group = 'de.greenrobot.eventbus'
-version = '2.1.0-SNAPSHOT'
+group = 'de.greenrobot'
+version = '2.1.0-beta-1'
 sourceCompatibility = 1.6
+
+def isSnapshot = version.endsWith('-SNAPSHOT')
+def sonatypeRepositoryUrl
+if(isSnapshot) {
+	sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+} else {
+	sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile('com.google.android:android:4.0.1.2')
+    compile('com.google.android:android:4.1.1.4')
+    compile('com.google.android:android-test:4.1.1.4')
     compile('com.google.android:annotations:4.1.1.4')
     compile('com.google.android:support-v4:r7')
 }
@@ -20,6 +31,11 @@ sourceSets {
             srcDir 'src'
         }
     }
+}
+
+javadoc {
+    title = "EventBus ${version} API"
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2013 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -36,4 +52,60 @@ artifacts {
     archives jar
     archives javadocJar
     archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            // if(! isSnapshot) {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            // }
+
+            repository(url: sonatypeRepositoryUrl) {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+               name 'EventBus'
+               packaging 'jar'
+               description 'EventBus is an Android optimized publish/subscribe event bus.'
+               url 'https://plus.google.com/b/114381455741141514652/communities/114594359857596138845/stream/2f784373-19d9-4a0d-840f-787794a410bc'
+
+               scm {
+                   url 'https://github.com/greenrobot/EventBus'
+                   connection 'scm:git@github.com:greenrobot/EventBus.git'
+                   developerConnection 'scm:git@github.com:greenrobot/EventBus.git'
+               }
+
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+
+               developers {
+                   developer {
+                       id 'greenrobot'
+                       name 'greenrobot'
+                   }
+               }
+               
+               issueManagement {
+                   system 'GitHub Issues'
+                   url 'https://github.com/greenrobot/EventBus/issues'
+               }
+               
+               organization {
+                   name 'greenrobot'
+                   url 'http://greenrobot.de'
+               }
+           }
+        }
+    }
 }

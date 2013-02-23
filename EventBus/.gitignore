@@ -3,3 +3,4 @@
 /release
 /build
 /.gradle
+/gradle.properties
