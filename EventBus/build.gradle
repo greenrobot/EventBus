@@ -55,18 +55,25 @@ artifacts {
 }
 
 signing {
-    sign configurations.archives
+    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') &&
+    project.hasProperty('signing.secretKeyRingFile')) {
+        sign configurations.archives
+    } else {
+        println "Signing information missing/incomplete for ${project.name}"
+    }
 }
 
 uploadArchives {
     repositories {
         mavenDeployer {
-            // if(! isSnapshot) {
+            // We must check if authentication info is available
+            if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            // }
-
-            repository(url: sonatypeRepositoryUrl) {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
+                repository(url: sonatypeRepositoryUrl) {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+            } else {
+                println "Settings sonatypeUsername/sonatypePassword missing/incomplete for ${project.name}"
             }
 
             pom.project {
