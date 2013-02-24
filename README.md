@@ -17,6 +17,10 @@ Using EventBus takes four simple steps:
 4. Unregister subscriber:<br/>
 <code>eventBus.unregister(this);</code>
 
+Add EventBus to your project
+----------------------------
+Starting with version 2.0.1, EventBus is pushed to [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22) repository, so you can simply add a dependency (group ID "de.greenrobot" and arifact ID "eventbus"). If you do not use Maven or Gradle, download the jar from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22) and copy it into the libs folder of your Android project.
+
 Delivery Threads
 ----------------
 EventBus can deliver events in other threads independently from the posting thread. Threading is crucial to all Android apps, and EventBus will make threading easier. In Android development, UI changes must be done in the UI thread, while networking is forbidden here. If you want to do both networking and UI using standard Android API, you will need to take care of thread transistions, e.g. by using AsyncTask. If you use an event-based approach using EventBus, this gets simpler.
@@ -161,6 +165,12 @@ FAQ
 
 Release History
 ---------------
+### V2.0.1 (2013-02-25) Bug fix release, Gradle and Maven Central
+* Fixed #15: removeStickyEvent(...) does not remove event the first time
+* Introduced Gradle build scripts for main project
+* Maven artifacts are pushed to Maven Central starting with this version
+* Added Travis CI
+
 ### V2.0.0 (2012-10-23) Major feature release
 * Event methods define for themselves in which thread they get called. This is done by providing "modifiers" to the method name, e.g. onEventMainThread is called by the main thread without further configuration. Have a look at the JavaDoc of the enum ThreadMode for all available thread modes.
 * The event method modifiers replace registerForMainThread methods. Moving this information to the method itself should make things clearer.
