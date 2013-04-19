@@ -157,13 +157,6 @@ public abstract class PerfTestLocalBroadcast extends Test {
 
     public RegisterFirstTime(Context context, TestParams params) {
       super(context, params);
-      try {
-//        Class<?> clazz = Class.forName("com.squareup.otto.AnnotatedHandlerFinder");
-//        cacheField = clazz.getDeclaredField("SUBSCRIBERS_CACHE");
-//        cacheField.setAccessible(true);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
     }
 
     @Override

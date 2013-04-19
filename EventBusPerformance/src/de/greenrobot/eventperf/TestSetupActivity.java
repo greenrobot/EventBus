@@ -29,15 +29,16 @@ public class TestSetupActivity extends Activity {
             PerfTestOtto.RegisterAll.class, //
             PerfTestOtto.RegisterFirstTime.class };
 
-  static final Class[] TEST_CLASSES_LOCAL_BROADCAST = { PerfTestLocalBroadcast.Post.class,//
-      PerfTestLocalBroadcast.RegisterOneByOne.class,//
-      PerfTestLocalBroadcast.RegisterAll.class, //
-      PerfTestLocalBroadcast.RegisterFirstTime.class };
+    static final Class[] TEST_CLASSES_LOCAL_BROADCAST = { PerfTestLocalBroadcast.Post.class,//
+        PerfTestLocalBroadcast.RegisterOneByOne.class,//
+        PerfTestLocalBroadcast.RegisterAll.class, //
+        PerfTestLocalBroadcast.RegisterFirstTime.class };
 
-  static final Class[] TEST_CLASSES_BROADCAST = { PerfTestBroadcast.Post.class,//
-      PerfTestBroadcast.RegisterOneByOne.class,//
-      PerfTestBroadcast.RegisterAll.class, //
-      PerfTestBroadcast.RegisterFirstTime.class };
+
+    static final Class[] TEST_CLASSES_BROADCAST = { PerfTestBroadcast.Post.class,//
+        PerfTestBroadcast.RegisterOneByOne.class,//
+        PerfTestBroadcast.RegisterAll.class, //
+        PerfTestBroadcast.RegisterFirstTime.class };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,10 +106,10 @@ public class TestSetupActivity extends Activity {
             testClasses.add(TEST_CLASSES_OTTO[testPos]);
         }
         if (checkBoxBroadcast.isChecked()) {
-          testClasses.add(TEST_CLASSES_BROADCAST[testPos]);
+           testClasses.add(TEST_CLASSES_BROADCAST[testPos]);
         }
         if (checkBoxLocalBroadcast.isChecked()) {
-          testClasses.add(TEST_CLASSES_LOCAL_BROADCAST[testPos]);
+           testClasses.add(TEST_CLASSES_LOCAL_BROADCAST[testPos]);
         }
 
         return testClasses;
