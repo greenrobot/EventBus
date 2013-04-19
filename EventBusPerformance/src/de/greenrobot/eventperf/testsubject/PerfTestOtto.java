@@ -1,21 +1,19 @@
 package de.greenrobot.eventperf.testsubject;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Looper;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+import com.squareup.otto.ThreadEnforcer;
+import de.greenrobot.eventperf.Test;
+import de.greenrobot.eventperf.TestEvent;
+import de.greenrobot.eventperf.TestParams;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import android.app.Activity;
-import android.content.Context;
-import android.os.Looper;
-
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
-import com.squareup.otto.ThreadEnforcer;
-
-import de.greenrobot.eventperf.Test;
-import de.greenrobot.eventperf.TestEvent;
-import de.greenrobot.eventperf.TestParams;
 
 public abstract class PerfTestOtto extends Test {
 
@@ -62,17 +60,26 @@ public abstract class PerfTestOtto extends Test {
 
         public void runTest() {
             long timeStart = System.nanoTime();
+            TestEvent event;
             for (int i = 0; i < super.eventCount; i++) {
-                super.eventBus.post(new TestEvent());
+               event = new TestEvent();
+              event.value = 1;
+              super.eventBus.post(event);
                 if (canceled) {
                     break;
                 }
             }
             long timeAfterPosting = System.nanoTime();
             waitForReceivedEventCount(super.expectedEventCount);
+          long timeAllReceived = System.nanoTime();
 
             primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
             primaryResultCount = super.expectedEventCount;
+
+          long deliveredMicros = (timeAllReceived - timeStart) / 1000;
+          int deliveryRate = (int) (primaryResultCount / (deliveredMicros / 1000000d));
+          otherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
+              "Post and delivery rate: " + deliveryRate + "/s";
         }
 
         @Override
@@ -167,7 +174,7 @@ public abstract class PerfTestOtto extends Test {
 
         @Subscribe
         public void onEvent(TestEvent event) {
-            eventsReceivedCount.incrementAndGet();
+            eventsReceivedCount.addAndGet(event.value);
         }
 
         public void dummy() {

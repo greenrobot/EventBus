@@ -1,7 +1,5 @@
 package de.greenrobot.eventperf;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +9,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import de.greenrobot.event.ThreadMode;
-import de.greenrobot.eventperf.testsubject.PerfTestOtto;
+import de.greenrobot.eventperf.testsubject.PerfTestBroadcast;
 import de.greenrobot.eventperf.testsubject.PerfTestEventBus;
+import de.greenrobot.eventperf.testsubject.PerfTestLocalBroadcast;
+import de.greenrobot.eventperf.testsubject.PerfTestOtto;
+
+import java.util.ArrayList;
 
 public class TestSetupActivity extends Activity {
 
@@ -26,6 +28,16 @@ public class TestSetupActivity extends Activity {
             PerfTestOtto.RegisterOneByOne.class,//
             PerfTestOtto.RegisterAll.class, //
             PerfTestOtto.RegisterFirstTime.class };
+
+  static final Class[] TEST_CLASSES_LOCAL_BROADCAST = { PerfTestLocalBroadcast.Post.class,//
+      PerfTestLocalBroadcast.RegisterOneByOne.class,//
+      PerfTestLocalBroadcast.RegisterAll.class, //
+      PerfTestLocalBroadcast.RegisterFirstTime.class };
+
+  static final Class[] TEST_CLASSES_BROADCAST = { PerfTestBroadcast.Post.class,//
+      PerfTestBroadcast.RegisterOneByOne.class,//
+      PerfTestBroadcast.RegisterAll.class, //
+      PerfTestBroadcast.RegisterFirstTime.class };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,8 +105,10 @@ public class TestSetupActivity extends Activity {
             testClasses.add(TEST_CLASSES_OTTO[testPos]);
         }
         if (checkBoxBroadcast.isChecked()) {
+          testClasses.add(TEST_CLASSES_BROADCAST[testPos]);
         }
         if (checkBoxLocalBroadcast.isChecked()) {
+          testClasses.add(TEST_CLASSES_LOCAL_BROADCAST[testPos]);
         }
 
         return testClasses;

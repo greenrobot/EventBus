@@ -1,14 +1,14 @@
 package de.greenrobot.eventperf.testsubject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-
 import android.content.Context;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public abstract class PerfTestEventBus extends Test {
 
@@ -68,8 +68,11 @@ public abstract class PerfTestEventBus extends Test {
 
         public void runTest() {
             long timeStart = System.nanoTime();
-            for (int i = 0; i < super.eventCount; i++) {
-                super.eventBus.post(new TestEvent());
+          TestEvent event;
+          for (int i = 0; i < super.eventCount; i++) {
+               event = new TestEvent();
+              event.value = 1;
+              super.eventBus.post(event);
                 if (canceled) {
                     break;
                 }
@@ -82,7 +85,7 @@ public abstract class PerfTestEventBus extends Test {
             primaryResultCount = super.expectedEventCount;
             long deliveredMicros = (timeAllReceived - timeStart) / 1000;
             int deliveryRate = (int) (primaryResultCount / (deliveredMicros / 1000000d));
-            otherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
+            otherTestResults = "prey time: " + deliveredMicros + " micros<br/>" + //
                     "Post and delivery rate: " + deliveryRate + "/s";
         }
 
@@ -236,7 +239,7 @@ public abstract class PerfTestEventBus extends Test {
 
     public class SubscriberClassEventBusAsync {
         public void onEventAsync(TestEvent event) {
-            eventsReceivedCount.incrementAndGet();
+            eventsReceivedCount.addAndGet(event.value);
         }
 
         public void dummy() {
