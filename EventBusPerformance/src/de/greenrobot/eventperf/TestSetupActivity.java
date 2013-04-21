@@ -30,15 +30,15 @@ public class TestSetupActivity extends Activity {
             PerfTestOtto.RegisterFirstTime.class };
 
     static final Class[] TEST_CLASSES_LOCAL_BROADCAST = { PerfTestLocalBroadcast.Post.class,//
-        PerfTestLocalBroadcast.RegisterOneByOne.class,//
-        PerfTestLocalBroadcast.RegisterAll.class, //
-        PerfTestLocalBroadcast.RegisterFirstTime.class };
+            PerfTestLocalBroadcast.RegisterOneByOne.class,//
+            PerfTestLocalBroadcast.RegisterAll.class, //
+            PerfTestLocalBroadcast.RegisterFirstTime.class };
 
 
     static final Class[] TEST_CLASSES_BROADCAST = { PerfTestBroadcast.Post.class,//
-        PerfTestBroadcast.RegisterOneByOne.class,//
-        PerfTestBroadcast.RegisterAll.class, //
-        PerfTestBroadcast.RegisterFirstTime.class };
+            PerfTestBroadcast.RegisterOneByOne.class,//
+            PerfTestBroadcast.RegisterAll.class, //
+            PerfTestBroadcast.RegisterFirstTime.class };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
