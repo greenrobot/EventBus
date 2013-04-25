@@ -37,7 +37,7 @@ import android.util.Log;
  * 
  * @author Markus Junginger, greenrobot
  */
-public final class EventBus {
+public class EventBus {
     static ExecutorService executorService = Executors.newCachedThreadPool();
 
     /** Log tag, apps may override it. */
