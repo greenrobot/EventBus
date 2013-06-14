@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'de.greenrobot'
-version = '2.0.2'
+version = '2.1.0-beta-2'
 sourceCompatibility = 1.6
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
@@ -22,6 +22,7 @@ repositories {
 // Like this, it won't appear at all in the POM
 configurations {
     provided
+    deployerJars
 }
 
 dependencies {
@@ -29,6 +30,8 @@ dependencies {
     provided 'com.google.android:android-test:4.1.1.4'
     provided 'com.google.android:annotations:4.1.1.4'
     provided 'com.google.android:support-v4:r7'
+    // deployerJars 'org.apache.maven.wagon:wagon-webdav-jackrabbit:2.4'
+    deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
 
 sourceSets {
@@ -36,7 +39,7 @@ sourceSets {
         compileClasspath += configurations.provided
         java {
             srcDir 'src'
-            exclude 'de/greenrobot/event/util/**'
+            // exclude 'de/greenrobot/event/util/**'
         }
     }
 }
@@ -75,8 +78,13 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            // We must check if authentication info is available
-            if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
+            if(project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername') 
+                && project.hasProperty('preferedPassword')) {
+                configuration = configurations.deployerJars
+                repository(url: preferedRepo) {
+                    authentication(userName: preferedUsername, password: preferedPassword)
+                }
+            } else if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
                 repository(url: sonatypeRepositoryUrl) {
                     authentication(userName: sonatypeUsername, password: sonatypePassword)
@@ -116,7 +124,7 @@ uploadArchives {
                    system 'GitHub Issues'
                    url 'https://github.com/greenrobot/EventBus/issues'
                }
-               
+
                organization {
                    name 'greenrobot'
                    url 'http://greenrobot.de'
