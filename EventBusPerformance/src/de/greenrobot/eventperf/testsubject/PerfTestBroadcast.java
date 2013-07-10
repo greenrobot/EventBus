@@ -1,32 +1,33 @@
 package de.greenrobot.eventperf.testsubject;
 
-import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.os.Looper;
-import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
-import com.squareup.otto.ThreadEnforcer;
+import android.content.Intent;
+import android.content.IntentFilter;
 import de.greenrobot.eventperf.Test;
-import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class PerfTestOtto extends Test {
+public abstract class PerfTestBroadcast extends Test {
 
-    private final Bus eventBus;
-    private final ArrayList<Object> subscribers;
+
+    private final ArrayList<SubscriberWrapper> subscribers;
     private final Class<?> subscriberClass;
     private final int eventCount;
     private final int expectedEventCount;
+    public static final String action = "de.greenrobot.eventperf.BROADCAST";
 
-    public PerfTestOtto(Context context, TestParams params) {
+    private class SubscriberWrapper {
+        public    Subscriber receiver;
+        public IntentFilter filter;
+    }
+
+    public PerfTestBroadcast(Context context, TestParams params) {
         super(context, params);
-        eventBus = new Bus(ThreadEnforcer.ANY);
-        subscribers = new ArrayList<Object>();
+        subscribers = new ArrayList<SubscriberWrapper>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
         subscriberClass = Subscriber.class;
@@ -34,20 +35,21 @@ public abstract class PerfTestOtto extends Test {
 
     @Override
     public void prepareTest() {
-        Looper.prepare();
+//        Looper.prepare();
 
         try {
-            Constructor<?> constructor = subscriberClass.getConstructor(PerfTestOtto.class);
             for (int i = 0; i < params.getSubscriberCount(); i++) {
-                Object subscriber = constructor.newInstance(this);
-                subscribers.add(subscriber);
+                SubscriberWrapper subscriberWrap = new SubscriberWrapper();
+                subscriberWrap.receiver = new Subscriber();
+                subscriberWrap.filter = new IntentFilter(action);
+                subscribers.add(subscriberWrap);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static class Post extends PerfTestOtto {
+    public static class Post extends PerfTestBroadcast {
         public Post(Context context, TestParams params) {
             super(context, params);
         }
@@ -60,35 +62,32 @@ public abstract class PerfTestOtto extends Test {
 
         public void runTest() {
             long timeStart = System.nanoTime();
-            TestEvent event;
             for (int i = 0; i < super.eventCount; i++) {
-               event = new TestEvent();
-              event.value = 1;
-              super.eventBus.post(event);
+                super.context.sendBroadcast(new Intent(action));
                 if (canceled) {
                     break;
                 }
             }
             long timeAfterPosting = System.nanoTime();
             waitForReceivedEventCount(super.expectedEventCount);
-          long timeAllReceived = System.nanoTime();
+            long timeAllReceived = System.nanoTime();
 
             primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
             primaryResultCount = super.expectedEventCount;
 
-          long deliveredMicros = (timeAllReceived - timeStart) / 1000;
-          int deliveryRate = (int) (primaryResultCount / (deliveredMicros / 1000000d));
-          otherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
-              "Post and delivery rate: " + deliveryRate + "/s";
+            long deliveredMicros = (timeAllReceived - timeStart) / 1000;
+            int deliveryRate = (int) (primaryResultCount / (deliveredMicros / 1000000d));
+            otherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
+                    "Post and delivery rate: " + deliveryRate + "/s";
         }
 
         @Override
         public String getDisplayName() {
-            return "Otto Post Events";
+            return "Broadcast Post Events";
         }
     }
 
-    public static class RegisterAll extends PerfTestOtto {
+    public static class RegisterAll extends PerfTestBroadcast {
         public RegisterAll(Context context, TestParams params) {
             super(context, params);
         }
@@ -102,11 +101,11 @@ public abstract class PerfTestOtto extends Test {
 
         @Override
         public String getDisplayName() {
-            return "Otto Register, no unregister";
+            return "Broadcast Register, no unregister";
         }
     }
 
-    public static class RegisterOneByOne extends PerfTestOtto {
+    public static class RegisterOneByOne extends PerfTestBroadcast {
         protected Field cacheField;
 
         public RegisterOneByOne(Context context, TestParams params) {
@@ -120,7 +119,7 @@ public abstract class PerfTestOtto extends Test {
                 // Skip first registration unless just the first registration is tested
                 super.registerUnregisterOneSubscribers();
             }
-            for (Object subscriber : super.subscribers) {
+            for (SubscriberWrapper subscriber : super.subscribers) {
                 if (cacheField != null) {
                     try {
                         cacheField.set(null, new HashMap());
@@ -129,10 +128,10 @@ public abstract class PerfTestOtto extends Test {
                     }
                 }
                 long beforeRegister = System.nanoTime();
-                super.eventBus.register(subscriber);
+                super.context.registerReceiver(subscriber.receiver, subscriber.filter);
                 long timeRegister = System.nanoTime() - beforeRegister;
                 time += timeRegister;
-                super.eventBus.unregister(subscriber);
+                super.context.unregisterReceiver(subscriber.receiver);
                 if (canceled) {
                     return;
                 }
@@ -144,7 +143,7 @@ public abstract class PerfTestOtto extends Test {
 
         @Override
         public String getDisplayName() {
-            return "Otto Register";
+            return "Broadcast Register";
         }
     }
 
@@ -152,53 +151,29 @@ public abstract class PerfTestOtto extends Test {
 
         public RegisterFirstTime(Context context, TestParams params) {
             super(context, params);
-            try {
-                Class<?> clazz = Class.forName("com.squareup.otto.AnnotatedHandlerFinder");
-                cacheField = clazz.getDeclaredField("SUBSCRIBERS_CACHE");
-                cacheField.setAccessible(true);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
         }
 
         @Override
         public String getDisplayName() {
-            return "Otto Register, first time";
+            return "Broadcast, first time";
         }
 
     }
 
-    public class Subscriber extends Activity {
-        public Subscriber() {
-        }
+    public class Subscriber extends BroadcastReceiver {
 
-        @Subscribe
-        public void onEvent(TestEvent event) {
-            eventsReceivedCount.addAndGet(event.value);
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            eventsReceivedCount.incrementAndGet();
         }
-
-        public void dummy() {
-        }
-
-        public void dummy2() {
-        }
-
-        public void dummy3() {
-        }
-
-        public void dummy4() {
-        }
-
-        public void dummy5() {
-        }
-
     }
 
     private long registerSubscribers() {
         long time = 0;
-        for (Object subscriber : subscribers) {
+        for (SubscriberWrapper subscriber : subscribers) {
             long timeStart = System.nanoTime();
-            eventBus.register(subscriber);
+            super.context.registerReceiver(subscriber.receiver, subscriber.filter);
+//            eventBus.register(subscriber);
             long timeEnd = System.nanoTime();
             time += timeEnd - timeStart;
             if (canceled) {
@@ -210,9 +185,9 @@ public abstract class PerfTestOtto extends Test {
 
     private void registerUnregisterOneSubscribers() {
         if (!subscribers.isEmpty()) {
-            Object subscriber = subscribers.get(0);
-            eventBus.register(subscriber);
-            eventBus.unregister(subscriber);
+            SubscriberWrapper subscriberWrapper = subscribers.get(0);
+            context.registerReceiver(subscriberWrapper.receiver, subscriberWrapper.filter);
+            context.unregisterReceiver(subscriberWrapper.receiver);
         }
     }
 
