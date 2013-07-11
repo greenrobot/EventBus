@@ -395,7 +395,7 @@ public class EventBus {
             synchronized (this) {
                 subscriptions = subscriptionsByEventType.get(clazz);
             }
-            if (subscriptions != null) {
+            if (subscriptions != null && subscriptions.size() > 0) {
                 for (Subscription subscription : subscriptions) {
                     postToSubscription(subscription, event, isMainThread);
                 }
