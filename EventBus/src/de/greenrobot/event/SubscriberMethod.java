@@ -34,6 +34,7 @@ final class SubscriberMethod {
     public boolean equals(Object other) {
         if (other instanceof SubscriberMethod) {
             checkMethodString();
+            ((SubscriberMethod)other).checkMethodString();
             // Don't use method.equals because of http://code.google.com/p/android/issues/detail?id=7811#c6
             return methodString.equals(((SubscriberMethod) other).methodString);
         } else {
