@@ -93,6 +93,7 @@ uploadArchives {
                 println "Settings sonatypeUsername/sonatypePassword missing/incomplete for ${project.name}"
             }
 
+            pom.artifactId = 'eventbus'
             pom.project {
                name 'EventBus'
                packaging 'jar'
