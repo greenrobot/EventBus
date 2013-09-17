@@ -33,6 +33,7 @@ public class ErrorDialogManager {
         protected Bundle argumentsForErrorDialog;
         private EventBus eventBus;
         private boolean skipRegisterOnNextResume;
+        private Object executionScope;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,9 @@ public class ErrorDialogManager {
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {
+            if (!isInExecutionScope(executionScope, event)) {
+                return;
+            }
             checkLogException(event);
             // Execute pending commits before finding to avoid multiple error fragments being shown
             FragmentManager fm = getFragmentManager();
@@ -79,7 +83,8 @@ public class ErrorDialogManager {
             }
         }
 
-        public static void attachTo(Activity activity, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
+        public static void attachTo(Activity activity, Object executionScope, boolean finishAfterDialog,
+                Bundle argumentsForErrorDialog) {
             FragmentManager fm = ((FragmentActivity) activity).getSupportFragmentManager();
             SupportManagerFragment fragment = (SupportManagerFragment) fm.findFragmentByTag(TAG_ERROR_DIALOG_MANAGER);
             if (fragment == null) {
@@ -89,6 +94,7 @@ public class ErrorDialogManager {
             }
             fragment.finishAfterDialog = finishAfterDialog;
             fragment.argumentsForErrorDialog = argumentsForErrorDialog;
+            fragment.executionScope = executionScope;
         }
     }
 
@@ -97,6 +103,7 @@ public class ErrorDialogManager {
         protected boolean finishAfterDialog;
         protected Bundle argumentsForErrorDialog;
         private EventBus eventBus;
+        private Object executionScope;
 
         @Override
         public void onResume() {
@@ -112,6 +119,9 @@ public class ErrorDialogManager {
         }
 
         public void onEventMainThread(ThrowableFailureEvent event) {
+            if (!isInExecutionScope(executionScope, event)) {
+                return;
+            }
             checkLogException(event);
 
             // Execute pending commits before finding to avoid multiple error fragments being shown
@@ -132,7 +142,7 @@ public class ErrorDialogManager {
             }
         }
 
-        public static void attachTo(Activity activity, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
+        public static void attachTo(Activity activity, Object executionScope, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
             android.app.FragmentManager fm = activity.getFragmentManager();
             HoneycombManagerFragment fragment = (HoneycombManagerFragment) fm
                     .findFragmentByTag(TAG_ERROR_DIALOG_MANAGER);
@@ -143,6 +153,7 @@ public class ErrorDialogManager {
             }
             fragment.finishAfterDialog = finishAfterDialog;
             fragment.argumentsForErrorDialog = argumentsForErrorDialog;
+            fragment.executionScope = executionScope;
         }
     }
 
@@ -158,22 +169,30 @@ public class ErrorDialogManager {
     public static final String KEY_ICON_ID = "de.greenrobot.eventbus.errordialog.icon_id";
     public static final String KEY_EVENT_TYPE_ON_CLOSE = "de.greenrobot.eventbus.errordialog.event_type_on_close";
 
+    /** Scope is limited to the activity's class. */
     public static void attachTo(Activity activity) {
         attachTo(activity, false, null);
     }
 
+    /** Scope is limited to the activity's class. */
     public static void attachTo(Activity activity, boolean finishAfterDialog) {
         attachTo(activity, finishAfterDialog, null);
     }
 
+    /** Scope is limited to the activity's class. */
     public static void attachTo(Activity activity, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
+        Object executionScope = activity.getClass();
+        attachTo(activity, executionScope, finishAfterDialog, argumentsForErrorDialog);
+    }
+    
+    public static void attachTo(Activity activity, Object executionScope, boolean finishAfterDialog, Bundle argumentsForErrorDialog) {
         if (factory == null) {
             throw new RuntimeException("You must set the static factory field to configure error dialogs for your app.");
         }
         if (isSupportActivity(activity)) {
-            SupportManagerFragment.attachTo(activity, finishAfterDialog, argumentsForErrorDialog);
+            SupportManagerFragment.attachTo(activity, executionScope, finishAfterDialog, argumentsForErrorDialog);
         } else {
-            HoneycombManagerFragment.attachTo(activity, finishAfterDialog, argumentsForErrorDialog);
+            HoneycombManagerFragment.attachTo(activity, executionScope, finishAfterDialog, argumentsForErrorDialog);
         }
     }
 
@@ -210,6 +229,17 @@ public class ErrorDialogManager {
             }
             Log.i(tag, "Error dialog manager received exception", event.throwable);
         }
+    }
+
+    private static boolean isInExecutionScope(Object executionScope, ThrowableFailureEvent event) {
+        if (executionScope != null && event instanceof HasExecutionScope) {
+            Object eventExecutionScope = ((HasExecutionScope) event).getExecutionScope();
+            if (eventExecutionScope != null && !eventExecutionScope.equals(executionScope)) {
+                // Event not in our scope, do nothing
+                return false;
+            }
+        }
+        return true;
     }
 
 }

@@ -19,9 +19,10 @@ package de.greenrobot.event.util;
  * A generic failure event, which can be used by apps to propagate thrown exceptions. Also used in conjunction with
  * {@link ErrorDialogManager}.
  */
-public class ThrowableFailureEvent {
+public class ThrowableFailureEvent implements HasExecutionScope {
     protected final Throwable throwable;
     protected final boolean suppressErrorUi;
+    private Object executionContext;
 
     public ThrowableFailureEvent(Throwable throwable) {
         this.throwable = throwable;
@@ -45,4 +46,12 @@ public class ThrowableFailureEvent {
         return suppressErrorUi;
     }
 
+    public Object getExecutionScope() {
+        return executionContext;
+    }
+
+    public void setExecutionScope(Object executionContext) {
+        this.executionContext = executionContext;
+    }
+    
 }
