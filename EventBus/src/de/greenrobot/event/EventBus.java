@@ -349,9 +349,9 @@ public class EventBus {
      * 
      * @see #postSticky(Object)
      */
-    public Object getStickyEvent(Class<?> eventType) {
+    public <T> T getStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
-            return stickyEvents.get(eventType);
+            return eventType.cast(stickyEvents.get(eventType));
         }
     }
 
@@ -360,9 +360,9 @@ public class EventBus {
      * 
      * @see #postSticky(Object)
      */
-    public Object removeStickyEvent(Class<?> eventType) {
+    public <T> T removeStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
-            return stickyEvents.remove(eventType);
+            return eventType.cast(stickyEvents.remove(eventType));
         }
     }
 
