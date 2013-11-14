@@ -46,13 +46,13 @@ In EventBus, each event handling method is associated with a thread mode (have a
 * **BackgroundThread:** Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single background thread that will deliver all its events sequentially. Event handlers using this mode should try to return quickly to avoid blocking the background thread.
 * **Async:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
 
-*Example:* Consider your subscriber updates the UI, but the triggering event is posted by a background thread (using eventBus.post(event)). The name of the event handling method should be onEventMainThread. EventBus takes care of calling the method in the main thread without any further code required
+*Example:* Consider your subscriber updates the UI, but the triggering event is posted by a background thread (using `eventBus.post(event)`). The name of the event handling method should be `onEventMainThread`. EventBus takes care of calling the method in the main thread without any further code required
 
 Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
 
-API-wise events are made sticky by using postSticky(Object event) instead of post(Object event). Subscribers that want to get previously posted sticky events, use registerSticky(...) instead of register(...). Alternatively, the last sticky event of a certain event type can be queried by using getStickyEvent(Class<?> eventType).
+API-wise events are made sticky by using `postSticky(Object event)` instead of `post(Object event)`. Subscribers that want to get previously posted sticky events, use `registerSticky(...)` instead of `register(...)`. Alternatively, the last sticky event of a certain event type can be queried by using `getStickyEvent(Class<?> eventType)`.
 
 Additional Features and Notes
 -----------------------------
