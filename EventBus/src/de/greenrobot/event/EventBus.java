@@ -288,7 +288,9 @@ public class EventBus {
         if (subscriptions != null) {
             int size = subscriptions.size();
             for (int i = 0; i < size; i++) {
-                if (subscriptions.get(i).subscriber == subscriber) {
+                Subscription subscription = subscriptions.get(i);
+                if (subscription.subscriber == subscriber) {
+                    subscription.active = false;
                     subscriptions.remove(i);
                     i--;
                     size--;
@@ -465,11 +467,19 @@ public class EventBus {
         }
     }
 
+    /**
+     * Invokes the subscriber if the subscriptions is still active. Skipping subscriptions prevents race conditions
+     * between {@link #unregister(Object)} and event delivery. Otherwise the event might be delivered after the
+     * subscriber unregistered. This is particularly important for main thread delivery and registrations bound to the
+     * live cycle of an Activity or Fragment.
+     */
     void invokeSubscriber(PendingPost pendingPost) {
         Object event = pendingPost.event;
         Subscription subscription = pendingPost.subscription;
         PendingPost.releasePendingPost(pendingPost);
-        invokeSubscriber(subscription, event);
+        if (subscription.active) {
+            invokeSubscriber(subscription, event);
+        }
     }
 
     void invokeSubscriber(Subscription subscription, Object event) throws Error {
