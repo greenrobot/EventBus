@@ -180,6 +180,17 @@ FAQ
 
 Release History
 ---------------
+### V2.1.0 (2013-11-15) Features and bug fix release, util package
+* AsyncExecutor executes RunnableEx and wraps exceptions into FailureEvents
+* Experimental: exception to UI mapping (for now based on dialogs)
+* Fixed race condition with queued events that were delivered after subscription was unregistered. This is important for main thread events tied to application life cycle.
+* Fixed typos and improved readme (#17, #22, #37, #39)
+* Make getStickyEvent and removeStickyEvent generic (#45)
+* Fixed bug in SubscriberMethod.equals() (#38)
+
+### V2.0.2 (2013-03-02) Bug fix release
+* Fixed build dependencies, are "provided" now
+
 ### V2.0.1 (2013-02-25) Bug fix release, Gradle and Maven Central
 * Fixed #15: removeStickyEvent(...) does not remove event the first time
 * Introduced Gradle build scripts for main project
