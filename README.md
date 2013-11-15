@@ -180,6 +180,9 @@ FAQ
 
 Release History
 ---------------
+### V2.1.1 (future release) Bug fix release
+* Fixed NoSubscriberEvent delivery after unregister
+
 ### V2.1.0 (2013-11-15) Features and bug fix release, util package
 * AsyncExecutor executes RunnableEx and wraps exceptions into FailureEvents
 * Experimental: exception to UI mapping (for now based on dialogs)

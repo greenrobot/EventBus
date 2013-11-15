@@ -33,6 +33,17 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
         assertSame(eventBus, noSub.eventBus);
     }
 
+    public void testNoSubscriberEventAfterUnregister() {
+        Object subscriber = new Object() {
+            @SuppressWarnings("unused")
+            public void onEvent(String dummy) {
+            }
+        };
+        eventBus.register(subscriber);
+        eventBus.unregister(subscriber);
+        testNoSubscriberEvent();
+    }
+    
     public void testBadNoSubscriberSubscriber() {
         eventBus.configureLogSubscriberExceptions(false);
         eventBus.register(this);
