@@ -17,7 +17,6 @@ package de.greenrobot.event.test;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -27,8 +26,7 @@ import android.os.Looper;
  */
 public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
 
-    private static final boolean REALTEST = false;
-    private static final int ITERATIONS = REALTEST ? 100000 : 1000;
+    private static final int ITERATIONS = LONG_TESTS ? 100000 : 1000;
 
     protected boolean unregistered;
     private CountDownLatch startLatch;
@@ -56,7 +54,7 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
         backgroundPoster.start();
         Handler handler = new Handler(Looper.getMainLooper());
         Random random = new Random();
-        countDownAndAwaitLatch();
+        countDownAndAwaitLatch(startLatch, 10);
         for (int i = 0; i < ITERATIONS; i++) {
             handler.post(register);
             Thread.sleep(0, random.nextInt(300)); // Sleep just some nanoseconds, timing is crucial here
@@ -78,15 +76,6 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
         }
     }
 
-    protected void countDownAndAwaitLatch() {
-        startLatch.countDown();
-        try {
-            assertTrue(startLatch.await(10, TimeUnit.SECONDS));
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     class BackgroundPoster extends Thread {
         private boolean running = true;
 
@@ -96,7 +85,7 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
 
         @Override
         public void run() {
-            countDownAndAwaitLatch();
+            countDownAndAwaitLatch(startLatch, 10);
             while (running) {
                 eventBus.post("Posted in background");
             }

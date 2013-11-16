@@ -29,11 +29,7 @@ import de.greenrobot.event.EventBus;
  */
 public class EventBusMultithreadedTest extends AbstractEventBusTest {
 
-    /**
-     * Iteration count per test (will be divided by number of threads); run with 1000 for quick testing, and with 10000
-     * from time to time.
-     */
-    private static final int COUNT = 1000;
+    private static final int COUNT = LONG_TESTS ? 100000 : 1000;
 
     private final AtomicInteger countStringEvent = new AtomicInteger();
     private final AtomicInteger countIntegerEvent = new AtomicInteger();
@@ -147,7 +143,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
 
     private long triggerAndWaitForThreads(List<PosterThread> threads, CountDownLatch latch) throws InterruptedException {
         while (latch.getCount() != 1) {
-            // Let all threads prepare
+            // Let all other threads prepare and ensure this one is the last 
             Thread.sleep(1);
         }
         long start = System.currentTimeMillis();
@@ -233,7 +229,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
                     eventBus.register(this);
                     double random = Math.random();
                     if (random > 0.6d) {
-                        Thread.sleep(1);
+                        Thread.sleep(0, (int) (1000000 * Math.random()));
                     } else if (random > 0.3d) {
                         Thread.yield();
                     }

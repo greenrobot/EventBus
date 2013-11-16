@@ -17,6 +17,8 @@ package de.greenrobot.event.test;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.annotation.SuppressLint;
@@ -31,6 +33,8 @@ import de.greenrobot.event.EventBus;
  * @author Markus Junginger, greenrobot
  */
 public class AbstractEventBusTest extends ApplicationTestCase<Application> {
+    /** Activates long(er) running tests e.g. testing multi-threading more throughly.  */
+    protected static final boolean LONG_TESTS = true;
 
     protected EventBus eventBus;
 
@@ -112,6 +116,15 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     
     protected void assertEventCount(int expectedEventCount) {
         assertEquals(expectedEventCount, eventCount.intValue());
+    }
+    
+    protected void countDownAndAwaitLatch(CountDownLatch latch, long seconds) {
+        latch.countDown();
+        try {
+            assertTrue(latch.await(seconds, TimeUnit.SECONDS));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
