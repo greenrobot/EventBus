@@ -147,8 +147,9 @@ public class EventBus {
     }
 
     /**
-     * Like {@link #register(Object)}, but allows to define a custom method name for event handler methods.
+     * @deprecated For simplification of the API, this method will be removed in the future.
      */
+    @Deprecated
     public void register(Object subscriber, String methodName) {
         register(subscriber, methodName, false);
     }
@@ -162,8 +163,9 @@ public class EventBus {
     }
 
     /**
-     * Like {@link #registerSticky(Object)}, but allows to define a custom method name for event handler methods.
+     * @deprecated For simplification of the API, this method will be removed in the future.
      */
+    @Deprecated
     public void registerSticky(Object subscriber, String methodName) {
         register(subscriber, methodName, true);
     }
@@ -177,32 +179,34 @@ public class EventBus {
     }
 
     /**
-     * Like {@link #register(Object)}, but only registers the subscriber for the given event types.
+     * @deprecated For simplification of the API, this method will be removed in the future.
      */
+    @Deprecated
     public void register(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
         register(subscriber, defaultMethodName, false, eventType, moreEventTypes);
     }
 
     /**
-     * Like {@link #register(Object, String)}, but only registers the subscriber for the given event types.
+     * @deprecated For simplification of the API, this method will be removed in the future.
      */
-    public void register(Object subscriber, String methodName, Class<?> eventType,
-            Class<?>... moreEventTypes) {
+    @Deprecated
+    public void register(Object subscriber, String methodName, Class<?> eventType, Class<?>... moreEventTypes) {
         register(subscriber, methodName, false, eventType, moreEventTypes);
     }
 
     /**
-     * Like {@link #registerSticky(Object)}, but only registers the subscriber for the given event types.
+     * @deprecated For simplification of the API, this method will be removed in the future.
      */
+    @Deprecated
     public void registerSticky(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
         register(subscriber, defaultMethodName, true, eventType, moreEventTypes);
     }
 
     /**
-     * Like {@link #registerSticky(Object, String)}, but only registers the subscriber for the given event types.
+     * @deprecated For simplification of the API, this method will be removed in the future.
      */
-    public void registerSticky(Object subscriber, String methodName, Class<?> eventType,
-            Class<?>... moreEventTypes) {
+    @Deprecated
+    public void registerSticky(Object subscriber, String methodName, Class<?> eventType, Class<?>... moreEventTypes) {
         register(subscriber, methodName, true, eventType, moreEventTypes);
     }
 
@@ -359,7 +363,7 @@ public class EventBus {
     }
 
     /**
-     * Remove and gets the recent sticky event for the given type.
+     * Remove and gets the recent sticky event for the given event type.
      * 
      * @see #postSticky(Object)
      */
