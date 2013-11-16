@@ -95,7 +95,9 @@ class SubscriberMethodFinder {
     }
 
     static void clearCaches() {
-        methodCache.clear();
+        synchronized (methodCache) {
+            methodCache.clear();
+        }
     }
 
     static void skipMethodNameVerificationFor(Class<?> clazz) {
