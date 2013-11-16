@@ -120,6 +120,10 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     
     protected void countDownAndAwaitLatch(CountDownLatch latch, long seconds) {
         latch.countDown();
+        awaitLatch(latch, seconds);
+    }
+
+    protected void awaitLatch(CountDownLatch latch, long seconds) {
         try {
             assertTrue(latch.await(seconds, TimeUnit.SECONDS));
         } catch (InterruptedException e) {

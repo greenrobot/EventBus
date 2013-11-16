@@ -52,20 +52,36 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
         startLatch = new CountDownLatch(2);
         BackgroundPoster backgroundPoster = new BackgroundPoster();
         backgroundPoster.start();
-        Handler handler = new Handler(Looper.getMainLooper());
-        Random random = new Random();
-        countDownAndAwaitLatch(startLatch, 10);
-        for (int i = 0; i < ITERATIONS; i++) {
-            handler.post(register);
-            Thread.sleep(0, random.nextInt(300)); // Sleep just some nanoseconds, timing is crucial here
-            handler.post(unregister);
-            if (failed != null) {
-                throw new RuntimeException("Failed in iteration " + i, failed);
+        try {
+            Handler handler = new Handler(Looper.getMainLooper());
+            Random random = new Random();
+            countDownAndAwaitLatch(startLatch, 10);
+            for (int i = 0; i < ITERATIONS; i++) {
+                handler.post(register);
+                Thread.sleep(0, random.nextInt(300)); // Sleep just some nanoseconds, timing is crucial here
+                handler.post(unregister);
+                if (failed != null) {
+                    throw new RuntimeException("Failed in iteration " + i, failed);
+                }
+                // Don't let the queue grow to avoid out-of-memory scenarios
+                waitForHandler(handler);
             }
+        } finally {
+            backgroundPoster.running = false;
+            backgroundPoster.join();
         }
+    }
 
-        backgroundPoster.shutdown();
-        backgroundPoster.join();
+    protected void waitForHandler(Handler handler) {
+        final CountDownLatch doneLatch = new CountDownLatch(1);
+        handler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                doneLatch.countDown();
+            }
+        });
+        awaitLatch(doneLatch, 10);
     }
 
     public void onEventMainThread(String event) {
@@ -77,7 +93,7 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
     }
 
     class BackgroundPoster extends Thread {
-        private boolean running = true;
+        volatile boolean running = true;
 
         public BackgroundPoster() {
             super("BackgroundPoster");
@@ -89,10 +105,6 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
             while (running) {
                 eventBus.post("Posted in background");
             }
-        }
-
-        void shutdown() {
-            running = false;
         }
 
     }
