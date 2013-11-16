@@ -168,7 +168,7 @@ public class EventBus {
         register(subscriber, methodName, true);
     }
 
-    private void register(Object subscriber, String methodName, boolean sticky) {
+    private synchronized void register(Object subscriber, String methodName, boolean sticky) {
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass(),
                 methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
@@ -186,7 +186,7 @@ public class EventBus {
     /**
      * Like {@link #register(Object, String)}, but only registers the subscriber for the given event types.
      */
-    public synchronized void register(Object subscriber, String methodName, Class<?> eventType,
+    public void register(Object subscriber, String methodName, Class<?> eventType,
             Class<?>... moreEventTypes) {
         register(subscriber, methodName, false, eventType, moreEventTypes);
     }
@@ -201,7 +201,7 @@ public class EventBus {
     /**
      * Like {@link #registerSticky(Object, String)}, but only registers the subscriber for the given event types.
      */
-    public synchronized void registerSticky(Object subscriber, String methodName, Class<?> eventType,
+    public void registerSticky(Object subscriber, String methodName, Class<?> eventType,
             Class<?>... moreEventTypes) {
         register(subscriber, methodName, true, eventType, moreEventTypes);
     }
@@ -225,6 +225,7 @@ public class EventBus {
         }
     }
 
+    // Must be called in synchronized block
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod, boolean sticky) {
         subscribed = true;
         Class<?> eventType = subscriberMethod.eventType;
