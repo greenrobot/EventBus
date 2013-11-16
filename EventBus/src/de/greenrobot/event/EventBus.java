@@ -390,6 +390,15 @@ public class EventBus {
             }
         }
     }
+    
+    /**
+     * Removes all sticky events.
+     */
+    public void removeAllStickyEvents() {
+        synchronized (stickyEvents) {
+            stickyEvents.clear();
+        }
+    }
 
     private void postSingleEvent(Object event, boolean isMainThread) throws Error {
         Class<? extends Object> eventClass = event.getClass();

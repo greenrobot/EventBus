@@ -119,6 +119,17 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         assertEquals(0, eventCount.intValue());
     }
 
+    public void testPostStickyRemoveAll() throws InterruptedException {
+        eventBus.postSticky("Sticky");
+        eventBus.postSticky(new IntTestEvent(77));
+        eventBus.removeAllStickyEvents();
+        assertNull(eventBus.getStickyEvent(String.class));
+        assertNull(eventBus.getStickyEvent(IntTestEvent.class));
+        eventBus.registerSticky(this);
+        assertNull(lastEvent);
+        assertEquals(0, eventCount.intValue());
+    }
+
     public void testRemoveStickyEventInSubscriber() throws InterruptedException {
         eventBus.registerSticky(new Object() {
             @SuppressWarnings("unused")
