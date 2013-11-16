@@ -122,6 +122,14 @@ public class EventBusBasicTest extends TestCase {
         }
     }
 
+    public void testIsRegistered() {
+        assertFalse(eventBus.isRegistered(this));
+        eventBus.register(this);
+        assertTrue(eventBus.isRegistered(this));
+        eventBus.unregister(this);
+        assertFalse(eventBus.isRegistered(this));
+    }
+
     public void testPostWithTwoSubscriber() {
         EventBusBasicTest test2 = new EventBusBasicTest();
         eventBus.register(this, String.class);

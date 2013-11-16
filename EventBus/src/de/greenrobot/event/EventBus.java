@@ -267,8 +267,15 @@ public class EventBus {
             }
         }
     }
+    
+    public synchronized boolean isRegistered(Object subscriber) {
+        return typesBySubscriber.containsKey(subscriber);
+    }
 
-    /** Unregisters the given subscriber for the given event classes. */
+    /**
+     * @deprecated For simplification of the API, this method will be removed in the future.
+     */
+    @Deprecated
     public synchronized void unregister(Object subscriber, Class<?>... eventTypes) {
         if (eventTypes.length == 0) {
             throw new IllegalArgumentException("Provide at least one event class");
