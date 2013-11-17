@@ -51,17 +51,10 @@ public class EventBus {
     private final Map<Object, List<Class<?>>> typesBySubscriber;
     private final Map<Class<?>, Object> stickyEvents;
 
-    private final ThreadLocal<List<Object>> currentThreadEventQueue = new ThreadLocal<List<Object>>() {
+    private final ThreadLocal<PostingThreadState> currentPostingThreadState = new ThreadLocal<PostingThreadState>() {
         @Override
-        protected List<Object> initialValue() {
-            return new ArrayList<Object>();
-        }
-    };
-
-    private final ThreadLocal<BooleanWrapper> currentThreadIsPosting = new ThreadLocal<BooleanWrapper>() {
-        @Override
-        protected BooleanWrapper initialValue() {
-            return new BooleanWrapper();
+        protected PostingThreadState initialValue() {
+            return new PostingThreadState();
         }
     };
 
@@ -339,21 +332,21 @@ public class EventBus {
 
     /** Posts the given event to the event bus. */
     public void post(Object event) {
-        List<Object> eventQueue = currentThreadEventQueue.get();
+        PostingThreadState postingState = currentPostingThreadState.get();
+        List<Object> eventQueue = postingState.eventQueue;
         eventQueue.add(event);
 
-        BooleanWrapper isPosting = currentThreadIsPosting.get();
-        if (isPosting.value) {
+        if (postingState.isPosting) {
             return;
         } else {
             boolean isMainThread = Looper.getMainLooper() == Looper.myLooper();
-            isPosting.value = true;
+            postingState.isPosting = true;
             try {
                 while (!eventQueue.isEmpty()) {
                     postSingleEvent(eventQueue.remove(0), isMainThread);
                 }
             } finally {
-                isPosting.value = false;
+                postingState.isPosting = false;
             }
         }
     }
@@ -542,9 +535,10 @@ public class EventBus {
         }
     }
 
-    /** For ThreadLocal, much faster to set than storing a new Boolean. */
-    final static class BooleanWrapper {
-        boolean value;
+    /** For ThreadLocal, much faster to set (and get multiple values). */
+    final static class PostingThreadState {
+        List<Object> eventQueue = new ArrayList<Object>();
+        boolean isPosting;
     }
 
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
