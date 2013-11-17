@@ -24,7 +24,7 @@ EventBus is pushed to [Maven Central](http://search.maven.org/#search%7Cga%7C1%7
 Gradle template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
 ```
 dependencies {
-    compile 'de.greenrobot:eventbus:2.0.2'
+    compile 'de.greenrobot:eventbus:2.2.0'
 }
 ```
 Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
@@ -32,7 +32,7 @@ Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1
 <dependency>
     <groupId>de.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>2.0.2</version>
+    <version>2.2.0</version>
 </dependency>
 ```
 
@@ -48,6 +48,16 @@ In EventBus, each event handling method is associated with a thread mode (have a
 
 *Example:* Consider your subscriber updates the UI, but the triggering event is posted by a background thread (using `eventBus.post(event)`). The name of the event handling method should be `onEventMainThread`. EventBus takes care of calling the method in the main thread without any further code required
 
+Subscriber priorities and ordered event delivery
+------------------------------------------------
+*TODO. For now, this is just the javadoc for the method register(Object subscriber, int priority):*
+Like register(Object) with an additional subscriber priority to influence the order of event delivery. Within the same delivery thread (ThreadMode), higher priority subscribers will receive events before others with a lower priority. The default priority is 0. Note: the priority does *NOT* affect the order of delivery among subscribers with different ThreadModes!
+
+Cancelling further event delivery
+---------------------------------
+*TODO. For now, this is just the javadoc for the method cancelEventDelivery(Object event):*
+Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent subscribers won't receive the event. Events are usually canceled by higher priority subscribers (see register(Object, int)). Canceling is restricted to event handling methods running in posting thread ThreadMode.PostThread.
+
 Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
@@ -60,7 +70,7 @@ Additional Features and Notes
 * **NOT based on annotations:** Querying annotations are slow on Android, especially before Android 4.0. Have a look at this [Android bug report](http://code.google.com/p/android/issues/detail?id=7811)
 * **Based on conventions:** Event handling methods are called "onEvent" (you could supply different names, but this is not encouraged).
 * **Performanced optimized:** It's probably the fastest event bus for Android.
-* **Tiny:** The jar is less than 30 KBytes.
+* **Tiny:** The jar is less than 50 KBytes.
 * **Convenience singleton:** You can get a process wide event bus instance by calling EventBus.getDefault(). You can still call new EventBus() to create any number of local busses.
 * **Subscriber and event inheritance:** Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.
 * **Selective registration:** It's possible to register only for specific event types. This also allows subscribers to register only some of their event handling methods for main thread event delivery.
@@ -180,9 +190,9 @@ FAQ
 
 Release History
 ---------------
-### V2.2.0 (future release) Feature release, subscriber priority
+### V2.2.0 (2013-11-18) Feature release, subscriber priority
 * Register subscribers with a priority to to influence the order of event delivery (per delivery thread)
-* Event delivery can be aborted by subscribers so subsequent subscribers will not receive the event
+* Event delivery can be canceled by subscribers so subsequent subscribers will not receive the event
 * Added "isRegistered" and "removeAllStickyEvents" methods
 * Deprecated registration methods with custom method names and event class filters
 * Starting with EventBus 2.2 we enforced methods to be public
