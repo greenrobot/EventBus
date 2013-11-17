@@ -140,6 +140,12 @@ public class EventBus {
         register(subscriber, defaultMethodName, false, 0);
     }
 
+    /**
+     * Like {@link #register(Object)} with an additional subscriber priority to influence the order of event delivery.
+     * Within the same delivery thread ({@link ThreadMode}), higher priority subscribers will receive events before
+     * others with a lower priority. The default priority is 0. Note: the priority does *NOT* affect the order of
+     * delivery among subscribers with different {@link ThreadMode}s!
+     */
     public void register(Object subscriber, int priority) {
         register(subscriber, defaultMethodName, false, priority);
     }
@@ -158,6 +164,14 @@ public class EventBus {
      */
     public void registerSticky(Object subscriber) {
         register(subscriber, defaultMethodName, true, 0);
+    }
+
+    /**
+     * Like {@link #register(Object,int)}, but also triggers delivery of the most recent sticky event (posted with
+     * {@link #postSticky(Object)}) to the given subscriber.
+     */
+    public void registerSticky(Object subscriber, int priority) {
+        register(subscriber, defaultMethodName, true, priority);
     }
 
     /**

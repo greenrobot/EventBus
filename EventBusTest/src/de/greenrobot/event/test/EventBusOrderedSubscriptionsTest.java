@@ -31,23 +31,35 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
     private String fail;
 
     public void testOrdered() {
-        runTestOrdered("42");
+        runTestOrdered("42", false);
     }
 
     public void testOrderedMainThread() {
-        runTestOrdered(new IntTestEvent(42));
+        runTestOrdered(new IntTestEvent(42), false);
     }
 
     public void testOrderedBackgroundThread() {
-        runTestOrdered(Integer.valueOf(42));
+        runTestOrdered(Integer.valueOf(42), false);
+    }
+    
+    public void testOrderedSticky() {
+        runTestOrdered("42", true);
     }
 
-    protected void runTestOrdered(Object event) {
-        register(1);
-        register(-1);
-        register(10);
-        register(0);
-        register(-100);
+    public void testOrderedMainThreadSticky() {
+        runTestOrdered(new IntTestEvent(42), true);
+    }
+
+    public void testOrderedBackgroundThreadSticky() {
+        runTestOrdered(Integer.valueOf(42), true);
+    }
+
+    protected void runTestOrdered(Object event, boolean sticky) {
+        register(1, sticky);
+        register(-1, sticky);
+        register(10, sticky);
+        register(0, sticky);
+        register(-100, sticky);
         assertEquals(5, registered.size());
 
         eventBus.post(event);
@@ -64,9 +76,13 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
         }
     }
 
-    protected PrioSubscriber register(int priority) {
+    protected PrioSubscriber register(int priority, boolean sticky) {
         PrioSubscriber subscriber = new PrioSubscriber(priority);
-        eventBus.register(subscriber, priority);
+        if (sticky) {
+            eventBus.registerSticky(subscriber, priority);
+        } else {
+            eventBus.register(subscriber, priority);
+        }
         registered.add(subscriber);
         return subscriber;
     }
