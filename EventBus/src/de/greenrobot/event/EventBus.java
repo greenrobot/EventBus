@@ -339,14 +339,15 @@ public class EventBus {
         if (postingState.isPosting) {
             return;
         } else {
-            boolean isMainThread = Looper.getMainLooper() == Looper.myLooper();
+            postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
             postingState.isPosting = true;
             try {
                 while (!eventQueue.isEmpty()) {
-                    postSingleEvent(eventQueue.remove(0), isMainThread);
+                    postSingleEvent(eventQueue.remove(0), postingState);
                 }
             } finally {
                 postingState.isPosting = false;
+                postingState.isMainThread = false;
             }
         }
     }
@@ -413,7 +414,7 @@ public class EventBus {
         }
     }
 
-    private void postSingleEvent(Object event, boolean isMainThread) throws Error {
+    private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
         Class<? extends Object> eventClass = event.getClass();
         List<Class<?>> eventTypes = findEventTypes(eventClass);
         boolean subscriptionFound = false;
@@ -426,7 +427,7 @@ public class EventBus {
             }
             if (subscriptions != null && !subscriptions.isEmpty()) {
                 for (Subscription subscription : subscriptions) {
-                    postToSubscription(subscription, event, isMainThread);
+                    postToSubscription(subscription, event, postingState.isMainThread);
                 }
                 subscriptionFound = true;
             }
@@ -539,6 +540,7 @@ public class EventBus {
     final static class PostingThreadState {
         List<Object> eventQueue = new ArrayList<Object>();
         boolean isPosting;
+        boolean isMainThread;
     }
 
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
