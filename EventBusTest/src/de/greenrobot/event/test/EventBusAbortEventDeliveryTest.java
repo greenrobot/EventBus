@@ -51,7 +51,7 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
 
     public void testAbortOutsideEventHandler() {
         try {
-            eventBus.abortEventDelivery(this);
+            eventBus.cancelEventDelivery(this);
             fail("Should have thrown");
         } catch (EventBusException e) {
             // Expected
@@ -85,7 +85,7 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
         public void onEvent(String event) {
             trackEvent(event);
             if (abort) {
-                eventBus.abortEventDelivery(event);
+                eventBus.cancelEventDelivery(event);
             }
         }
     }
@@ -93,7 +93,7 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
     class SubscriberAbortOtherEvent {
         public void onEvent(String event) {
             try {
-                eventBus.abortEventDelivery(this);
+                eventBus.cancelEventDelivery(this);
             } catch (EventBusException e) {
                 failed = e;
             }
@@ -104,7 +104,7 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
         CountDownLatch done = new CountDownLatch(1);
         public void onEventMainThread(String event) {
             try {
-                eventBus.abortEventDelivery(event);
+                eventBus.cancelEventDelivery(event);
             } catch (EventBusException e) {
                 failed = e;
             }

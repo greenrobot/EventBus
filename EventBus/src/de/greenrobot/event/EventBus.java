@@ -357,7 +357,7 @@ public class EventBus {
         } else {
             postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
             postingState.isPosting = true;
-            if (postingState.aborted) {
+            if (postingState.canceled) {
                 throw new EventBusException("Internal error. Abort state was not reset");
             }
             try {
@@ -372,12 +372,12 @@ public class EventBus {
     }
 
     /**
-     * Called from a subscriber's event handling method, the event delivery will be aborted. Subsequent subscribers
-     * won't receive the event. Events are usually aborted by higher priority subscribers (see
-     * {@link #register(Object, int)}). Aborting is restricted to event handling methods running in posting thread
+     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent subscribers
+     * won't receive the event. Events are usually canceled by higher priority subscribers (see
+     * {@link #register(Object, int)}). Canceling is restricted to event handling methods running in posting thread
      * {@link ThreadMode#PostThread}.
      */
-    public void abortEventDelivery(Object event) {
+    public void cancelEventDelivery(Object event) {
         PostingThreadState postingState = currentPostingThreadState.get();
         if (!postingState.isPosting) {
             throw new EventBusException(
@@ -390,7 +390,7 @@ public class EventBus {
             throw new EventBusException(" event handlers may only abort the incoming event");
         }
 
-        postingState.aborted = true;
+        postingState.canceled = true;
     }
 
     /**
@@ -473,11 +473,11 @@ public class EventBus {
                     boolean aborted = false;
                     try {
                         postToSubscription(subscription, event, postingState.isMainThread);
-                        aborted = postingState.aborted;
+                        aborted = postingState.canceled;
                     } finally {
                         postingState.event = null;
                         postingState.subscription = null;
-                        postingState.aborted = false;
+                        postingState.canceled = false;
                     }
                     if (aborted) {
                         break;
@@ -597,7 +597,7 @@ public class EventBus {
         boolean isMainThread;
         Subscription subscription;
         Object event;
-        public boolean aborted;
+        boolean canceled;
     }
 
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
