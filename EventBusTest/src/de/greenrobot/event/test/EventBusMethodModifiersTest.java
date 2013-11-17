@@ -41,7 +41,7 @@ public class EventBusMethodModifiersTest extends AbstractEventBusTest {
     }
 
     public void testIllegalMethodNameSkip() {
-        EventBus.skipMethodNameVerificationFor(IllegalEventMethodName.class);
+        EventBus.skipMethodVerificationFor(IllegalEventMethodName.class);
         eventBus.register(new IllegalEventMethodName());
         eventBus.post(new Object());
     }

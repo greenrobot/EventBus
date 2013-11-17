@@ -95,15 +95,16 @@ public class EventBus {
 
     /**
      * Method name verification is done for methods starting with onEvent to avoid typos; using this method you can
-     * exclude subscriber classes from this check.
+     * exclude subscriber classes from this check. Also disables checks for method modifiers (public, not static nor
+     * abstract).
      */
-    public static void skipMethodNameVerificationFor(Class<?> clazz) {
-        SubscriberMethodFinder.skipMethodNameVerificationFor(clazz);
+    public static void skipMethodVerificationFor(Class<?> clazz) {
+        SubscriberMethodFinder.skipMethodVerificationFor(clazz);
     }
 
     /** For unit test primarily. */
     public static void clearSkipMethodNameVerifications() {
-        SubscriberMethodFinder.clearSkipMethodNameVerifications();
+        SubscriberMethodFinder.clearSkipMethodVerifications();
     }
 
     /**
@@ -144,6 +145,10 @@ public class EventBus {
      */
     public void register(Object subscriber) {
         register(subscriber, defaultMethodName, false);
+    }
+
+    public void register(Object subscriber, int priority) {
+        register(subscriber, defaultMethodName, false, priority);
     }
 
     /**
@@ -247,7 +252,9 @@ public class EventBus {
             }
         }
 
-        subscriberMethod.method.setAccessible(true);
+        // Starting with EventBus 2.2 we enforced methods to be public (might change with annotations again)
+        // subscriberMethod.method.setAccessible(true);
+        
         subscriptions.add(newSubscription);
 
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
@@ -397,7 +404,7 @@ public class EventBus {
             }
         }
     }
-    
+
     /**
      * Removes all sticky events.
      */
