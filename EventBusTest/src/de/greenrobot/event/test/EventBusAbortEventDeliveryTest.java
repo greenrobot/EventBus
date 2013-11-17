@@ -15,10 +15,17 @@
  */
 package de.greenrobot.event.test;
 
+import java.util.concurrent.CountDownLatch;
+
+import android.test.UiThreadTest;
+import de.greenrobot.event.EventBusException;
+
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
+
+    private Throwable failed;
 
     public void testAbort() {
         Subscriber aborter = new Subscriber(true);
@@ -42,6 +49,32 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
         assertEquals(2, eventCount.intValue());
     }
 
+    public void testAbortOutsideEventHandler() {
+        try {
+            eventBus.abortEventDelivery(this);
+            fail("Should have thrown");
+        } catch (EventBusException e) {
+            // Expected
+        }
+    }
+
+    public void testAbortWrongEvent() {
+        eventBus.register(new SubscriberAbortOtherEvent());
+        eventBus.post("42");
+        assertEquals(0, eventCount.intValue());
+        assertNotNull(failed);
+    }
+
+    @UiThreadTest
+    public void testAbortInMainThread() {
+        SubscriberMainThread subscriber = new SubscriberMainThread();
+        eventBus.register(subscriber);
+        eventBus.post("42");
+        awaitLatch(subscriber.done, 10);
+        assertEquals(0, eventCount.intValue());
+        assertNotNull(failed);
+    }
+
     class Subscriber {
         private boolean abort;
 
@@ -54,6 +87,28 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
             if (abort) {
                 eventBus.abortEventDelivery(event);
             }
+        }
+    }
+
+    class SubscriberAbortOtherEvent {
+        public void onEvent(String event) {
+            try {
+                eventBus.abortEventDelivery(this);
+            } catch (EventBusException e) {
+                failed = e;
+            }
+        }
+    }
+
+    class SubscriberMainThread {
+        CountDownLatch done = new CountDownLatch(1);
+        public void onEventMainThread(String event) {
+            try {
+                eventBus.abortEventDelivery(event);
+            } catch (EventBusException e) {
+                failed = e;
+            }
+            done.countDown();
         }
     }
 
