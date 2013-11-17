@@ -104,6 +104,10 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
             countDownAndAwaitLatch(startLatch, 10);
             while (running) {
                 eventBus.post("Posted in background");
+                if (Math.random() > 0.9f) {
+                    // Single cores would take very long without yielding
+                    Thread.yield();
+                }
             }
         }
 
