@@ -180,11 +180,17 @@ FAQ
 
 Release History
 ---------------
-### V2.1.1 (future release) Bug fix release
+### V2.2.0 (future release) Feature release, subscriber priority
+* Register subscribers with a priority to to influence the order of event delivery (per delivery thread)
+* Event delivery can be aborted by subscribers so subsequent subscribers will not receive the event
+* Added "isRegistered" and "removeAllStickyEvents" methods
+* Deprecated registration methods with custom method names and event class filters
+* Starting with EventBus 2.2 we enforced methods to be public
+* Fixed a race conditions with subscriber registration
 * Fixed NoSubscriberEvent delivery after unregister
 
-### V2.1.0 (2013-11-15) Features and bug fix release, util package
-* AsyncExecutor executes RunnableEx and wraps exceptions into FailureEvents
+### V2.1.0 (2013-11-15) Bug fix release, experimental util package
+* Experimental: AsyncExecutor executes RunnableEx and wraps exceptions into FailureEvents
 * Experimental: exception to UI mapping (for now based on dialogs)
 * Fixed race condition with queued events that were delivered after subscription was unregistered. This is important for main thread events tied to application life cycle.
 * Fixed typos and improved readme (#17, #22, #37, #39)
