@@ -20,7 +20,7 @@ import de.greenrobot.event.EventBusException;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusMainSubscriberLegalTest extends AbstractEventBusTest {
+public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
 
     public void testSubscriberLegal() {
         eventBus.register(this);
