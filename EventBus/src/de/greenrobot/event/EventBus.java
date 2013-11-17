@@ -269,6 +269,8 @@ public class EventBus {
                 stickyEvent = stickyEvents.get(eventType);
             }
             if (stickyEvent != null) {
+                // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
+                // --> Strange corner case, which we don't take care of here.
                 postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
             }
         }
@@ -341,6 +343,9 @@ public class EventBus {
         } else {
             postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
             postingState.isPosting = true;
+            if (postingState.aborted) {
+                throw new EventBusException("Internal error. Abort state was not reset");
+            }
             try {
                 while (!eventQueue.isEmpty()) {
                     postSingleEvent(eventQueue.remove(0), postingState);
@@ -350,6 +355,22 @@ public class EventBus {
                 postingState.isMainThread = false;
             }
         }
+    }
+
+    public void abortEventDelivery(Object event) {
+        PostingThreadState postingState = currentPostingThreadState.get();
+        if (!postingState.isPosting) {
+            throw new EventBusException(
+                    "This method may only be called from inside event handling methods on the posting thread");
+        } else if (event == null) {
+            throw new EventBusException("Event may not be null");
+        } else if (postingState.event != event) {
+            throw new EventBusException("Only the currently handled event may be aborted");
+        } else if (postingState.subscription.subscriberMethod.threadMode != ThreadMode.PostThread) {
+            throw new EventBusException(" event handlers may only abort the incoming event");
+        }
+
+        postingState.aborted = true;
     }
 
     /**
@@ -427,7 +448,20 @@ public class EventBus {
             }
             if (subscriptions != null && !subscriptions.isEmpty()) {
                 for (Subscription subscription : subscriptions) {
-                    postToSubscription(subscription, event, postingState.isMainThread);
+                    postingState.event = event;
+                    postingState.subscription = subscription;
+                    boolean aborted = false;
+                    try {
+                        postToSubscription(subscription, event, postingState.isMainThread);
+                        aborted = postingState.aborted;
+                    } finally {
+                        postingState.event = null;
+                        postingState.subscription = null;
+                        postingState.aborted = false;
+                    }
+                    if (aborted) {
+                        break;
+                    }
                 }
                 subscriptionFound = true;
             }
@@ -541,6 +575,9 @@ public class EventBus {
         List<Object> eventQueue = new ArrayList<Object>();
         boolean isPosting;
         boolean isMainThread;
+        Subscription subscription;
+        Object event;
+        public boolean aborted;
     }
 
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
