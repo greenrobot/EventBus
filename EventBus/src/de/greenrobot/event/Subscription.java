@@ -18,15 +18,17 @@ package de.greenrobot.event;
 final class Subscription {
     final Object subscriber;
     final SubscriberMethod subscriberMethod;
+    final int priority;
     /**
      * Becomes false as soon as {@link EventBus#unregister(Object)} is called, which is checked by queued event delivery
      * {@link EventBus#invokeSubscriber(PendingPost)} to prevent race conditions.
      */
     volatile boolean active;
 
-    Subscription(Object subscriber, SubscriberMethod subscriberMethod) {
+    Subscription(Object subscriber, SubscriberMethod subscriberMethod, int priority) {
         this.subscriber = subscriber;
         this.subscriberMethod = subscriberMethod;
+        this.priority = priority;
         active = true;
     }
 

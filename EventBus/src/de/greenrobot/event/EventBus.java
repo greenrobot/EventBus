@@ -144,7 +144,7 @@ public class EventBus {
      * "onEventMainThread".
      */
     public void register(Object subscriber) {
-        register(subscriber, defaultMethodName, false);
+        register(subscriber, defaultMethodName, false, 0);
     }
 
     public void register(Object subscriber, int priority) {
@@ -156,7 +156,7 @@ public class EventBus {
      */
     @Deprecated
     public void register(Object subscriber, String methodName) {
-        register(subscriber, methodName, false);
+        register(subscriber, methodName, false, 0);
     }
 
     /**
@@ -164,7 +164,7 @@ public class EventBus {
      * {@link #postSticky(Object)}) to the given subscriber.
      */
     public void registerSticky(Object subscriber) {
-        register(subscriber, defaultMethodName, true);
+        register(subscriber, defaultMethodName, true, 0);
     }
 
     /**
@@ -172,14 +172,14 @@ public class EventBus {
      */
     @Deprecated
     public void registerSticky(Object subscriber, String methodName) {
-        register(subscriber, methodName, true);
+        register(subscriber, methodName, true, 0);
     }
 
-    private synchronized void register(Object subscriber, String methodName, boolean sticky) {
+    private synchronized void register(Object subscriber, String methodName, boolean sticky, int priority) {
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass(),
                 methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
-            subscribe(subscriber, subscriberMethod, sticky);
+            subscribe(subscriber, subscriberMethod, sticky, priority);
         }
     }
 
@@ -222,11 +222,11 @@ public class EventBus {
                 methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             if (eventType == subscriberMethod.eventType) {
-                subscribe(subscriber, subscriberMethod, sticky);
+                subscribe(subscriber, subscriberMethod, sticky, 0);
             } else if (moreEventTypes != null) {
                 for (Class<?> eventType2 : moreEventTypes) {
                     if (eventType2 == subscriberMethod.eventType) {
-                        subscribe(subscriber, subscriberMethod, sticky);
+                        subscribe(subscriber, subscriberMethod, sticky, 0);
                         break;
                     }
                 }
@@ -235,11 +235,11 @@ public class EventBus {
     }
 
     // Must be called in synchronized block
-    private void subscribe(Object subscriber, SubscriberMethod subscriberMethod, boolean sticky) {
+    private void subscribe(Object subscriber, SubscriberMethod subscriberMethod, boolean sticky, int priority) {
         subscribed = true;
         Class<?> eventType = subscriberMethod.eventType;
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
-        Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
+        Subscription newSubscription = new Subscription(subscriber, subscriberMethod, priority);
         if (subscriptions == null) {
             subscriptions = new CopyOnWriteArrayList<Subscription>();
             subscriptionsByEventType.put(eventType, subscriptions);
@@ -254,8 +254,14 @@ public class EventBus {
 
         // Starting with EventBus 2.2 we enforced methods to be public (might change with annotations again)
         // subscriberMethod.method.setAccessible(true);
-        
-        subscriptions.add(newSubscription);
+
+        int size = subscriptions.size();
+        for (int i = 0; i <= size; i++) {
+            if (i == size || newSubscription.priority > subscriptions.get(i).priority) {
+                subscriptions.add(i, newSubscription);
+                break;
+            }
+        }
 
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
         if (subscribedEvents == null) {
@@ -274,7 +280,7 @@ public class EventBus {
             }
         }
     }
-    
+
     public synchronized boolean isRegistered(Object subscriber) {
         return typesBySubscriber.containsKey(subscriber);
     }
