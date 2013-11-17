@@ -23,33 +23,33 @@ import de.greenrobot.event.EventBusException;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
+public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
 
     private Throwable failed;
 
-    public void testAbort() {
-        Subscriber aborter = new Subscriber(true);
+    public void testCancel() {
+        Subscriber canceler = new Subscriber(true);
         eventBus.register(new Subscriber(false));
-        eventBus.register(aborter, 1);
+        eventBus.register(canceler, 1);
         eventBus.register(new Subscriber(false));
         eventBus.post("42");
         assertEquals(1, eventCount.intValue());
 
-        eventBus.unregister(aborter);
+        eventBus.unregister(canceler);
         eventBus.post("42");
         assertEquals(1 + 2, eventCount.intValue());
     }
 
-    public void testAbortInBetween() {
-        Subscriber aborter = new Subscriber(true);
-        eventBus.register(aborter, 2);
+    public void testCancelInBetween() {
+        Subscriber canceler = new Subscriber(true);
+        eventBus.register(canceler, 2);
         eventBus.register(new Subscriber(false), 1);
         eventBus.register(new Subscriber(false), 3);
         eventBus.post("42");
         assertEquals(2, eventCount.intValue());
     }
 
-    public void testAbortOutsideEventHandler() {
+    public void testCancelOutsideEventHandler() {
         try {
             eventBus.cancelEventDelivery(this);
             fail("Should have thrown");
@@ -58,15 +58,15 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
         }
     }
 
-    public void testAbortWrongEvent() {
-        eventBus.register(new SubscriberAbortOtherEvent());
+    public void testCancelWrongEvent() {
+        eventBus.register(new SubscriberCancelOtherEvent());
         eventBus.post("42");
         assertEquals(0, eventCount.intValue());
         assertNotNull(failed);
     }
 
     @UiThreadTest
-    public void testAbortInMainThread() {
+    public void testCancelInMainThread() {
         SubscriberMainThread subscriber = new SubscriberMainThread();
         eventBus.register(subscriber);
         eventBus.post("42");
@@ -76,21 +76,21 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
     }
 
     class Subscriber {
-        private boolean abort;
+        private boolean cancel;
 
-        public Subscriber(boolean abort) {
-            this.abort = abort;
+        public Subscriber(boolean cancel) {
+            this.cancel = cancel;
         }
 
         public void onEvent(String event) {
             trackEvent(event);
-            if (abort) {
+            if (cancel) {
                 eventBus.cancelEventDelivery(event);
             }
         }
     }
 
-    class SubscriberAbortOtherEvent {
+    class SubscriberCancelOtherEvent {
         public void onEvent(String event) {
             try {
                 eventBus.cancelEventDelivery(this);
@@ -102,6 +102,7 @@ public class EventBusAbortEventDeliveryTest extends AbstractEventBusTest {
 
     class SubscriberMainThread {
         CountDownLatch done = new CountDownLatch(1);
+
         public void onEventMainThread(String event) {
             try {
                 eventBus.cancelEventDelivery(event);
