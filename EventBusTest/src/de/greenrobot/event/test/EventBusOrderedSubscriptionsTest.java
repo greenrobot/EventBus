@@ -39,7 +39,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
     }
 
     public void testOrderedBackgroundThread() {
-        runTestOrdered(new Integer(42));
+        runTestOrdered(Integer.valueOf(42));
     }
 
     protected void runTestOrdered(Object event) {
