@@ -32,8 +32,8 @@ import android.util.Log;
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)} to the
  * bus, which delivers it to subscribers that have matching handler methods for the event type. To receive events,
  * subscribers must register themselves to the bus using the {@link #register(Object)} method. Once registered,
- * subscribers receive events until the call of {@link #unregister(Object)}. By default, subscribers will handle events
- * in methods named "onEvent".
+ * subscribers receive events until the call of {@link #unregister(Object)}. By convention, event handling methods must
+ * be named "onEvent", be public, return nothing (void), and have exactly one parameter (the event).
  * 
  * @author Markus Junginger, greenrobot
  */
@@ -371,6 +371,12 @@ public class EventBus {
         }
     }
 
+    /**
+     * Called from a subscriber's event handling method, the event delivery will be aborted. Subsequent subscribers
+     * won't receive the event. Events are usually aborted by higher priority subscribers (see
+     * {@link #register(Object, int)}). Aborting is restricted to event handling methods running in posting thread
+     * {@link ThreadMode#PostThread}.
+     */
     public void abortEventDelivery(Object event) {
         PostingThreadState postingState = currentPostingThreadState.get();
         if (!postingState.isPosting) {
