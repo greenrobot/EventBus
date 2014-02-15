@@ -17,7 +17,7 @@ package de.greenrobot.event;
 
 import java.lang.reflect.Method;
 
-final class SubscriberMethod {
+final public class SubscriberMethod {
     final Method method;
     final ThreadMode threadMode;
     final Class<?> eventType;
