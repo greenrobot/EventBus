@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event;
 
+import android.util.Log;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -24,14 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import android.util.Log;
-
-class SubscriberMethodFinder {
+public class SubscriberMethodFinder {
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC;
     private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
     private static final Map<Class<?>, Class<?>> skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
 
-    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
+    public List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
         String key = subscriberClass.getName() + '.' + eventMethodName;
         List<SubscriberMethod> subscriberMethods;
         synchronized (methodCache) {
