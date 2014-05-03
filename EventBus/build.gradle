@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'de.greenrobot'
-version = '2.2.0'
+version = '2.2.1-SNAPSHOT'
 sourceCompatibility = 1.6
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
@@ -78,7 +78,16 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            if(project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername') 
+          if ( project.hasProperty( 'ec2Nexus' ) ) {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository( url: ec2Nexus ) {
+                authentication( userName: ec2NexusUsername, password: ec2NexusPassword )
+              }
+              snapshotRepository( url: ec2NexusSnapshots ) {
+                authentication( userName: ec2NexusUsername, password: ec2NexusPassword )
+              }
+          } else
+            if(project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
                 && project.hasProperty('preferedPassword')) {
                 configuration = configurations.deployerJars
                 repository(url: preferedRepo) {
@@ -120,7 +129,7 @@ uploadArchives {
                        name 'greenrobot'
                    }
                }
-               
+
                issueManagement {
                    system 'GitHub Issues'
                    url 'https://github.com/greenrobot/EventBus/issues'

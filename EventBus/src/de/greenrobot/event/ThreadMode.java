@@ -18,7 +18,7 @@ package de.greenrobot.event;
 /**
  * Each event handler method has a thread mode, which determines in which thread the method is to be called by EventBus.
  * EventBus takes care of threading independently from the posting thread.
- * 
+ *
  * @see EventBus#register(Object)
  * @author Markus
  */
@@ -53,5 +53,11 @@ public enum ThreadMode {
      * of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus
      * uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
      */
-    Async
+    Async,
+
+
+    /**
+     * Subscriber will be called in in a custom (user provided) HandlerThread
+     */
+    HandlerThread
 }
