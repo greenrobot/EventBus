@@ -15,6 +15,9 @@
  */
 package de.greenrobot.event;
 
+import android.os.Looper;
+import android.util.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,16 +28,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import android.os.Looper;
-import android.util.Log;
-
 /**
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)} to the
  * bus, which delivers it to subscribers that have matching handler methods for the event type. To receive events,
  * subscribers must register themselves to the bus using the {@link #register(Object)} method. Once registered,
  * subscribers receive events until the call of {@link #unregister(Object)}. By convention, event handling methods must
  * be named "onEvent", be public, return nothing (void), and have exactly one parameter (the event).
- * 
+ *
  * @author Markus Junginger, greenrobot
  */
 public class EventBus {
@@ -104,15 +104,19 @@ public class EventBus {
      * Creates a new EventBus instance; each instance is a separate scope in which events are delivered. To use a
      * central bus, consider {@link #getDefault()}.
      */
-    public EventBus() {
+    public EventBus(Looper looper) {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
         stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
-        mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
+        mainThreadPoster = new HandlerPoster(this, looper, 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder();
         logSubscriberExceptions = true;
+    }
+
+    public EventBus(){
+      this(Looper.getMainLooper());
     }
 
     /**
@@ -129,7 +133,7 @@ public class EventBus {
     /**
      * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they are
      * no longer interested in receiving events.
-     * 
+     *
      * Subscribers have event handling methods that are identified by their name, typically called "onEvent". Event
      * handling methods must have exactly one parameter, the event. If the event handling method is to be called in a
      * specific thread, a modifier is appended to the method name. Valid modifiers match one of the {@link ThreadMode}
@@ -285,12 +289,14 @@ public class EventBus {
             if (stickyEvent != null) {
                 // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
                 // --> Strange corner case, which we don't take care of here.
-                postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+                postToSubscription(newSubscription, stickyEvent, isMainThread() );
             }
         }
     }
 
-    public synchronized boolean isRegistered(Object subscriber) {
+  private boolean isMainThread() {return Looper.getMainLooper() == Looper.myLooper();}
+
+  public synchronized boolean isRegistered(Object subscriber) {
         return typesBySubscriber.containsKey(subscriber);
     }
 
@@ -355,7 +361,7 @@ public class EventBus {
         if (postingState.isPosting) {
             return;
         } else {
-            postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
+            postingState.isMainThread = isMainThread();
             postingState.isPosting = true;
             if (postingState.canceled) {
                 throw new EventBusException("Internal error. Abort state was not reset");
@@ -408,7 +414,7 @@ public class EventBus {
 
     /**
      * Gets the most recent sticky event for the given type.
-     * 
+     *
      * @see #postSticky(Object)
      */
     public <T> T getStickyEvent(Class<T> eventType) {
@@ -419,7 +425,7 @@ public class EventBus {
 
     /**
      * Remove and gets the recent sticky event for the given event type.
-     * 
+     *
      * @see #postSticky(Object)
      */
     public <T> T removeStickyEvent(Class<T> eventType) {
@@ -430,7 +436,7 @@ public class EventBus {
 
     /**
      * Removes the sticky event if it equals to the given event.
-     * 
+     *
      * @return true if the events matched and the sticky event was removed.
      */
     public boolean removeStickyEvent(Object event) {
