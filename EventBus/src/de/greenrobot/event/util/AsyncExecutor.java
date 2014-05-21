@@ -121,8 +121,8 @@ public class AsyncExecutor {
                         Log.e(EventBus.TAG, "Original exception:", e);
                         throw new RuntimeException("Could not create failure event", e1);
                     }
-                    if (e instanceof HasExecutionScope) {
-                        ((HasExecutionScope) e).setExecutionScope(scope);
+                    if (event instanceof HasExecutionScope) {
+                        ((HasExecutionScope) event).setExecutionScope(scope);
                     }
                     eventBus.post(event);
                 }
