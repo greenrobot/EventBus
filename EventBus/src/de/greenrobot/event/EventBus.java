@@ -45,6 +45,7 @@ public class EventBus {
 
     private static volatile EventBus defaultInstance;
 
+    private static final String DEFAULT_METHOD_NAME = "onEvent";
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
@@ -58,7 +59,6 @@ public class EventBus {
         }
     };
 
-    private static final String DEFAULT_METHOD_NAME = "onEvent";
 
     private final HandlerPoster mainThreadPoster;
     private final BackgroundPoster backgroundPoster;

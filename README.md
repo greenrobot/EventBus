@@ -190,6 +190,9 @@ FAQ
 
 Release History
 ---------------
+### V2.2.1 (2014-05-21) Bug fix release
+* Fixed an issue with AsyncExecutor and execution scope
+
 ### V2.2.0 (2013-11-18) Feature release, subscriber priority
 * Register subscribers with a priority to to influence the order of event delivery (per delivery thread)
 * Event delivery can be canceled by subscribers so subsequent subscribers will not receive the event
