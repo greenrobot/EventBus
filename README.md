@@ -3,7 +3,9 @@ EventBus
 EventBus is an Android optimized publish/subscribe event bus. 
 
 An event bus eases the communication between Activities, Fragments, and background threads together without introducing complex and error-prone dependencies and life cycle issues. 
+
 EventBus propagates event all participants (e.g. background service -> activity -> multiple fragments or helper classes).
+
 EventBus decouples event senders and receivers and simplifies event and data exchange between app components. 
 Less code, better quality. 
 (And you don't need to implement a single interface!)
