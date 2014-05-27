@@ -7,6 +7,39 @@ General Usage and API
 In EventBus, subscribers implement event handling methods and register themselves to the bus. Posted events are delivered to matching event handling methods based on their event type (the Java class/interfaces implemented by the event).
 
 Using EventBus takes four simple steps:
+1. Declare the eventbus in your code (fragment/activity/service/thread...)
+1. Define your event class
+```
+public class MessageEvent {
+    private String message;
+
+    public MessageEvent(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}
+```
+
+```
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EventBus.getDefault().registerSticky(this, TestEvent.class);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().removeStickyEvent(TestEvent.class);
+    }
+    
+    public void onEvent(TestEvent testEvent){
+        Toast.makeText(getActivity(), testEvent.getTestObject().toString(), Toast.LENGTH_SHORT).show();
+    }
+```
 
 1. Implement any number of event handling methods in the subscriber:<br/>
 <code>public void onEvent(AnyEventType event) {}</code>
