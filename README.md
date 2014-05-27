@@ -139,7 +139,7 @@ You may change the order of event delivery by passing a priority when registerin
 
 Within the same delivery thread (ThreadMode), higher priority subscribers will receive events before others with a lower priority. The default priority is 0. 
 
-*Note*: the priority does *NOT* affect the order of delivery among subscribers with different [ThreadModes](#delivery-threads) !
+*Note*: the priority does *NOT* affect the order of delivery among subscribers with different [ThreadModes](#delivery-threads-and-threadmodes)!
 
 Cancelling further event delivery
 ---------------------------------
@@ -147,7 +147,7 @@ Cancelling further event delivery
 You may cancel the event delivery by calling `cancelEventDelivery(Object event)` from a subscriber's event handling method. 
 Any further event delivery will be canceled. 
 Subsequent subscribers won't receive the event. 
-Events are usually canceled by higher priority subscribers. Cancelling is restricted to event handling methods running in posting thread [ThreadMode.PostThread](#delivery-threads).
+Events are usually canceled by higher priority subscribers. Cancelling is restricted to event handling methods running in posting thread [ThreadMode.PostThread](#delivery-threads-and-threadmodes).
 
 Sticky Events
 -------------
