@@ -17,7 +17,7 @@ The events are delivered to matching event handling methods based on their signa
 
 Using EventBus :
 
-1. Define your event class as a POJO
+One. Define your event class as a POJO
 ```java
 public class MessageEvent {
     private String message;
@@ -31,7 +31,7 @@ public class MessageEvent {
     }
 }
 ```
-2. The receiver registers the eventbus 
+Two. The receiver registers the eventbus 
 ```java
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class MessageEvent {
     }
     
 ```
-3. Post your event from any part of your code
+Three. Post your event from any part of your code
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
