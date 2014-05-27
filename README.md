@@ -295,8 +295,8 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
 
 Example
 -------
-A sample application is [available](https://github.com/kevintanhongann/EventBusSample)
-(Thanks (@kevintanhongann)[https://github.com/kevintanhongann])
+Thanks to (@kevintanhongann)[https://github.com/kevintanhongann], a sample application is [available](https://github.com/kevintanhongann/EventBusSample)
+
 
 FAQ
 ---
