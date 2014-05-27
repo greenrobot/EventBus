@@ -12,7 +12,7 @@ EventBus decouples event senders and receivers and simplifies event/data exchang
 
 General usage and API
 ---------------------
-In EventBus, *subscribers* implement event handling `onEventXXX` methods and register themselves to the bus. 
+In EventBus, **subscribers** implement event handling `onEvent` methods and register themselves to the bus. 
 The events are delivered to matching event handling methods based on their signature.
 
 How to use EventBus.
@@ -171,17 +171,17 @@ Some events carry information that is of interest after the event is posted. For
 You register your event bus with specific methods: 
 ```java
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onStart() {
+        super.onStart();
         // Registring the bus for MessageEvent
         EventBus.getDefault().registerSticky(this, MessageEvent.class);
     }
 
     @Override
     public void onStop() {
-        super.onStop();
         // Unregistering the bus
         EventBus.getDefault().removeStickyEvent(MessageEvent.class);
+        super.onStop();
     }
 ```
 And then you post the event:
