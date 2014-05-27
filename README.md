@@ -1,10 +1,17 @@
 EventBus
 ========
-EventBus is an Android optimized publish/subscribe event bus. A typical use case for Android apps is gluing Activities, Fragments, and background threads together. Conventional wiring of those elements often introduces complex and error-prone dependencies and life cycle issues. With EventBus propagating listeners through all participants (e.g. background service -> activity -> multiple fragments or helper classes) becomes deprecated. EventBus decouples event senders and receivers and thus simplifies communication between app components. Less code, better quality. And you don't need to implement a single interface!
+EventBus is an Android optimized publish/subscribe event bus. 
+
+An event bus eases the communication between Activities, Fragments, and background threads together without introducing complex and error-prone dependencies and life cycle issues. 
+EventBus propagates event all participants (e.g. background service -> activity -> multiple fragments or helper classes).
+EventBus decouples event senders and receivers and simplifies event and data exchange between app components. 
+Less code, better quality. 
+(And you don't need to implement a single interface!)
 
 General Usage and API
 ---------------------
-In EventBus, subscribers implement event handling methods and register themselves to the bus. Posted events are delivered to matching event handling methods based on their event type (the Java class/interfaces implemented by the event).
+In EventBus, *subscribers* implement event handling `onEventXXX` methods and register themselves to the bus. 
+The events are delivered to matching event handling methods based on their arguments.
 
 Using EventBus takes four simple steps:
 1. Define your event class as a POJO
@@ -27,23 +34,29 @@ public class MessageEvent {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Registring the bus for MessageEvent
-        EventBus.getDefault().registerSticky(this, MessageEvent.class);
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         // Unregistering the bus
-        EventBus.getDefault().removeStickyEvent(MessageEvent.class);
+        EventBus.getDefault().unregister(this);
     }
     
     public void onEvent(MessageEvent event){
         Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
     }
+    
+    // In case many events are suscribed, just add another method with the event type
+    public void onEvent(SomeOtherMessageEvent event){
+        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+    }
+    
 ```
 3. Post your event from any other class!
 ```java
-    EventBus.getDefault().postSticky(new MessageEvent("hello!"));
+    EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
 
 
