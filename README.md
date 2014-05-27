@@ -34,17 +34,17 @@ public class MessageEvent {
 **The receiver registers the eventbus** 
 ```java
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onStart() {
+        super.onStart();
         // Registring the bus for MessageEvent
         EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
-        super.onStop();
         // Unregistering the bus
         EventBus.getDefault().unregister(this);
+        super.onStop();
     }
     
     // This method will be called when a MessageEvent is posted
