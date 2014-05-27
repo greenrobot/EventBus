@@ -17,7 +17,7 @@ The events are delivered to matching event handling methods based on their signa
 
 Using EventBus :
 
-One. Define your event class as a POJO
+*Define your event class as a POJO*
 ```java
 public class MessageEvent {
     private String message;
@@ -31,7 +31,7 @@ public class MessageEvent {
     }
 }
 ```
-Two. The receiver registers the eventbus 
+*The receiver registers the eventbus* 
 ```java
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ Two. The receiver registers the eventbus
     }
     
 ```
-Three. Post your event from any part of your code
+*Post your event from any part of your code*
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
@@ -92,11 +92,11 @@ Ivy template ([check current version](http://search.maven.org/#search%7Cga%7C1%7
 [Download from maven](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 Delivery threads and ThreadModes
 --------------------------------
-EventBus can deliver threading for you: events can be posted in threads different from the posting thread. 
+EventBus can handle threading for you: events can be posted in threads different from the posting thread. 
 
-A common use case is dealing with UI changes. As you may know, UI changes must be done in the UI thread and networking (or other time consumming task) must be done in other treads. EventBus will help you to do networking and synchronize with the UI thread (without having to delve into thread transistions, using AsyncTask, etc). 
+A common use case is dealing with UI changes. As you may know, UI changes must be done in the UI thread and networking (or other time consumming task) must be done in other treads. EventBus will help you to deal with those tasks and  synchronize with the UI thread (without having to delve into thread transistions, using AsyncTask, etc). 
 
-In EventBus, each event handling method `onEvent` is associated with a ThreadMode. The ThreadMode defines in which thread the event handling `onEvent` method is called:
+In EventBus, you may define the thread that will call the event handling method `onEvent` by using a *ThreadMode*:
 * **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
 This corresponds to this code:
 ```java
@@ -148,10 +148,10 @@ Within the same delivery thread (ThreadMode), higher priority subscribers will r
 
 *Note*: the priority does *NOT* affect the order of delivery among subscribers with different [ThreadModes](#delivery-threads-and-threadmodes)!
 
-Cancelling further event delivery
----------------------------------
+Cancelling event delivery
+-------------------------
 You may cancel the event delivery process by calling `cancelEventDelivery(Object event)` from a subscriber's event handling method. 
-Any further event delivery will be canceled: subsequent subscribers won't receive the event.
+Any further event delivery will be cancelled: subsequent subscribers won't receive the event.
 ```java
     // Called in the same thread (default)
     public void onEvent(MessageEvent event){
@@ -184,7 +184,7 @@ You register your event bus with specific methods:
         EventBus.getDefault().removeStickyEvent(MessageEvent.class);
     }
 ```
-And then you post sticky events:
+And then you post the event:
 ```java
     EventBus.getDefault().postSticky(new MessageEvent("hello!"));
 ```
