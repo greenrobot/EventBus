@@ -15,9 +15,9 @@ General usage and API
 In EventBus, *subscribers* implement event handling `onEventXXX` methods and register themselves to the bus. 
 The events are delivered to matching event handling methods based on their signature.
 
-Using EventBus :
+How to use EventBus.
 
-*Define your event class as a POJO*
+**Define your event class as a POJO**
 ```java
 public class MessageEvent {
     private String message;
@@ -31,7 +31,7 @@ public class MessageEvent {
     }
 }
 ```
-*The receiver registers the eventbus* 
+**The receiver registers the eventbus** 
 ```java
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class MessageEvent {
     }
     
 ```
-*Post your event from any part of your code*
+**Post your event from any part of your code**
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
@@ -96,7 +96,7 @@ EventBus can handle threading for you: events can be posted in threads different
 
 A common use case is dealing with UI changes. As you may know, UI changes must be done in the UI thread and networking (or other time consumming task) must be done in other treads. EventBus will help you to deal with those tasks and  synchronize with the UI thread (without having to delve into thread transistions, using AsyncTask, etc). 
 
-In EventBus, you may define the thread that will call the event handling method `onEvent` by using a *ThreadMode*:
+In EventBus, you may define the thread that will call the event handling method `onEvent` by using a **ThreadMode**:
 * **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
 This corresponds to this code:
 ```java
