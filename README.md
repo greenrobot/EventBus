@@ -189,7 +189,10 @@ And then you post the event:
     EventBus.getDefault().postSticky(new MessageEvent("hello!"));
 ```
 
-You may get the last sticky event of a certain type with  `EventBus.getDefault().getStickyEvent(Class<?> eventType)`.
+You may get the last sticky event of a certain type with:  
+```java
+    EventBus.getDefault().getStickyEvent(Class<?> eventType)
+```
 
 Additional Features and Notes
 -----------------------------
