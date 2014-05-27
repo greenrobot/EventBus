@@ -2,20 +2,21 @@ EventBus
 ========
 EventBus is an Android optimized publish/subscribe event bus. 
 
-An event bus eases the communication between Activities, Fragments, and background threads together without introducing complex and error-prone dependencies and life cycle issues. 
+An event bus eases the communication between Activities, Fragments, and background threads without introducing complex and error-prone dependencies and life cycle issues. 
 
-EventBus propagates event all participants (e.g. background service -> activity -> multiple fragments or helper classes).
+EventBus propagates event to all participants (e.g. background service -> activity -> multiple fragments or helper classes).
 
-EventBus decouples event senders and receivers and simplifies event and data exchange between app components. 
-Less code, better quality. 
+EventBus decouples event senders and receivers and simplifies event/data exchange between your applications components. 
+
 (And you don't need to implement a single interface!)
 
 General usage and API
 ---------------------
 In EventBus, *subscribers* implement event handling `onEventXXX` methods and register themselves to the bus. 
-The events are delivered to matching event handling methods based on their arguments.
+The events are delivered to matching event handling methods based on their signature.
 
-Using EventBus takes four simple steps:
+Using EventBus :
+
 1. Define your event class as a POJO
 ```java
 public class MessageEvent {
@@ -30,7 +31,7 @@ public class MessageEvent {
     }
 }
 ```
-2. Register the eventbus on the class that receives the event
+2. The receiver registers the eventbus 
 ```java
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,17 +47,19 @@ public class MessageEvent {
         EventBus.getDefault().unregister(this);
     }
     
+    // This method will be called when a MessageEvent is posted
     public void onEvent(MessageEvent event){
         Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
     }
     
     // In case many events are suscribed, just add another method with the event type
+    // This method will be called when a SomeOtherMessageEvent is posted
     public void onEvent(SomeOtherMessageEvent event){
         Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
     }
     
 ```
-3. Post your event from any other class!
+3. Post your event from any part of your code
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
@@ -89,9 +92,11 @@ Ivy template ([check current version](http://search.maven.org/#search%7Cga%7C1%7
 [Download from maven](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 Delivery threads and ThreadModes
 --------------------------------
-EventBus can deliver events in other threads independently from the posting thread. Threading is crucial to all Android apps, and EventBus will make threading easier. In Android development, UI changes must be done in the UI thread, while networking is forbidden here. If you want to do both networking and UI using standard Android API, you will need to take care of thread transistions, e.g. by using AsyncTask. If you use an event-based approach using EventBus, this gets simpler.
+EventBus can deliver threading for you: events can be posted in threads different from the posting thread. 
 
-In EventBus, each event handling method is associated with a thread mode (have a look at the ThreadMode enum). The thread mode defines in which thread the event handling method is called:
+A common use case is dealing with UI changes. As you may know, UI changes must be done in the UI thread and networking (or other time consumming task) must be done in other treads. EventBus will help you to do networking and synchronize with the UI thread (without having to delve into thread transistions, using AsyncTask, etc). 
+
+In EventBus, each event handling method `onEvent` is associated with a ThreadMode. The ThreadMode defines in which thread the event handling `onEvent` method is called:
 * **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
 This corresponds to this code:
 ```java
@@ -127,7 +132,7 @@ This corresponds to this code:
 
 Subscriber priorities and ordered event delivery
 ------------------------------------------------
-You may change the order of event delivery by passing a priority when registering your event bus.
+You may change the order of event delivery by provinding a priority to the suscriber when registering your event bus.
 
 ```java
     @Override
@@ -145,11 +150,19 @@ Within the same delivery thread (ThreadMode), higher priority subscribers will r
 
 Cancelling further event delivery
 ---------------------------------
-*TODO. For now, this is just the javadoc for the method *
-You may cancel the event delivery by calling `cancelEventDelivery(Object event)` from a subscriber's event handling method. 
-Any further event delivery will be canceled. 
-Subsequent subscribers won't receive the event. 
-Events are usually canceled by higher priority subscribers. Cancelling is restricted to event handling methods running in posting thread [ThreadMode.PostThread](#delivery-threads-and-threadmodes).
+You may cancel the event delivery process by calling `cancelEventDelivery(Object event)` from a subscriber's event handling method. 
+Any further event delivery will be canceled: subsequent subscribers won't receive the event.
+```java
+    // Called in the same thread (default)
+    public void onEvent(MessageEvent event){
+    	// Process the event 
+    	...
+    	
+    	EventBus.getDefault().cancelEventDelivery(event) ;
+    }
+```
+
+Events are usually cancelled by higher priority subscribers. Cancelling is restricted to event handling methods running in posting thread [ThreadMode.PostThread](#delivery-threads-and-threadmodes).
 
 Sticky Events
 -------------
@@ -171,7 +184,7 @@ You register your event bus with specific methods:
         EventBus.getDefault().removeStickyEvent(MessageEvent.class);
     }
 ```
-And then you post sticky events
+And then you post sticky events:
 ```java
     EventBus.getDefault().postSticky(new MessageEvent("hello!"));
 ```
