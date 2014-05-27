@@ -8,7 +8,7 @@ EventBus decouples event senders and receivers and simplifies event and data exc
 Less code, better quality. 
 (And you don't need to implement a single interface!)
 
-General Usage and API
+General usage and API
 ---------------------
 In EventBus, *subscribers* implement event handling `onEventXXX` methods and register themselves to the bus. 
 The events are delivered to matching event handling methods based on their arguments.
@@ -85,7 +85,7 @@ Ivy template ([check current version](http://search.maven.org/#search%7Cga%7C1%7
     rev="2.2.1" />
 ```
 [Download from maven](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
-Delivery Threads and ThreadModes
+Delivery threads and ThreadModes
 --------------------------------
 EventBus can deliver events in other threads independently from the posting thread. Threading is crucial to all Android apps, and EventBus will make threading easier. In Android development, UI changes must be done in the UI thread, while networking is forbidden here. If you want to do both networking and UI using standard Android API, you will need to take care of thread transistions, e.g. by using AsyncTask. If you use an event-based approach using EventBus, this gets simpler.
 
