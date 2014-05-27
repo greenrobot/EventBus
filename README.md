@@ -85,8 +85,8 @@ Ivy template ([check current version](http://search.maven.org/#search%7Cga%7C1%7
     rev="2.2.1" />
 ```
 [Download from maven](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
-Delivery Threads
-----------------
+Delivery Threads and ThreadModes
+--------------------------------
 EventBus can deliver events in other threads independently from the posting thread. Threading is crucial to all Android apps, and EventBus will make threading easier. In Android development, UI changes must be done in the UI thread, while networking is forbidden here. If you want to do both networking and UI using standard Android API, you will need to take care of thread transistions, e.g. by using AsyncTask. If you use an event-based approach using EventBus, this gets simpler.
 
 In EventBus, each event handling method is associated with a thread mode (have a look at the ThreadMode enum). The thread mode defines in which thread the event handling method is called:
@@ -139,7 +139,7 @@ You may change the order of event delivery by passing a priority when registerin
 
 Within the same delivery thread (ThreadMode), higher priority subscribers will receive events before others with a lower priority. The default priority is 0. 
 
-*Note*: the priority does *NOT* affect the order of delivery among subscribers with different ThreadModes!
+*Note*: the priority does *NOT* affect the order of delivery among subscribers with different [ThreadModes](#delivery-threads) !
 
 Cancelling further event delivery
 ---------------------------------
@@ -147,12 +147,13 @@ Cancelling further event delivery
 You may cancel the event delivery by calling `cancelEventDelivery(Object event)` from a subscriber's event handling method. 
 Any further event delivery will be canceled. 
 Subsequent subscribers won't receive the event. 
-Events are usually canceled by higher priority subscribers. Cancelling is restricted to event handling methods running in posting thread [ThreadMode.PostThread]().
+Events are usually canceled by higher priority subscribers. Cancelling is restricted to event handling methods running in posting thread [ThreadMode.PostThread](#delivery-threads).
 
 Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
 
+You register your event bus with specific methods: 
 ```java
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -167,8 +168,13 @@ Some events carry information that is of interest after the event is posted. For
         // Unregistering the bus
         EventBus.getDefault().removeStickyEvent(MessageEvent.class);
     }
-```    
-API-wise events are made sticky by using `postSticky(Object event)` instead of `post(Object event)`. Subscribers that want to get previously posted sticky events, use `registerSticky(...)` instead of `register(...)`. Alternatively, the last sticky event of a certain event type can be queried by using `getStickyEvent(Class<?> eventType)`.
+```
+And then you post sticky events
+```java
+    EventBus.getDefault().postSticky(new MessageEvent("hello!"));
+```
+
+You may get the last sticky event of a certain type with  `EventBus.getDefault().getStickyEvent(Class<?> eventType)`.
 
 Additional Features and Notes
 -----------------------------
