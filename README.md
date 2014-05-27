@@ -154,7 +154,7 @@ Some events carry information that is of interest after the event is posted. For
         // Unregistering the bus
         EventBus.getDefault().removeStickyEvent(MessageEvent.class);
     }
-    
+```    
 API-wise events are made sticky by using `postSticky(Object event)` instead of `post(Object event)`. Subscribers that want to get previously posted sticky events, use `registerSticky(...)` instead of `register(...)`. Alternatively, the last sticky event of a certain event type can be queried by using `getStickyEvent(Class<?> eventType)`.
 
 Additional Features and Notes
