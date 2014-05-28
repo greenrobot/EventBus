@@ -61,8 +61,6 @@ public class MessageEvent {
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
-
-
 Add EventBus to your project
 ----------------------------
 EventBus is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
