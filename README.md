@@ -15,9 +15,7 @@ General usage and API
 In EventBus, **subscribers** implement event handling `onEvent` methods and register themselves to the bus. 
 The events are delivered to matching event handling methods based on their signature.
 
-How to use EventBus.
-
-**Define your event class as a POJO**
+**1- Define your event class as a POJO**
 ```java
 public class MessageEvent {
     private String message;
@@ -31,7 +29,7 @@ public class MessageEvent {
     }
 }
 ```
-**The receiver registers the eventbus** 
+**2- The receiver registers the eventbus** 
 ```java
     @Override
     public void onStart() {
@@ -59,7 +57,7 @@ public class MessageEvent {
     }
     
 ```
-**Post your event from any part of your code**
+**3- Post your event from any part of your code**
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
