@@ -27,7 +27,8 @@ public class MessageEvent {
     }
 }
 ```
-**2- The suscribers registers the eventbus** 
+**2- The suscribers registers the eventbus**
+
 The **subscribers** implement event handling `onEvent` methods that will be called when an event is received. They also need to register themselves to the bus. 
 
 ```java
@@ -132,8 +133,8 @@ You may change the order of event delivery by provinding a priority to the suscr
 
 ```java
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onStart() {
+        super.onStart();
         // Registring the bus
         int priority = 1 ; 
         EventBus.getDefault().register(this, priority);
