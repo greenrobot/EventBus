@@ -12,8 +12,6 @@ EventBus decouples event senders and receivers and simplifies event/data exchang
 
 General usage and API
 ---------------------
-In EventBus, **subscribers** implement event handling `onEvent` methods and register themselves to the bus. 
-The events are delivered to matching event handling methods based on their signature.
 
 **1- Define your event class as a POJO**
 ```java
@@ -29,7 +27,9 @@ public class MessageEvent {
     }
 }
 ```
-**2- The receiver registers the eventbus** 
+**2- The suscribers registers the eventbus** 
+The **subscribers** implement event handling `onEvent` methods that will be called when an event is received. They also need to register themselves to the bus. 
+
 ```java
     @Override
     public void onStart() {
