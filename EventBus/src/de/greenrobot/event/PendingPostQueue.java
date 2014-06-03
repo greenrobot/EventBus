@@ -37,4 +37,7 @@ final class PendingPostQueue {
         return poll();
     }
 
+    synchronized boolean hasData() {
+        return head != null;
+    }
 }
