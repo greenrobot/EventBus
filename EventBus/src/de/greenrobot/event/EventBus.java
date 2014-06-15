@@ -133,6 +133,10 @@ public class EventBus {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(
                 subscriberClass,  DEFAULT_METHOD_NAME);
+        if (subscriberMethods.isEmpty()) {
+            throw new EventBusException("Subscriber " + subscriber.getClass()
+                    + " doesn't have any fitting method");
+        }
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             if (Object.class == subscriberMethod.eventType) {
                 subscribe(subscriber,
@@ -142,7 +146,7 @@ public class EventBus {
                                 eventType),
                         false, 0);
             } else {
-                throw new IllegalArgumentException("Handling method of subscriber should get Object");
+                throw new EventBusException("Handling method of subscriber should get Object");
             }
         }
     }
