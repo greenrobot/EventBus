@@ -129,7 +129,7 @@ public class EventBus {
     /**
      * Registers a subscriber with "downcasting" argument type to eventType.
      */
-    public final synchronized void register(Object subscriber, Class eventType) {
+    public final synchronized void register(Class eventType, Object subscriber) {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(
                 subscriberClass,  DEFAULT_METHOD_NAME);
