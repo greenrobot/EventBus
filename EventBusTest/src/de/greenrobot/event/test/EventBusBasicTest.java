@@ -40,6 +40,22 @@ public class EventBusBasicTest extends TestCase {
         eventBus = new EventBus();
     }
 
+    public void testRegisterWithDowncastingEventType() {
+        // Use an activity to test real life performance
+        TestActivity testActivity = new TestDowncastingActivity();
+        String event = "Hello";
+
+        long start = System.currentTimeMillis();
+        eventBus.register(String.class, testActivity);
+        long time = System.currentTimeMillis() - start;
+        Log.d(EventBus.TAG, "Registered for event class in " + time + "ms");
+
+        eventBus.post(event);
+
+        assertEquals(event, testActivity.lastStringEvent);
+
+    }
+
     public void testRegisterForEventTypeAndPost() {
         // Use an activity to test real life performance
         TestActivity testActivity = new TestActivity();
@@ -238,6 +254,14 @@ public class EventBusBasicTest extends TestCase {
 
     public void onEvent(MyEventExtended event) {
         countMyEventExtended++;
+    }
+
+    static class TestDowncastingActivity extends Activity {
+        public String lastStringEvent;
+
+        public void onEvent(Object event) {
+            lastStringEvent = (String) event;
+        }
     }
 
     static class TestActivity extends Activity {
