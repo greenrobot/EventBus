@@ -27,7 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import android.util.Log;
 
 class SubscriberMethodFinder {
-    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC;
+    // Sometimes compilers can create invalid volatile methods. This causes shadow "onEvent(Object)" functions to be registered for a class.
+    // For more information see https://github.com/greenrobot/EventBus/issues/76
+    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | Modifier.VOLATILE;
     private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
     private static final Map<Class<?>, Class<?>> skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
 
