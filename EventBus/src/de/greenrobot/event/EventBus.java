@@ -561,6 +561,8 @@ public class EventBus {
         PendingPost.releasePendingPost(pendingPost);
         if (subscription.active) {
             invokeSubscriber(subscription, event);
+        } else {
+            post(new NoSubscriberEvent(this, event));
         }
     }
 
