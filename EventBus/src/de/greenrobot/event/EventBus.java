@@ -411,7 +411,7 @@ public class EventBus {
 		                		if(clazz.getName().equals(ob.getClass().getName())){
 		                			postSingleEvent(eventQueue.remove(queuePosition), postingState);
 		                			hasSubscriber = true;
-		                			break;
+		                			//break; Should not break. Although not very likely, there can be more than one subscriber registered here already.
 		                		}
 	                		}
 	                	}
