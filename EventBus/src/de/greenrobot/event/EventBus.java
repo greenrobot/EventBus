@@ -67,6 +67,7 @@ public class EventBus {
 
     private boolean subscribed;
     private boolean logSubscriberExceptions;
+    private boolean losslessState = false;
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
@@ -187,6 +188,10 @@ public class EventBus {
                 methodName);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
+        }
+        
+        if(losslessState){
+        	checkQueue();
         }
     }
 
@@ -361,8 +366,61 @@ public class EventBus {
                 throw new EventBusException("Internal error. Abort state was not reset");
             }
             try {
+            	int queuePosition = 0;
+            	
                 while (!eventQueue.isEmpty()) {
-                    postSingleEvent(eventQueue.remove(0), postingState);
+                	if(queuePosition < eventQueue.size()){
+	                	if(typesBySubscriber.containsKey(eventQueue.get(queuePosition))){
+	                		postSingleEvent(eventQueue.remove(queuePosition), postingState);
+	                	}else if(queuePosition < eventQueue.size() ){
+	                		queuePosition++;
+	                	}
+                	}else{
+                		break;
+                	}
+                }
+            } finally {
+                postingState.isPosting = false;
+                postingState.isMainThread = false;
+            }
+        }
+    }
+    
+    /** Everytime some object registers, it validates if the queue is empty, if not checks if someone is listening and if it is sends the events */
+    private void checkQueue(){    	
+    	PostingThreadState postingState = currentPostingThreadState.get();
+        final List<Object> eventQueue = postingState.eventQueue;
+        
+        if (postingState.isPosting || eventQueue.isEmpty()) {
+            return;
+        } else {
+            postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
+            postingState.isPosting = true;
+            if (postingState.canceled) {
+                throw new EventBusException("Internal error. Abort state was not reset");
+            }
+            try {
+            	int queuePosition = 0;
+            	
+                while (!eventQueue.isEmpty()) {
+                	if(queuePosition < eventQueue.size()){
+                		final Object ob = eventQueue.get(queuePosition);
+                		boolean hasSubscriber = false;
+	                	for(List<Class<?>> clazzes : typesBySubscriber.values()){
+	                		for(Class<?> clazz : clazzes){
+		                		if(clazz.getName().equals(ob.getClass().getName())){
+		                			postSingleEvent(eventQueue.remove(queuePosition), postingState);
+		                			hasSubscriber = true;
+		                			break;
+		                		}
+	                		}
+	                	}
+	                	if(!hasSubscriber && queuePosition < eventQueue.size() ){
+	                		queuePosition++;
+	                	}
+                	}else{
+                		break;
+                	}
                 }
             } finally {
                 postingState.isPosting = false;
@@ -604,5 +662,13 @@ public class EventBus {
     /* public */interface PostCallback {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
+
+	public boolean isLosslessState() {
+		return losslessState;
+	}
+
+	public void setLosslessState(boolean losslessState) {
+		this.losslessState = losslessState;
+	}
 
 }
