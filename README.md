@@ -24,7 +24,7 @@ EventBus is pushed to [Maven Central](http://search.maven.org/#search%7Cga%7C1%7
 Gradle template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
 ```
 dependencies {
-    compile 'de.greenrobot:eventbus:2.2.0'
+    compile 'de.greenrobot:eventbus:2.2.1'
 }
 ```
 Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
@@ -32,7 +32,7 @@ Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1
 <dependency>
     <groupId>de.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.1</version>
 </dependency>
 ```
 
@@ -190,6 +190,9 @@ FAQ
 
 Release History
 ---------------
+### V2.2.1 (2014-05-21) Bug fix release
+* Fixed an issue with AsyncExecutor and execution scope
+
 ### V2.2.0 (2013-11-18) Feature release, subscriber priority
 * Register subscribers with a priority to to influence the order of event delivery (per delivery thread)
 * Event delivery can be canceled by subscribers so subsequent subscribers will not receive the event
@@ -234,7 +237,7 @@ Please update! Now, EventBus.unregister releases all internal references to the 
 
 License
 -------
-Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
+Copyright (C) 2012-2014 Markus Junginger, greenrobot (http://greenrobot.de)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
