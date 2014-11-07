@@ -1,10 +1,13 @@
 EventBus How-To
 ===============
-In the [README file](README.md), you got to know EventBus, some of its basic principles, and even some code examples. In that README, you also saw how to add EventBus to your project using Maven Central. Great, now let's dive deeper!
+In the [README file](README.md), you got to know EventBus, and some of its basic principles. You also saw how to add EventBus to your project using Maven Central. Great, now let's dive deeper!
 
 General usage and API
 ---------------------
-**1- Define event class (aka POJO - plain old Java object)**
+Here we pick up on the 3 steps of the README and expand a bit on the code.
+### 1: Define events ###
+Events are POJO (plain old Java object) without any specific requirements.
+
 ```java
 public class MessageEvent {
     public final String message;
@@ -12,12 +15,11 @@ public class MessageEvent {
     public MessageEvent(String message) {
         this.message = message;
     }
-
 }
 ```
-**2- Subscribers register to EventBus**
+### 2: Prepare subscribers ###
 
-The **subscribers** implement event handling `onEvent` methods that will be called when an event is received. They also need to register themselves to the bus. 
+Subscribers implement event handling `onEvent` methods that will be called when an event is received. They also need to register and unregister themselves to the bus.
 
 ```java
     @Override
@@ -34,29 +36,30 @@ The **subscribers** implement event handling `onEvent` methods that will be call
     
     // This method will be called when a MessageEvent is posted
     public void onEvent(MessageEvent event){
-        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), event.message, Toast.LENGTH_SHORT).show();
     }
     
-    // In case many events are subscribed, just add another method with the event type
-    // This method will be called when a SomeOtherMessageEvent is posted
+    // This method will be called when a SomeOtherEvent is posted
     public void onEvent(SomeOtherEvent event){
-        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+        doSomethingWith(event);
     }
     
 ```
-**3- Post event**
-Post an event from any part of your code. All subscribers matching the event type, will receive it.
+### 3: Post events ###
+Post an event from any part of your code. All subscribers matching the event type will receive it.
+
 ```java
-    EventBus.getDefault().post(new MessageEvent("hello!"));
+    EventBus.getDefault().post(new MessageEvent("Hello everyone!"));
 ```
+
 Delivery threads and ThreadModes
 --------------------------------
 EventBus can handle threading for you: events can be posted in threads different from the posting thread. 
 
-A common use case is dealing with UI changes. In Android, UI changes must be done in the UI thread and networking (or any time consuming task) must be done in other treads. EventBus will help you to deal with those tasks and synchronize with the UI thread (without having to delve into thread transitions, using AsyncTask, etc).
+A common use case is dealing with UI changes. In Android, UI changes must be done in the UI (main) thread. On the other hand, networking, or any time consuming task, must not run on the main thread. EventBus helps you to deal with those tasks and synchronize with the UI thread (without having to delve into thread transitions, using AsyncTask, etc).
 
 In EventBus, you may define the thread that will call the event handling method `onEvent` by using a **ThreadMode**:
-* **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
+* **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode should return quickly to avoid blocking the posting thread, which may be the main thread.
 Example:
 ```java
     // Called in the same thread (default)
@@ -94,7 +97,7 @@ Subscriber priorities and ordered event delivery
 You may change the order of event delivery by providing a priority to the subscriber during registration.
 
 ```java
-    int priority = 1 ;
+    int priority = 1;
     EventBus.getDefault().register(this, priority);
 ```
 

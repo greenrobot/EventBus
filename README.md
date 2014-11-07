@@ -1,6 +1,7 @@
 EventBus
 ========
-EventBus is publish/subscribe event bus optimized for Android.
+EventBus is publish/subscribe event bus optimized for Android.<br/>
+<img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
 
 EventBus...
 
@@ -16,17 +17,17 @@ EventBus...
 
 EventBus in 3 steps
 -------------------
-1. Define event class:<br/>
+1. Define events:<br/>
 <code>public class MessageEvent { /* Additional fields if needed */ }</code>
 2. Prepare subscribers:<br/>
 <code>eventBus.register(this);</code><br/>
 <code>public void onEvent(AnyEventType event) {/* Do something */};</code>
-3. Post events to the bus:<br/>
+3. Post events:<br/>
 <code>eventBus.post(event);</code>
 
 Add EventBus to your project
 ----------------------------
-EventBus is available on Maven Central, so you simply include it as a dependency in your build. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
+EventBus is available on Maven Central. Just include it as a dependency in your build. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
 Gradle:
 ```
@@ -48,7 +49,7 @@ Ivy:
 
 How-to, Developer Documentation
 -------------------------------
-Details on how the EventBus API is available in the [HOWTO file](HOWTO.md).
+Details on EventBus and its API are available in the [HOWTO document](HOWTO.md).
 
 Additional Features and Notes
 -----------------------------
@@ -61,23 +62,22 @@ Additional Features and Notes
 
 FAQ
 ---
-**Q:** How's EventBus different to Android's BroadcastReceiver/Intent system?<br/>
-**A:** Unlike Android's BroadcastReceiver/Intent system, EventBus uses standard Java classes as events and offers a more convenient API. EventBus is intended for a lot more uses cases where you wouldn't want to go through the hassle of setting up Intents, preparing Intent extras, implementing broadcast receivers, and extracting Intent extras again. Also, EventBus comes with a much lower overhead. 
+**Q:** How is EventBus different to Android's BroadcastReceiver/Intent system?<br/>
+**A:** Unlike Android's BroadcastReceiver/Intent system, EventBus uses standard Java classes as events and offers a more convenient API. EventBus is intended for a lot more uses cases where you wouldn't want to go through the hassle of setting up Intents, preparing Intent extras, implementing broadcast receivers, and extracting Intent extras again. Also, EventBus comes with a much lower overhead.
 
-**[Release History](CHANGELOG.md)**
+ **Q:** How to do pull requests?
+ **A:** Ensure good code quality and consistent formatting. EventBus has a good test coverage: if you propose a new feature or fix a bug, please add a unit test.
 
-License
--------
-Copyright (C) 2012-2014 Markus Junginger, greenrobot (http://greenrobot.de)
+Release History, License
+------------------------
+[CHANGELOG](CHANGELOG.md)
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 
-  http://www.apache.org/licenses/LICENSE-2.0
+More Open Source by greenrobot
+==============================
+[__greenrobot-common__](https://github.com/greenrobot/greenrobot-common) is a set of utility classes and hash functions for Android & Java projects.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+[__greenDAO__](https://github.com/greenrobot/greenDAO) is an ORM optimized for Android: it maps database tables to Java objects and uses code generation for optimal speed.
+
+[Follow us on Google+](https://plus.google.com/b/114381455741141514652/+GreenrobotDe/posts) to stay up to date.
