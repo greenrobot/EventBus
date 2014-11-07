@@ -1,33 +1,44 @@
 EventBus
 ========
-EventBus is an Android optimized publish/subscribe event bus. 
+EventBus is publish/subscribe event bus optimized for Android.
 
-An event bus eases the communication between Activities, Fragments, and background threads without introducing complex and error-prone dependencies and life cycle issues. 
+EventBus...
 
-EventBus propagates event to all participants (e.g. background service -> activity -> multiple fragments or helper classes).
+ * simplifies the communication between components
+    * decouples event senders and receivers
+    * performs well with Activities, Fragments, and background threads
+    * avoids complex and error-prone dependencies and life cycle issues
+ * makes your code simpler
+ * is fast
+ * is tiny (<50k jar)
+ * is proven in practice by apps with 100,000,000+ installs
+ * has advanced features like delivery threads, subscriber priorities, etc.
 
-EventBus decouples event senders and receivers and simplifies event/data exchange between your applications components. 
-
-(And you don't need to implement a single interface!)
+EventBus in 3 steps
+-------------------
+1. Define event class:<br/>
+<code>public class MessageEvent { /* Additional fields if needed */ }</code>
+2. Prepare subscribers:<br/>
+<code>eventBus.register(this);</code><br/>
+<code>public void onEvent(AnyEventType event) {/* Do something */};</code>
+3. Post events to the bus:<br/>
+<code>eventBus.post(event);</code>
 
 General usage and API
 ---------------------
 
-**1- Define your event class as a POJO**
+**1- Define event class (aka POJO - plain old Java object)**
 ```java
 public class MessageEvent {
-    private String message;
+    public final String message;
 
     public MessageEvent(String message) {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
-    }
 }
 ```
-**2- The suscribers registers the eventbus**
+**2- Subscribers register to EventBus**
 
 The **subscribers** implement event handling `onEvent` methods that will be called when an event is received. They also need to register themselves to the bus. 
 
@@ -35,13 +46,11 @@ The **subscribers** implement event handling `onEvent` methods that will be call
     @Override
     public void onStart() {
         super.onStart();
-        // Registring the bus for MessageEvent
         EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
-        // Unregistering the bus
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
@@ -51,27 +60,27 @@ The **subscribers** implement event handling `onEvent` methods that will be call
         Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
     }
     
-    // In case many events are suscribed, just add another method with the event type
+    // In case many events are subscribed, just add another method with the event type
     // This method will be called when a SomeOtherMessageEvent is posted
-    public void onEvent(SomeOtherMessageEvent event){
+    public void onEvent(SomeOtherEvent event){
         Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
     }
     
 ```
-**3- Post your event from any part of your code**
+**3- Post event**
+Post an event from any part of your code. All subscribers matching the event type, will receive it.
 ```java
     EventBus.getDefault().post(new MessageEvent("hello!"));
 ```
 Add EventBus to your project
 ----------------------------
-EventBus is available on [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
-Gradle template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
+EventBus is available on Maven Central, so you simply include it as a dependency in your build. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
+
+Gradle:
 ```
-dependencies {
     compile 'de.greenrobot:eventbus:2.2.1'
-}
 ```
-Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
+Maven:
 ```
 <dependency>
     <groupId>de.greenrobot</groupId>
@@ -79,49 +88,46 @@ Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1
     <version>2.2.1</version>
 </dependency>
 ```
-Ivy template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
+Ivy:
 ```
-<dependency
-    name="eventbus"
-    org="de.greenrobot"
-    rev="2.2.1" />
+<dependency name="eventbus" org="de.greenrobot" rev="2.2.1" />
 ```
-[Download from maven](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
+[Or download EventBus from Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 Delivery threads and ThreadModes
 --------------------------------
 EventBus can handle threading for you: events can be posted in threads different from the posting thread. 
 
-A common use case is dealing with UI changes. As you may know, UI changes must be done in the UI thread and networking (or other time consumming task) must be done in other treads. EventBus will help you to deal with those tasks and  synchronize with the UI thread (without having to delve into thread transistions, using AsyncTask, etc). 
+A common use case is dealing with UI changes. In Android, UI changes must be done in the UI thread and networking (or any time consuming task) must be done in other treads. EventBus will help you to deal with those tasks and synchronize with the UI thread (without having to delve into thread transitions, using AsyncTask, etc).
 
 In EventBus, you may define the thread that will call the event handling method `onEvent` by using a **ThreadMode**:
 * **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
-This corresponds to this code:
+Example:
 ```java
     // Called in the same thread (default)
-    public void onEvent(MessageEvent event){
-        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+    public void onEvent(MessageEvent event) {
+        log(event.message);
     }
 ```
 * **MainThread:** Subscriber will be called in Android's main thread (sometimes referred to as UI thread). If the posting thread is the main thread, event handler methods will be called directly. Event handlers using this mode must return quickly to avoid blocking the main thread.
-This corresponds to this code:
+Example:
 ```java
     // Called in Android UI's main thread
-    public void onEventMainThread(MessageEvent event){
-        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+    public void onEventMainThread(MessageEvent event) {
+        textField.setText(event.message);
     }
 ```
 * **BackgroundThread:** Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single background thread that will deliver all its events sequentially. Event handlers using this mode should try to return quickly to avoid blocking the background thread.
 ```java
     // Called in the background thread
     public void onEventBackgroundThread(MessageEvent event){
-        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+        saveToDisk(event.message);
     }
 ```
 * **Async:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
 ```java
-    // Called in a separate thread (default)
+    // Called in a separate thread
     public void onEventAsync(MessageEvent event){
-        Toast.makeText(getActivity(), event.getMessage().toString(), Toast.LENGTH_SHORT).show();
+        backend.send(event.message);
     }
 ```
 
@@ -129,16 +135,11 @@ This corresponds to this code:
 
 Subscriber priorities and ordered event delivery
 ------------------------------------------------
-You may change the order of event delivery by provinding a priority to the suscriber when registering your event bus.
+You may change the order of event delivery by providing a priority to the subscriber during registration.
 
 ```java
-    @Override
-    public void onStart() {
-        super.onStart();
-        // Registring the bus
-        int priority = 1 ; 
-        EventBus.getDefault().register(this, priority);
-    }
+    int priority = 1 ;
+    EventBus.getDefault().register(this, priority);
 ```
 
 Within the same delivery thread (ThreadMode), higher priority subscribers will receive events before others with a lower priority. The default priority is 0. 
@@ -165,28 +166,31 @@ Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
 
-You register your event bus with specific methods: 
+Let's say, an sticky event was posted some time ago:
+```java
+    EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"));
+```
+
+After that, a new Activity gets started. During registration using registerSticky, it will immediately get the previously posted sticky event:
 ```java
     @Override
     public void onStart() {
         super.onStart();
-        // Registring the bus for MessageEvent
-        EventBus.getDefault().registerSticky(this, MessageEvent.class);
+        EventBus.getDefault().registerSticky(this);
+    }
+
+    public void onEventMainThread(MessageEvent event) {
+        textField.setText(event.message);
     }
 
     @Override
     public void onStop() {
-        // Unregistering the bus
-        EventBus.getDefault().removeStickyEvent(MessageEvent.class);
+        EventBus.getDefault().unregister(this);
         super.onStop();
     }
 ```
-And then you post the event:
-```java
-    EventBus.getDefault().postSticky(new MessageEvent("hello!"));
-```
 
-You may get the last sticky event of a certain type with:  
+You may also get the last sticky event of a certain type with:
 ```java
     EventBus.getDefault().getStickyEvent(Class<?> eventType)
 ```
@@ -197,7 +201,6 @@ Additional Features and Notes
 * **NOT based on annotations:** Querying annotations are slow on Android, especially before Android 4.0. Have a look at this [Android bug report](http://code.google.com/p/android/issues/detail?id=7811)
 * **Based on conventions:** Event handling methods are called "onEvent" (you could supply different names, but this is not encouraged).
 * **Performanced optimized:** It's probably the fastest event bus for Android.
-* **Tiny:** The jar is less than 50 KBytes.
 * **Convenience singleton:** You can get a process wide event bus instance by calling EventBus.getDefault(). You can still call new EventBus() to create any number of local busses.
 * **Subscriber and event inheritance:** Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.
 * **Selective registration:** It's possible to register only for specific event types. This also allows subscribers to register only some of their event handling methods for main thread event delivery.
@@ -305,11 +308,6 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
     public void onEvent*(**);
 }
 </code></pre>
-
-Example
--------
-Thanks to *@kevintanhongann*, a sample application is [available](https://github.com/kevintanhongann/EventBusSample)
-
 
 FAQ
 ---

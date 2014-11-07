@@ -1,3 +1,6 @@
+### V2.3.0 (2014-11-??) Upcoming
+* Fixes (#76)
+
 ### V2.2.1 (2014-05-21) Bug fix release
 * Fixed an issue with AsyncExecutor and execution scope
 
