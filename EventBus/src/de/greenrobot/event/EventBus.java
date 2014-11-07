@@ -127,6 +127,31 @@ public class EventBus {
     }
 
     /**
+     * Registers a subscriber with "downcasting" argument type to eventType.
+     */
+    public final synchronized void register(Class eventType, Object subscriber) {
+        Class<?> subscriberClass = subscriber.getClass();
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(
+                subscriberClass,  DEFAULT_METHOD_NAME);
+        if (subscriberMethods.isEmpty()) {
+            throw new EventBusException("Subscriber " + subscriber.getClass()
+                    + " doesn't have any fitting method");
+        }
+        for (SubscriberMethod subscriberMethod : subscriberMethods) {
+            if (Object.class == subscriberMethod.eventType) {
+                subscribe(subscriber,
+                        new SubscriberMethod(
+                                subscriberMethod.method,
+                                subscriberMethod.threadMode,
+                                eventType),
+                        false, 0);
+            } else {
+                throw new EventBusException("Handling method of subscriber should get Object");
+            }
+        }
+    }
+
+    /**
      * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they are
      * no longer interested in receiving events.
      * 
