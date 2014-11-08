@@ -1,5 +1,9 @@
 ### V2.3.0 (2014-11-??) Upcoming
+* Updated to Gradle 2.1, using wrapper
+* EventBusTest builds using Gradle now
+* Updated README.md and extracted HOWTO.md and CHANGELOG.md from it
 * Configuration to disable "No subscribers registered for event"
+* Various small code improvements
 * Fixes (#76)
 
 ### V2.2.1 (2014-05-21) Bug fix release
