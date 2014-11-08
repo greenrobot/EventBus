@@ -122,9 +122,7 @@ public class EventBus {
      * subscribers (default: true).
      */
     public void configureLogSubscriberExceptions(boolean logSubscriberExceptions) {
-        if (subscribed) {
-            throw new EventBusException("This method must be called before any registration");
-        }
+        checkConfigurationAllowed();
         this.logSubscriberExceptions = logSubscriberExceptions;
     }
 
@@ -132,7 +130,15 @@ public class EventBus {
      * Configure if EventBus should log "No subscribers registered for event" messages (default: true).
      */
     public void configureLogNoSubscriberMessages(boolean logNoSubscriberMessages) {
+        checkConfigurationAllowed();
         this.logNoSubscriberMessages = logNoSubscriberMessages;
+    }
+
+    // TODO maybe we should switch to a builder pattern to avoid this
+    private void checkConfigurationAllowed() throws EventBusException {
+        if (subscribed) {
+            throw new EventBusException("This method must be called before any registration");
+        }
     }
 
     /**

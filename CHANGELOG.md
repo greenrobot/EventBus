@@ -1,4 +1,5 @@
 ### V2.3.0 (2014-11-??) Upcoming
+* Configuration to disable "No subscribers registered for event"
 * Fixes (#76)
 
 ### V2.2.1 (2014-05-21) Bug fix release
