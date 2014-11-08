@@ -67,6 +67,7 @@ public class EventBus {
 
     private boolean subscribed;
     private boolean logSubscriberExceptions;
+    private boolean logNoSubscriberMessages;
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
@@ -113,6 +114,7 @@ public class EventBus {
         asyncPoster = new AsyncPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder();
         logSubscriberExceptions = true;
+        logNoSubscriberMessages = true;
     }
 
     /**
@@ -124,6 +126,13 @@ public class EventBus {
             throw new EventBusException("This method must be called before any registration");
         }
         this.logSubscriberExceptions = logSubscriberExceptions;
+    }
+
+    /**
+     * Configure if EventBus should log "No subscribers registered for event" messages (default: true).
+     */
+    public void configureLogNoSubscriberMessages(boolean logNoSubscriberMessages) {
+        this.logNoSubscriberMessages = logNoSubscriberMessages;
     }
 
     /**
@@ -487,7 +496,9 @@ public class EventBus {
             }
         }
         if (!subscriptionFound) {
-            Log.d(TAG, "No subscribers registered for event " + eventClass);
+            if (logNoSubscriberMessages) {
+                Log.d(TAG, "No subscribers registered for event " + eventClass);
+            }
             if (eventClass != NoSubscriberEvent.class && eventClass != SubscriberExceptionEvent.class) {
                 post(new NoSubscriberEvent(this, event));
             }
