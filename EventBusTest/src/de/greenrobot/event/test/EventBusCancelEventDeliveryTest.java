@@ -76,7 +76,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     class Subscriber {
-        private boolean cancel;
+        private final boolean cancel;
 
         public Subscriber(boolean cancel) {
             this.cancel = cancel;
@@ -101,7 +101,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     class SubscriberMainThread {
-        CountDownLatch done = new CountDownLatch(1);
+        final CountDownLatch done = new CountDownLatch(1);
 
         public void onEventMainThread(String event) {
             try {

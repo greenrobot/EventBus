@@ -154,8 +154,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         return System.currentTimeMillis() - start;
     }
 
-    private List<PosterThread> startThreads(CountDownLatch latch, int threadCount, int iterations, Object eventToPost)
-            throws InterruptedException {
+    private List<PosterThread> startThreads(CountDownLatch latch, int threadCount, int iterations, Object eventToPost) {
         List<PosterThread> threads = new ArrayList<PosterThread>(threadCount);
         for (int i = 0; i < threadCount; i++) {
             PosterThread thread = new PosterThread(latch, iterations, eventToPost);

@@ -36,7 +36,7 @@ public class EventBusRegistrationRacingTest extends AbstractEventBusTest {
     volatile CountDownLatch canUnregisterLatch;
     volatile CountDownLatch unregisteredLatch;
     
-    Executor threadPool = Executors.newCachedThreadPool();
+    final Executor threadPool = Executors.newCachedThreadPool();
 
     public void testRacingRegistrations() throws InterruptedException {
         for (int i = 0; i < ITERATIONS; i++) {

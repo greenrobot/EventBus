@@ -232,8 +232,8 @@ public class ErrorDialogManager {
     }
 
     private static boolean isInExecutionScope(Object executionScope, ThrowableFailureEvent event) {
-        if (executionScope != null && event instanceof HasExecutionScope) {
-            Object eventExecutionScope = ((HasExecutionScope) event).getExecutionScope();
+        if (event != null) {
+            Object eventExecutionScope = event.getExecutionScope();
             if (eventExecutionScope != null && !eventExecutionScope.equals(executionScope)) {
                 // Event not in our scope, do nothing
                 return false;

@@ -367,9 +367,7 @@ public class EventBus {
         List<Object> eventQueue = postingState.eventQueue;
         eventQueue.add(event);
 
-        if (postingState.isPosting) {
-            return;
-        } else {
+        if (!postingState.isPosting) {
             postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
             postingState.isPosting = true;
             if (postingState.canceled) {
@@ -450,7 +448,7 @@ public class EventBus {
      */
     public boolean removeStickyEvent(Object event) {
         synchronized (stickyEvents) {
-            Class<? extends Object> eventType = event.getClass();
+            Class<?> eventType = event.getClass();
             Object existingEvent = stickyEvents.get(eventType);
             if (event.equals(existingEvent)) {
                 stickyEvents.remove(eventType);
@@ -471,7 +469,7 @@ public class EventBus {
     }
 
     private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
-        Class<? extends Object> eventClass = event.getClass();
+        Class<?> eventClass = event.getClass();
         List<Class<?>> eventTypes = findEventTypes(eventClass);
         boolean subscriptionFound = false;
         int countTypes = eventTypes.size();
@@ -609,7 +607,7 @@ public class EventBus {
 
     /** For ThreadLocal, much faster to set (and get multiple values). */
     final static class PostingThreadState {
-        List<Object> eventQueue = new ArrayList<Object>();
+        final List<Object> eventQueue = new ArrayList<Object>();
         boolean isPosting;
         boolean isMainThread;
         Subscription subscription;

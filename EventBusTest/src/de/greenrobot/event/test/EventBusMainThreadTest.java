@@ -63,8 +63,8 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
 
     class BackgroundPoster extends Thread {
         volatile boolean running = true;
-        private List<Object> eventQ = new ArrayList<Object>();
-        private List<Object> eventsDone = new ArrayList<Object>();
+        private final List<Object> eventQ = new ArrayList<Object>();
+        private final List<Object> eventsDone = new ArrayList<Object>();
 
         public BackgroundPoster() {
             super("BackgroundPoster");

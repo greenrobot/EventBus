@@ -92,7 +92,7 @@ public class AsyncExecutor {
     private final Executor threadPool;
     private final Constructor<?> failureEventConstructor;
     private final EventBus eventBus;
-    private Object scope;
+    private final Object scope;
 
     private AsyncExecutor(Executor threadPool, EventBus eventBus, Class<?> failureEventType, Object scope) {
         this.threadPool = threadPool;

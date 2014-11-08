@@ -27,7 +27,7 @@ import android.util.Log;
 public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
 
     int lastPrio = Integer.MAX_VALUE;
-    List<PrioSubscriber> registered = new ArrayList<PrioSubscriber>();
+    final List<PrioSubscriber> registered = new ArrayList<PrioSubscriber>();
     private String fail;
 
     public void testOrdered() {

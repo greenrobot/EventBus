@@ -18,9 +18,6 @@ public abstract class ErrorDialogFragmentFactory<T> {
 
     /**
      * Prepares the fragment's arguments and creates the fragment. May be overridden to provide custom error fragments.
-     * 
-     * @param argumentsForErrorDialog
-     * @param finishAfterDialog
      */
     protected T prepareErrorFragment(ThrowableFailureEvent event, boolean finishAfterDialog,
             Bundle argumentsForErrorDialog) {
