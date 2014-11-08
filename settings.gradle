@@ -1,1 +1,2 @@
 include 'EventBus'
+include 'EventBusTest'
