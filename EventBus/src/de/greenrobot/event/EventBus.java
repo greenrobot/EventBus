@@ -34,7 +34,7 @@ import android.util.Log;
  * subscribers must register themselves to the bus using the {@link #register(Object)} method. Once registered,
  * subscribers receive events until the call of {@link #unregister(Object)}. By convention, event handling methods must
  * be named "onEvent", be public, return nothing (void), and have exactly one parameter (the event).
- * 
+ *
  * @author Markus Junginger, greenrobot
  */
 public class EventBus {
@@ -142,9 +142,9 @@ public class EventBus {
     }
 
     /**
-     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they are
-     * no longer interested in receiving events.
-     * 
+     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they
+     * are no longer interested in receiving events.
+     * <p/>
      * Subscribers have event handling methods that are identified by their name, typically called "onEvent". Event
      * handling methods must have exactly one parameter, the event. If the event handling method is to be called in a
      * specific thread, a modifier is appended to the method name. Valid modifiers match one of the {@link ThreadMode}
@@ -182,7 +182,7 @@ public class EventBus {
     }
 
     /**
-     * Like {@link #register(Object,int)}, but also triggers delivery of the most recent sticky event (posted with
+     * Like {@link #register(Object, int)}, but also triggers delivery of the most recent sticky event (posted with
      * {@link #postSticky(Object)}) to the given subscriber.
      */
     public void registerSticky(Object subscriber, int priority) {
@@ -238,7 +238,7 @@ public class EventBus {
     }
 
     private synchronized void register(Object subscriber, String methodName, boolean sticky, Class<?> eventType,
-            Class<?>... moreEventTypes) {
+                                       Class<?>... moreEventTypes) {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass,
                 methodName);
@@ -266,11 +266,9 @@ public class EventBus {
             subscriptions = new CopyOnWriteArrayList<Subscription>();
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
-            for (Subscription subscription : subscriptions) {
-                if (subscription.equals(newSubscription)) {
-                    throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
-                            + eventType);
-                }
+            if (subscriptions.contains(newSubscription)) {
+                throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
+                        + eventType);
             }
         }
 
@@ -385,7 +383,8 @@ public class EventBus {
     }
 
     /**
-     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent subscribers
+     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent
+     * subscribers
      * won't receive the event. Events are usually canceled by higher priority subscribers (see
      * {@link #register(Object, int)}). Canceling is restricted to event handling methods running in posting thread
      * {@link ThreadMode#PostThread}.
@@ -421,7 +420,7 @@ public class EventBus {
 
     /**
      * Gets the most recent sticky event for the given type.
-     * 
+     *
      * @see #postSticky(Object)
      */
     public <T> T getStickyEvent(Class<T> eventType) {
@@ -432,7 +431,7 @@ public class EventBus {
 
     /**
      * Remove and gets the recent sticky event for the given event type.
-     * 
+     *
      * @see #postSticky(Object)
      */
     public <T> T removeStickyEvent(Class<T> eventType) {
@@ -443,7 +442,7 @@ public class EventBus {
 
     /**
      * Removes the sticky event if it equals to the given event.
-     * 
+     *
      * @return true if the events matched and the sticky event was removed.
      */
     public boolean removeStickyEvent(Object event) {
@@ -511,28 +510,28 @@ public class EventBus {
 
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
         switch (subscription.subscriberMethod.threadMode) {
-        case PostThread:
-            invokeSubscriber(subscription, event);
-            break;
-        case MainThread:
-            if (isMainThread) {
+            case PostThread:
                 invokeSubscriber(subscription, event);
-            } else {
-                mainThreadPoster.enqueue(subscription, event);
-            }
-            break;
-        case BackgroundThread:
-            if (isMainThread) {
-                backgroundPoster.enqueue(subscription, event);
-            } else {
-                invokeSubscriber(subscription, event);
-            }
-            break;
-        case Async:
-            asyncPoster.enqueue(subscription, event);
-            break;
-        default:
-            throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
+                break;
+            case MainThread:
+                if (isMainThread) {
+                    invokeSubscriber(subscription, event);
+                } else {
+                    mainThreadPoster.enqueue(subscription, event);
+                }
+                break;
+            case BackgroundThread:
+                if (isMainThread) {
+                    backgroundPoster.enqueue(subscription, event);
+                } else {
+                    invokeSubscriber(subscription, event);
+                }
+                break;
+            case Async:
+                asyncPoster.enqueue(subscription, event);
+                break;
+            default:
+                throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }
     }
 
