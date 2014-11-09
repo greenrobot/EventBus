@@ -222,6 +222,31 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(10, reposter.lastEvent);
     }
 
+    public void testHasSubscriberForEvent() {
+        assertFalse(eventBus.hasSubscriberForEvent(String.class));
+        eventBus.register(this);
+        assertTrue(eventBus.hasSubscriberForEvent(String.class));
+    }
+
+    public void testHasSubscriberForEventSuperclass() {
+        assertFalse(eventBus.hasSubscriberForEvent(String.class));
+        eventBus.register(new Object() {
+            public void onEvent(Object event) {
+            }
+        });
+        assertTrue(eventBus.hasSubscriberForEvent(String.class));
+    }
+
+    public void testHasSubscriberForEventImplementedInterface() {
+        assertFalse(eventBus.hasSubscriberForEvent(String.class));
+        eventBus.register(new Object() {
+            public void onEvent(CharSequence event) {
+            }
+        });
+        assertTrue(eventBus.hasSubscriberForEvent(CharSequence.class));
+        assertTrue(eventBus.hasSubscriberForEvent(String.class));
+    }
+
     public void onEvent(String event) {
         lastStringEvent = event;
         countStringEvent++;

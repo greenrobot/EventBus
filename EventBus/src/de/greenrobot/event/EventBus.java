@@ -443,9 +443,27 @@ public class EventBus {
         }
     }
 
+    public boolean hasSubscriberForEvent(Class<?> eventClass) {
+        List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
+        if (eventTypes != null) {
+            int countTypes = eventTypes.size();
+            for (int h = 0; h < countTypes; h++) {
+                Class<?> clazz = eventTypes.get(h);
+                CopyOnWriteArrayList<Subscription> subscriptions;
+                synchronized (this) {
+                    subscriptions = subscriptionsByEventType.get(clazz);
+                }
+                if (subscriptions != null && !subscriptions.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
         Class<?> eventClass = event.getClass();
-        List<Class<?>> eventTypes = findEventTypes(eventClass);
+        List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
         boolean subscriptionFound = false;
         int countTypes = eventTypes.size();
         for (int h = 0; h < countTypes; h++) {
@@ -512,8 +530,8 @@ public class EventBus {
         }
     }
 
-    /** Finds all Class objects including super classes and interfaces. */
-    private List<Class<?>> findEventTypes(Class<?> eventClass) {
+    /** Looks up all Class objects including super classes and interfaces. Should also work for interfaces. */
+    private List<Class<?>> lookupAllEventTypes(Class<?> eventClass) {
         synchronized (eventTypesCache) {
             List<Class<?>> eventTypes = eventTypesCache.get(eventClass);
             if (eventTypes == null) {
@@ -567,7 +585,7 @@ public class EventBus {
 
     private void handleSubscriberException(Subscription subscription, Object event, Throwable cause) {
         if (event instanceof SubscriberExceptionEvent) {
-            if(logSubscriberExceptions) {
+            if (logSubscriberExceptions) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
                 Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
                         + " threw an exception", cause);
@@ -583,7 +601,7 @@ public class EventBus {
                 Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
                         + subscription.subscriber.getClass(), cause);
             }
-            if(sendSubscriberExceptionEvent) {
+            if (sendSubscriberExceptionEvent) {
                 SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
                         subscription.subscriber);
                 post(exEvent);

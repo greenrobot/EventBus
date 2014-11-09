@@ -7,6 +7,7 @@
 * Fixed performance regression sneaked into V2.2.x affecting (first time) registration of subscribers
 * Updated to Gradle 2.1, using wrapper
 * EventBusTest and EventBusPerformance use Gradle to build
+* Added hasSubscriberForEvent to check if currently subscribers exist registered to a given event type
 * Improved README.md and extracted an extended HOWTO.md and CHANGELOG.md from it
 * Ignore compiler generated methods (#76)
 * Various small code improvements (#120 among many others)
