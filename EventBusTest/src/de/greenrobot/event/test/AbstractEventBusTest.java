@@ -60,7 +60,6 @@ public class AbstractEventBusTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         EventBus.clearCaches();
-        EventBus.clearSkipMethodNameVerifications();
         eventBus = new EventBus();
         mainPoster = new EventPostHandler(Looper.getMainLooper());
         assertFalse(Looper.getMainLooper().getThread().equals(Thread.currentThread()));

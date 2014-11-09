@@ -15,6 +15,9 @@
  */
 package de.greenrobot.event;
 
+import android.os.Looper;
+import android.util.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,28 +26,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import android.os.Looper;
-import android.util.Log;
 
 /**
- * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)} to the
- * bus, which delivers it to subscribers that have matching handler methods for the event type. To receive events,
- * subscribers must register themselves to the bus using the {@link #register(Object)} method. Once registered,
- * subscribers receive events until the call of {@link #unregister(Object)}. By convention, event handling methods must
+ * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
+ * bus, which delivers it to subscribers that have a matching handler method for the event type. To receive events,
+ * subscribers must register themselves to the bus using {@link #register(Object)}. Once registered,
+ * subscribers receive events until {@link #unregister(Object)} is called. By convention, event handling methods must
  * be named "onEvent", be public, return nothing (void), and have exactly one parameter (the event).
  *
  * @author Markus Junginger, greenrobot
  */
 public class EventBus {
-    static ExecutorService executorService = Executors.newCachedThreadPool();
 
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
-    private static volatile EventBus defaultInstance;
+    static volatile EventBus defaultInstance;
 
+    private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder();
     private static final String DEFAULT_METHOD_NAME = "onEvent";
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
@@ -64,10 +63,13 @@ public class EventBus {
     private final BackgroundPoster backgroundPoster;
     private final AsyncPoster asyncPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
+    private final ExecutorService executorService;
 
-    private boolean subscribed;
-    private boolean logSubscriberExceptions;
-    private boolean logNoSubscriberMessages;
+    private final boolean failFast;
+    private final boolean logSubscriberExceptions;
+    private final boolean logNoSubscriberMessages;
+    private final boolean sendSubscriberExceptionEvent;
+    private final boolean sendNoSubscriberEvent;
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
@@ -81,6 +83,10 @@ public class EventBus {
         return defaultInstance;
     }
 
+    public static EventBusBuilder builder() {
+        return new EventBusBuilder();
+    }
+
     /** For unit test primarily. */
     public static void clearCaches() {
         SubscriberMethodFinder.clearCaches();
@@ -88,58 +94,29 @@ public class EventBus {
     }
 
     /**
-     * Method name verification is done for methods starting with onEvent to avoid typos; using this method you can
-     * exclude subscriber classes from this check. Also disables checks for method modifiers (public, not static nor
-     * abstract).
-     */
-    public static void skipMethodVerificationFor(Class<?> clazz) {
-        SubscriberMethodFinder.skipMethodVerificationFor(clazz);
-    }
-
-    /** For unit test primarily. */
-    public static void clearSkipMethodNameVerifications() {
-        SubscriberMethodFinder.clearSkipMethodVerifications();
-    }
-
-    /**
      * Creates a new EventBus instance; each instance is a separate scope in which events are delivered. To use a
      * central bus, consider {@link #getDefault()}.
      */
     public EventBus() {
+        this(DEFAULT_BUILDER);
+    }
+
+    EventBus(EventBusBuilder builder) {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
         stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
-        subscriberMethodFinder = new SubscriberMethodFinder();
-        logSubscriberExceptions = true;
-        logNoSubscriberMessages = true;
+        subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
+        logSubscriberExceptions = builder.logSubscriberExceptions;
+        logNoSubscriberMessages = builder.logNoSubscriberMessages;
+        sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
+        sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
+        failFast = builder.failFast;
+        executorService = builder.executorService;
     }
 
-    /**
-     * Before registering any subscribers, use this method to configure if EventBus should log exceptions thrown by
-     * subscribers (default: true).
-     */
-    public void configureLogSubscriberExceptions(boolean logSubscriberExceptions) {
-        checkConfigurationAllowed();
-        this.logSubscriberExceptions = logSubscriberExceptions;
-    }
-
-    /**
-     * Configure if EventBus should log "No subscribers registered for event" messages (default: true).
-     */
-    public void configureLogNoSubscriberMessages(boolean logNoSubscriberMessages) {
-        checkConfigurationAllowed();
-        this.logNoSubscriberMessages = logNoSubscriberMessages;
-    }
-
-    // TODO maybe we should switch to a builder pattern to avoid this
-    private void checkConfigurationAllowed() throws EventBusException {
-        if (subscribed) {
-            throw new EventBusException("This method must be called before any registration");
-        }
-    }
 
     /**
      * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they
@@ -258,7 +235,6 @@ public class EventBus {
 
     // Must be called in synchronized block
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod, boolean sticky, int priority) {
-        subscribed = true;
         Class<?> eventType = subscriberMethod.eventType;
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod, priority);
@@ -502,7 +478,8 @@ public class EventBus {
             if (logNoSubscriberMessages) {
                 Log.d(TAG, "No subscribers registered for event " + eventClass);
             }
-            if (eventClass != NoSubscriberEvent.class && eventClass != SubscriberExceptionEvent.class) {
+            if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
+                    eventClass != SubscriberExceptionEvent.class) {
                 post(new NoSubscriberEvent(this, event));
             }
         }
@@ -578,7 +555,7 @@ public class EventBus {
         }
     }
 
-    void invokeSubscriber(Subscription subscription, Object event) throws Error {
+    void invokeSubscriber(Subscription subscription, Object event) {
         try {
             subscription.subscriberMethod.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
@@ -591,13 +568,18 @@ public class EventBus {
                 Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
             } else {
+                if (failFast) {
+                    throw new EventBusException("Invoking subscriber failed", cause);
+                }
                 if (logSubscriberExceptions) {
                     Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
                             + subscription.subscriber.getClass(), cause);
                 }
-                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
-                        subscription.subscriber);
-                post(exEvent);
+                if(sendSubscriberExceptionEvent) {
+                    SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
+                            subscription.subscriber);
+                    post(exEvent);
+                }
             }
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Unexpected exception", e);
@@ -612,6 +594,10 @@ public class EventBus {
         Subscription subscription;
         Object event;
         boolean canceled;
+    }
+
+    ExecutorService getExecutorService() {
+        return executorService;
     }
 
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...

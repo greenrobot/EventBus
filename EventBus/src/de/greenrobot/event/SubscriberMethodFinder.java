@@ -37,7 +37,17 @@ class SubscriberMethodFinder {
 
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
     private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
-    private static final Map<Class<?>, Class<?>> skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+
+    private final Map<Class<?>, Class<?>> skipMethodVerificationForClasses;
+
+    SubscriberMethodFinder(List<Class<?>> skipMethodVerificationForClassesList) {
+        skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+        if (skipMethodVerificationForClassesList != null) {
+            for (Class<?> clazz : skipMethodVerificationForClassesList) {
+                skipMethodVerificationForClasses.put(clazz, clazz);
+            }
+        }
+    }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
         String key = subscriberClass.getName() + '.' + eventMethodName;
@@ -120,14 +130,4 @@ class SubscriberMethodFinder {
         }
     }
 
-    static void skipMethodVerificationFor(Class<?> clazz) {
-        if (!methodCache.isEmpty()) {
-            throw new IllegalStateException("This method must be called before registering anything");
-        }
-        skipMethodVerificationForClasses.put(clazz, clazz);
-    }
-
-    public static void clearSkipMethodVerifications() {
-        skipMethodVerificationForClasses.clear();
-    }
 }
