@@ -224,27 +224,42 @@ public class EventBusBasicTest extends TestCase {
 
     public void testHasSubscriberForEvent() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
+
         eventBus.register(this);
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
+
+        eventBus.unregister(this);
+        assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
 
     public void testHasSubscriberForEventSuperclass() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
-        eventBus.register(new Object() {
+
+        Object subscriber = new Object() {
             public void onEvent(Object event) {
             }
-        });
+        };
+        eventBus.register(subscriber);
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
+
+        eventBus.unregister(subscriber);
+        assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
 
     public void testHasSubscriberForEventImplementedInterface() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
-        eventBus.register(new Object() {
+
+        Object subscriber = new Object() {
             public void onEvent(CharSequence event) {
             }
-        });
+        };
+        eventBus.register(subscriber);
         assertTrue(eventBus.hasSubscriberForEvent(CharSequence.class));
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
+
+        eventBus.unregister(subscriber);
+        assertFalse(eventBus.hasSubscriberForEvent(CharSequence.class));
+        assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
 
     public void onEvent(String event) {
