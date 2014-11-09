@@ -11,7 +11,7 @@ android:
 
 before_script:
   - chmod +x gradlew
-  - echo no | android create avd --force -n test -t android-10 --abi armeabi-v7a
+  - echo no | android create avd --force -n test -t android-10 --abi armeabi
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
