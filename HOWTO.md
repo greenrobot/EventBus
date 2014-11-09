@@ -105,6 +105,33 @@ Within the same delivery thread (ThreadMode), higher priority subscribers will r
 
 *Note*: the priority does *NOT* affect the order of delivery among subscribers with different [ThreadModes](#delivery-threads-and-threadmodes)!
 
+Configure EventBus using EventBusBuilder
+----------------------------------------
+EventBus 2.3 added EventBusBuilder to configure various aspects of EventBus. For example, here's how to build an EventBus that keeps quiet in case a posted event has no subscribers:
+
+```java
+    EventBus eventBus = EventBus.builder().logNoSubscriberMessages(false).sendNoSubscriberEvent(false).build();
+```
+
+Another example is to fail when a subscriber throws an exception. Note: by default, EventBus catches exceptions thrown from onEvent methods and sends an SubscriberExceptionEvent that may but do not have to be handled.
+
+```java
+    EventBus eventBus = EventBus.builder().throwSubscriberException(true).build();
+```
+
+Check the EventBusBuilder class and its JavaDoc for all possible configuration possibilities.
+
+### Configure the default EventBus instance ###
+Using EventBus.getDefault() is a simple way to get an shared EventBus instance. EventBusBuilder also allows to configure this default instance using the method <code>installDefaultEventBus()</code>.
+
+For example, it's possible to configure the default EventBus instance to rethrow exceptions, which occurred in onEvent methods. But let's to this only for DEBUG builds, because this will likely crash the app on exceptions:
+
+```java
+EventBus.builder().throwSubscriberException(BuildConfig.DEBUG).installDefaultEventBus();
+```
+
+Note: this can be done only once before the the default EventBus instance is used the first time. This ensures consistent behavior in your app. Your Application class is a good place to configure the default EventBus instance before its used.
+
 Cancelling event delivery
 -------------------------
 You may cancel the event delivery process by calling `cancelEventDelivery(Object event)` from a subscriber's event handling method. 
