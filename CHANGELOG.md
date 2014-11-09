@@ -1,6 +1,7 @@
 ### V2.3.0 (2014-11-??) Upcoming
+* Fixed a performance regression sneaked into V2.2.x affecting first time registration of subscribers
 * Updated to Gradle 2.1, using wrapper
-* EventBusTest builds using Gradle now
+* EventBusTest and EventBusPerformance use Gradle to build
 * Updated README.md and extracted HOWTO.md and CHANGELOG.md from it
 * Configuration to disable "No subscribers registered for event"
 * Various small code improvements

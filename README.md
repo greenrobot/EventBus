@@ -15,6 +15,8 @@ EventBus...
  * is proven in practice by apps with 100,000,000+ installs
  * has advanced features like delivery threads, subscriber priorities, etc.
 
+ [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
+
 EventBus in 3 steps
 -------------------
 1. Define events:<br/>
