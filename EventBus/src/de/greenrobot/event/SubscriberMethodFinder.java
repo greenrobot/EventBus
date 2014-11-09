@@ -60,7 +60,7 @@ class SubscriberMethodFinder {
             }
 
             // Starting with EventBus 2.2 we enforced methods to be public (might change with annotations again)
-            Method[] methods = clazz.getMethods();
+            Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
                 String methodName = method.getName();
                 if (methodName.startsWith(eventMethodName)) {
