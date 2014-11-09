@@ -48,14 +48,16 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="@string/test_otto" />
-
+
+
             <CheckBox
                 android:id="@+id/checkBoxBroadcast"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/test_broadcast"
                 android:visibility="gone" />
-
+
+
             <CheckBox
                 android:id="@+id/checkBoxLocalBroadcast"
                 android:layout_width="wrap_content"
