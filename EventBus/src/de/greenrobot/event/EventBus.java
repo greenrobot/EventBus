@@ -65,7 +65,7 @@ public class EventBus {
     private final SubscriberMethodFinder subscriberMethodFinder;
     private final ExecutorService executorService;
 
-    private final boolean failFast;
+    private final boolean throwSubscriberException;
     private final boolean logSubscriberExceptions;
     private final boolean logNoSubscriberMessages;
     private final boolean sendSubscriberExceptionEvent;
@@ -113,7 +113,7 @@ public class EventBus {
         logNoSubscriberMessages = builder.logNoSubscriberMessages;
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
         sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
-        failFast = builder.failFast;
+        throwSubscriberException = builder.throwSubscriberException;
         executorService = builder.executorService;
     }
 
@@ -576,7 +576,7 @@ public class EventBus {
                         + exEvent.causingSubscriber, exEvent.throwable);
             }
         } else {
-            if (failFast) {
+            if (throwSubscriberException) {
                 throw new EventBusException("Invoking subscriber failed", cause);
             }
             if (logSubscriberExceptions) {

@@ -26,8 +26,8 @@ import de.greenrobot.event.SubscriberExceptionEvent;
  */
 public class EventBusBuilderTest extends AbstractEventBusTest {
 
-    public void testFailFast() {
-        eventBus = EventBus.builder().failFast(true).build();
+    public void testThrowSubscriberException() {
+        eventBus = EventBus.builder().throwSubscriberException(true).build();
         eventBus.register(new SubscriberExceptionEventTracker());
         eventBus.register(new ThrowingSubscriber());
         try {

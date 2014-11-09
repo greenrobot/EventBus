@@ -33,7 +33,7 @@ public class EventBusBuilder {
     boolean sendNoSubscriberEvent = true;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
-    boolean failFast;
+    boolean throwSubscriberException;
 
     EventBusBuilder() {
     }
@@ -63,13 +63,13 @@ public class EventBusBuilder {
     }
 
     /**
-     * Fails fast if an subscriber throws an exception (default: false).
+     * Fails if an subscriber throws an exception (default: false).
      * <p/>
      * Tip: Use this with BuildConfig.DEBUG to let the app crash in DEBUG mode (only). This way, you won't miss
      * exceptions during development.
      */
-    public EventBusBuilder failFast(boolean failFast) {
-        this.failFast = failFast;
+    public EventBusBuilder throwSubscriberException(boolean throwSubscriberException) {
+        this.throwSubscriberException = throwSubscriberException;
         return this;
     }
 
