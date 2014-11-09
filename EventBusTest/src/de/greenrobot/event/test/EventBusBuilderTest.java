@@ -16,6 +16,7 @@
 package de.greenrobot.event.test;
 
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.EventBusBuilder;
 import de.greenrobot.event.EventBusException;
 import de.greenrobot.event.NoSubscriberEvent;
 import de.greenrobot.event.SubscriberExceptionEvent;
@@ -50,6 +51,21 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         eventBus.register(new NoSubscriberEventTracker());
         eventBus.post("Foo");
         assertEventCount(0);
+    }
+
+    public void testInstallDefaultEventBus() {
+        EventBusBuilder builder = EventBus.builder();
+        try {
+            // Either this should throw when another unit test got the default event bus...
+            eventBus = builder.installDefaultEventBus();
+            assertEquals(eventBus, EventBus.getDefault());
+
+            // ...or this should throw
+            eventBus = builder.installDefaultEventBus();
+            fail("Should have thrown");
+        } catch (EventBusException e) {
+            // Expected
+        }
     }
 
     class SubscriberExceptionEventTracker {
