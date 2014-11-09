@@ -1,11 +1,15 @@
-### V2.3.0 (2014-11-??) Upcoming
-* Fixed a performance regression sneaked into V2.2.x affecting first time registration of subscribers
+### V2.3.0 (2014-11-??) Feature release: EventBusBuilder and performance fix
+* New EventBusBuilder to configure EventBus instances (including the getDefault() instance, #124)
+* Added configuration to disable "No subscribers registered for event" logs (EventBusBuilder, #107, #117)
+* Added configuration to disable sending SubscriberExceptionEvent and NoSubscriberEvent (EventBusBuilder)
+* Added configuration to fail fast when subscribers throw a exception (EventBusBuilder, #55)
+* Added configuration to use an existing thread pool (EventBusBuilder, #115)
+* Fixed performance regression sneaked into V2.2.x affecting (first time) registration of subscribers
 * Updated to Gradle 2.1, using wrapper
 * EventBusTest and EventBusPerformance use Gradle to build
-* Updated README.md and extracted HOWTO.md and CHANGELOG.md from it
-* Configuration to disable "No subscribers registered for event"
-* Various small code improvements
-* Fixes (#76)
+* Improved README.md and extracted an extended HOWTO.md and CHANGELOG.md from it
+* Various small code improvements (for example #120)
+* Ignore compiler generated methods (#76)
 
 ### V2.2.1 (2014-05-21) Bug fix release
 * Fixed an issue with AsyncExecutor and execution scope

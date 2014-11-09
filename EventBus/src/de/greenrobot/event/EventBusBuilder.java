@@ -62,7 +62,12 @@ public class EventBusBuilder {
         return this;
     }
 
-    /** Default: false */
+    /**
+     * Fails fast if an subscriber throws an exception (default: false).
+     * <p/>
+     * Tip: Use this with BuildConfig.DEBUG to let the app crash in DEBUG mode (only). This way, you won't miss
+     * exceptions during development.
+     */
     public EventBusBuilder failFast(boolean failFast) {
         this.failFast = failFast;
         return this;
