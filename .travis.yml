@@ -2,6 +2,4 @@ language: java
 jdk:
   - openjdk6
   - oraclejdk7
-
-before_script:
-  - chmod +x gradlew
+before_script: chmod +x gradlew
