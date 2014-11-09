@@ -559,30 +559,35 @@ public class EventBus {
         try {
             subscription.subscriberMethod.method.invoke(subscription.subscriber, event);
         } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (event instanceof SubscriberExceptionEvent) {
+            handleSubscriberException(subscription, event, e.getCause());
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Unexpected exception", e);
+        }
+    }
+
+    private void handleSubscriberException(Subscription subscription, Object event, Throwable cause) {
+        if (event instanceof SubscriberExceptionEvent) {
+            if(logSubscriberExceptions) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
                 Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
                         + " threw an exception", cause);
                 SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
                 Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
-            } else {
-                if (failFast) {
-                    throw new EventBusException("Invoking subscriber failed", cause);
-                }
-                if (logSubscriberExceptions) {
-                    Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
-                            + subscription.subscriber.getClass(), cause);
-                }
-                if(sendSubscriberExceptionEvent) {
-                    SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
-                            subscription.subscriber);
-                    post(exEvent);
-                }
             }
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Unexpected exception", e);
+        } else {
+            if (failFast) {
+                throw new EventBusException("Invoking subscriber failed", cause);
+            }
+            if (logSubscriberExceptions) {
+                Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                        + subscription.subscriber.getClass(), cause);
+            }
+            if(sendSubscriberExceptionEvent) {
+                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
+                        subscription.subscriber);
+                post(exEvent);
+            }
         }
     }
 
