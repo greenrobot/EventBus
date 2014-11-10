@@ -61,9 +61,10 @@ public abstract class PerfTestOtto extends Test {
         }
 
         public void runTest() {
+            TestEvent event = new TestEvent();
             long timeStart = System.nanoTime();
             for (int i = 0; i < super.eventCount; i++) {
-                super.eventBus.post(new TestEvent());
+                super.eventBus.post(event);
                 if (canceled) {
                     break;
                 }

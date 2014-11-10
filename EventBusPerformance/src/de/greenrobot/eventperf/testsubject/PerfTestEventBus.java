@@ -42,16 +42,16 @@ public abstract class PerfTestEventBus extends Test {
 
     private Class<?> getSubscriberClassForThreadMode() {
         switch (params.getThreadMode()) {
-        case MainThread:
-            return SubscribeClassEventBusMain.class;
-        case BackgroundThread:
-            return SubscribeClassEventBusBackground.class;
-        case Async:
-            return SubscriberClassEventBusAsync.class;
-        case PostThread:
-            return SubscribeClassEventBusDefault.class;
-        default:
-            throw new RuntimeException("Unknown: " + params.getThreadMode());
+            case MainThread:
+                return SubscribeClassEventBusMain.class;
+            case BackgroundThread:
+                return SubscribeClassEventBusBackground.class;
+            case Async:
+                return SubscriberClassEventBusAsync.class;
+            case PostThread:
+                return SubscribeClassEventBusDefault.class;
+            default:
+                throw new RuntimeException("Unknown: " + params.getThreadMode());
         }
     }
 
@@ -67,9 +67,10 @@ public abstract class PerfTestEventBus extends Test {
         }
 
         public void runTest() {
+            TestEvent event = new TestEvent();
             long timeStart = System.nanoTime();
             for (int i = 0; i < super.eventCount; i++) {
-                super.eventBus.post(new TestEvent());
+                super.eventBus.post(event);
                 if (canceled) {
                     break;
                 }
