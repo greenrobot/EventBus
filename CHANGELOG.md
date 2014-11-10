@@ -1,3 +1,7 @@
+### V2.4.0 (2014-11-10) Clean up release
+* Removed deprecated APIs to stick to the core functionality
+Note: No new feature were added since 2.3.0. Use this release if you do not rely on the APIs deprecated in V2.2.0.
+
 ### V2.3.0 (2014-11-10) Feature release: EventBusBuilder and performance fix
 * New EventBusBuilder to configure EventBus instances (including the getDefault() instance, #124)
 * Added configuration to disable "No subscribers registered for event" logs (EventBusBuilder, #107, #117)

@@ -15,12 +15,12 @@
  */
 package de.greenrobot.event.test;
 
-import java.lang.ref.WeakReference;
-
-import junit.framework.TestCase;
 import android.app.Activity;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
+import junit.framework.TestCase;
+
+import java.lang.ref.WeakReference;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -38,21 +38,6 @@ public class EventBusBasicTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         eventBus = new EventBus();
-    }
-
-    public void testRegisterForEventTypeAndPost() {
-        // Use an activity to test real life performance
-        TestActivity testActivity = new TestActivity();
-        String event = "Hello";
-
-        long start = System.currentTimeMillis();
-        eventBus.register(testActivity, String.class);
-        long time = System.currentTimeMillis() - start;
-        Log.d(EventBus.TAG, "Registered for event class in " + time + "ms");
-
-        eventBus.post(event);
-
-        assertEquals(event, testActivity.lastStringEvent);
     }
 
     public void testRegisterAndPost() {
@@ -77,23 +62,12 @@ public class EventBusBasicTest extends TestCase {
     public void testUnregisterWithoutRegister() {
         // Results in a warning without throwing
         eventBus.unregister(this);
-        eventBus.unregister(this, String.class);
     }
 
     public void testUnregisterNotLeaking() {
         EventBusBasicTest subscriber = new EventBusBasicTest();
         eventBus.register(subscriber);
         eventBus.unregister(subscriber);
-
-        WeakReference<EventBusBasicTest> ref = new WeakReference<EventBusBasicTest>(subscriber);
-        subscriber = null;
-        assertSubscriberNotReferenced(ref);
-    }
-
-    public void testUnregisterForClassNotLeaking() {
-        EventBusBasicTest subscriber = new EventBusBasicTest();
-        eventBus.register(subscriber, String.class);
-        eventBus.unregister(subscriber, String.class);
 
         WeakReference<EventBusBasicTest> ref = new WeakReference<EventBusBasicTest>(subscriber);
         subscriber = null;
@@ -113,9 +87,9 @@ public class EventBusBasicTest extends TestCase {
     }
 
     public void testRegisterTwice() {
-        eventBus.register(this, String.class);
+        eventBus.register(this);
         try {
-            eventBus.register(this, String.class);
+            eventBus.register(this);
             fail("Did not throw");
         } catch (RuntimeException expected) {
             // OK
@@ -132,8 +106,8 @@ public class EventBusBasicTest extends TestCase {
 
     public void testPostWithTwoSubscriber() {
         EventBusBasicTest test2 = new EventBusBasicTest();
-        eventBus.register(this, String.class);
-        eventBus.register(test2, String.class);
+        eventBus.register(this);
+        eventBus.register(test2);
         String event = "Hello";
         eventBus.post(event);
         assertEquals(event, lastStringEvent);
@@ -141,7 +115,7 @@ public class EventBusBasicTest extends TestCase {
     }
 
     public void testPostMultipleTimes() {
-        eventBus.register(this, MyEvent.class);
+        eventBus.register(this);
         MyEvent event = new MyEvent();
         int count = 1000;
         long start = System.currentTimeMillis();
@@ -156,23 +130,10 @@ public class EventBusBasicTest extends TestCase {
     }
 
     public void testPostAfterUnregister() {
-        eventBus.register(this, String.class);
-        eventBus.unregister(this, String.class);
-        eventBus.post("Hello");
-        assertNull(lastStringEvent);
-    }
-
-    public void testPostAfterUnregisterForAllEventClasses() {
-        eventBus.register(this, String.class);
+        eventBus.register(this);
         eventBus.unregister(this);
         eventBus.post("Hello");
         assertNull(lastStringEvent);
-    }
-
-    public void testRegisterForOtherTypeThanPosted() {
-        eventBus.register(this, String.class);
-        eventBus.post(42);
-        assertEquals(0, countIntEvent);
     }
 
     public void testRegisterAndPostTwoTypes() {
@@ -185,23 +146,13 @@ public class EventBusBasicTest extends TestCase {
         assertEquals("Hello", lastStringEvent);
     }
 
-    public void testRegisterAndPostTwoTypesExplicit() {
-        eventBus.register(this, String.class, Integer.class);
-        eventBus.post(42);
-        eventBus.post("Hello");
-        assertEquals(1, countIntEvent);
-        assertEquals(1, countStringEvent);
-        assertEquals(42, lastIntEvent);
-        assertEquals("Hello", lastStringEvent);
-    }
-
     public void testRegisterUnregisterAndPostTwoTypes() {
         eventBus.register(this);
-        eventBus.unregister(this, String.class);
+        eventBus.unregister(this);
         eventBus.post(42);
         eventBus.post("Hello");
-        assertEquals(1, countIntEvent);
-        assertEquals(42, lastIntEvent);
+        assertEquals(0, countIntEvent);
+        assertEquals(0, lastIntEvent);
         assertEquals(0, countStringEvent);
     }
 

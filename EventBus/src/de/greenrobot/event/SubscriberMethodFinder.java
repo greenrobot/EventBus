@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 class SubscriberMethodFinder {
+    private static final String ON_EVENT_METHOD_NAME = "onEvent";
+
     /*
      * In newer class files, compilers may add methods. Those are called bridge or synthetic methods.
      * EventBus must ignore both. There modifiers are not public but defined in the Java class file format:
@@ -49,8 +51,8 @@ class SubscriberMethodFinder {
         }
     }
 
-    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
-        String key = subscriberClass.getName() + '.' + eventMethodName;
+    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
+        String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
         synchronized (methodCache) {
             subscriberMethods = methodCache.get(key);
@@ -73,12 +75,12 @@ class SubscriberMethodFinder {
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
                 String methodName = method.getName();
-                if (methodName.startsWith(eventMethodName)) {
+                if (methodName.startsWith(ON_EVENT_METHOD_NAME)) {
                     int modifiers = method.getModifiers();
                     if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
                         Class<?>[] parameterTypes = method.getParameterTypes();
                         if (parameterTypes.length == 1) {
-                            String modifierString = methodName.substring(eventMethodName.length());
+                            String modifierString = methodName.substring(ON_EVENT_METHOD_NAME.length());
                             ThreadMode threadMode;
                             if (modifierString.length() == 0) {
                                 threadMode = ThreadMode.PostThread;
@@ -115,7 +117,7 @@ class SubscriberMethodFinder {
         }
         if (subscriberMethods.isEmpty()) {
             throw new EventBusException("Subscriber " + subscriberClass + " has no public methods called "
-                    + eventMethodName);
+                    + ON_EVENT_METHOD_NAME);
         } else {
             synchronized (methodCache) {
                 methodCache.put(key, subscriberMethods);

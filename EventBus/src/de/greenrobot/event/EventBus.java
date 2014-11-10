@@ -44,7 +44,6 @@ public class EventBus {
     static volatile EventBus defaultInstance;
 
     private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder();
-    private static final String DEFAULT_METHOD_NAME = "onEvent";
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
@@ -131,7 +130,7 @@ public class EventBus {
      * "onEventMainThread".
      */
     public void register(Object subscriber) {
-        register(subscriber, DEFAULT_METHOD_NAME, false, 0);
+        register(subscriber, false, 0);
     }
 
     /**
@@ -141,15 +140,7 @@ public class EventBus {
      * delivery among subscribers with different {@link ThreadMode}s!
      */
     public void register(Object subscriber, int priority) {
-        register(subscriber, DEFAULT_METHOD_NAME, false, priority);
-    }
-
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public void register(Object subscriber, String methodName) {
-        register(subscriber, methodName, false, 0);
+        register(subscriber, false, priority);
     }
 
     /**
@@ -157,7 +148,7 @@ public class EventBus {
      * {@link #postSticky(Object)}) to the given subscriber.
      */
     public void registerSticky(Object subscriber) {
-        register(subscriber, DEFAULT_METHOD_NAME, true, 0);
+        register(subscriber, true, 0);
     }
 
     /**
@@ -165,73 +156,13 @@ public class EventBus {
      * {@link #postSticky(Object)}) to the given subscriber.
      */
     public void registerSticky(Object subscriber, int priority) {
-        register(subscriber, DEFAULT_METHOD_NAME, true, priority);
+        register(subscriber, true, priority);
     }
 
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public void registerSticky(Object subscriber, String methodName) {
-        register(subscriber, methodName, true, 0);
-    }
-
-    private synchronized void register(Object subscriber, String methodName, boolean sticky, int priority) {
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass(),
-                methodName);
+    private synchronized void register(Object subscriber, boolean sticky, int priority) {
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass());
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
-        }
-    }
-
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public void register(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, DEFAULT_METHOD_NAME, false, eventType, moreEventTypes);
-    }
-
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public void register(Object subscriber, String methodName, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, methodName, false, eventType, moreEventTypes);
-    }
-
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public void registerSticky(Object subscriber, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, DEFAULT_METHOD_NAME, true, eventType, moreEventTypes);
-    }
-
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public void registerSticky(Object subscriber, String methodName, Class<?> eventType, Class<?>... moreEventTypes) {
-        register(subscriber, methodName, true, eventType, moreEventTypes);
-    }
-
-    private synchronized void register(Object subscriber, String methodName, boolean sticky, Class<?> eventType,
-                                       Class<?>... moreEventTypes) {
-        Class<?> subscriberClass = subscriber.getClass();
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass,
-                methodName);
-        for (SubscriberMethod subscriberMethod : subscriberMethods) {
-            if (eventType == subscriberMethod.eventType) {
-                subscribe(subscriber, subscriberMethod, sticky, 0);
-            } else if (moreEventTypes != null) {
-                for (Class<?> eventType2 : moreEventTypes) {
-                    if (eventType2 == subscriberMethod.eventType) {
-                        subscribe(subscriber, subscriberMethod, sticky, 0);
-                        break;
-                    }
-                }
-            }
         }
     }
 
@@ -283,28 +214,6 @@ public class EventBus {
 
     public synchronized boolean isRegistered(Object subscriber) {
         return typesBySubscriber.containsKey(subscriber);
-    }
-
-    /**
-     * @deprecated For simplification of the API, this method will be removed in the future.
-     */
-    @Deprecated
-    public synchronized void unregister(Object subscriber, Class<?>... eventTypes) {
-        if (eventTypes.length == 0) {
-            throw new IllegalArgumentException("Provide at least one event class");
-        }
-        List<Class<?>> subscribedClasses = typesBySubscriber.get(subscriber);
-        if (subscribedClasses != null) {
-            for (Class<?> eventType : eventTypes) {
-                unubscribeByEventType(subscriber, eventType);
-                subscribedClasses.remove(eventType);
-            }
-            if (subscribedClasses.isEmpty()) {
-                typesBySubscriber.remove(subscriber);
-            }
-        } else {
-            Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
-        }
     }
 
     /** Only updates subscriptionsByEventType, not typesBySubscriber! Caller must update typesBySubscriber. */
