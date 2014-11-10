@@ -31,9 +31,10 @@ public class EventBusBuilder {
     boolean logNoSubscriberMessages = true;
     boolean sendSubscriberExceptionEvent = true;
     boolean sendNoSubscriberEvent = true;
+    boolean throwSubscriberException;
+    boolean eventInheritance = true;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
-    boolean throwSubscriberException;
 
     EventBusBuilder() {
     }
@@ -74,6 +75,17 @@ public class EventBusBuilder {
     }
 
     /**
+     * By default, EventBus considers the event class hierarchy (subscribers to super classes will be notified).
+     * Switching this feature off will improve posting of events. For simple event classes extending Object directly, we
+     * measured a speed up of 20%. For more complex event hierarchies, the speed up should be >20%.
+     */
+    public EventBusBuilder eventInheritance(boolean eventInheritance) {
+        this.eventInheritance = eventInheritance;
+        return this;
+    }
+
+
+    /**
      * Provide a custom thread pool to EventBus used for async and background event delivery. This is an advanced
      * setting to that can break things: ensure the given ExecutorService won't get stuck to avoid undefined behavior.
      */
@@ -112,6 +124,7 @@ public class EventBusBuilder {
         }
     }
 
+    /** Builds an EventBus based on the current configuration. */
     public EventBus build() {
         return new EventBus(this);
     }

@@ -70,6 +70,7 @@ public class EventBus {
     private final boolean logNoSubscriberMessages;
     private final boolean sendSubscriberExceptionEvent;
     private final boolean sendNoSubscriberEvent;
+    private final boolean eventInheritance;
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
@@ -114,6 +115,7 @@ public class EventBus {
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
         sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
         throwSubscriberException = builder.throwSubscriberException;
+        eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
     }
 
@@ -463,34 +465,16 @@ public class EventBus {
 
     private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
         Class<?> eventClass = event.getClass();
-        List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
         boolean subscriptionFound = false;
-        int countTypes = eventTypes.size();
-        for (int h = 0; h < countTypes; h++) {
-            Class<?> clazz = eventTypes.get(h);
-            CopyOnWriteArrayList<Subscription> subscriptions;
-            synchronized (this) {
-                subscriptions = subscriptionsByEventType.get(clazz);
+        if (eventInheritance) {
+            List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
+            int countTypes = eventTypes.size();
+            for (int h = 0; h < countTypes; h++) {
+                Class<?> clazz = eventTypes.get(h);
+                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
             }
-            if (subscriptions != null && !subscriptions.isEmpty()) {
-                for (Subscription subscription : subscriptions) {
-                    postingState.event = event;
-                    postingState.subscription = subscription;
-                    boolean aborted = false;
-                    try {
-                        postToSubscription(subscription, event, postingState.isMainThread);
-                        aborted = postingState.canceled;
-                    } finally {
-                        postingState.event = null;
-                        postingState.subscription = null;
-                        postingState.canceled = false;
-                    }
-                    if (aborted) {
-                        break;
-                    }
-                }
-                subscriptionFound = true;
-            }
+        } else {
+            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
@@ -501,6 +485,33 @@ public class EventBus {
                 post(new NoSubscriberEvent(this, event));
             }
         }
+    }
+
+    private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass) {
+        CopyOnWriteArrayList<Subscription> subscriptions;
+        synchronized (this) {
+            subscriptions = subscriptionsByEventType.get(eventClass);
+        }
+        if (subscriptions != null && !subscriptions.isEmpty()) {
+            for (Subscription subscription : subscriptions) {
+                postingState.event = event;
+                postingState.subscription = subscription;
+                boolean aborted = false;
+                try {
+                    postToSubscription(subscription, event, postingState.isMainThread);
+                    aborted = postingState.canceled;
+                } finally {
+                    postingState.event = null;
+                    postingState.subscription = null;
+                    postingState.canceled = false;
+                }
+                if (aborted) {
+                    break;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
