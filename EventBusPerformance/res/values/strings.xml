@@ -3,6 +3,7 @@
 
     <string name="app_name">Event Performance</string>
     <string name="test_eventBus">EventBus</string>
+    <string name="test_eventBusEventHierarchy">Event Inheritance</string>
     <string name="test_otto">OttoBus</string>
     <string name="test_broadcast">Broadcast</string>
     <string name="test_localBroadcast">Local Broadcast</string>

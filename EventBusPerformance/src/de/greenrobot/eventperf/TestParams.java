@@ -12,6 +12,7 @@ public class TestParams implements Serializable {
     private int subscriberCount;
     private int publisherCount;
     private ThreadMode threadMode;
+    private boolean eventInheritance;
     private int testNumber;
     private ArrayList<Class<? extends Test>> testClasses;
 
@@ -45,6 +46,14 @@ public class TestParams implements Serializable {
 
     public void setThreadMode(ThreadMode threadMode) {
         this.threadMode = threadMode;
+    }
+
+    public boolean isEventInheritance() {
+        return eventInheritance;
+    }
+
+    public void setEventInheritance(boolean eventInheritance) {
+        this.eventInheritance = eventInheritance;
     }
 
     public ArrayList<Class<? extends Test>> getTestClasses() {

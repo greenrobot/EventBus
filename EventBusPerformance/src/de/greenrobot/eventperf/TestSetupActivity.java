@@ -1,7 +1,5 @@
 package de.greenrobot.eventperf;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,21 +9,23 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import de.greenrobot.event.ThreadMode;
-import de.greenrobot.eventperf.testsubject.PerfTestOtto;
 import de.greenrobot.eventperf.testsubject.PerfTestEventBus;
+import de.greenrobot.eventperf.testsubject.PerfTestOtto;
+
+import java.util.ArrayList;
 
 public class TestSetupActivity extends Activity {
 
     @SuppressWarnings("rawtypes")
-    static final Class[] TEST_CLASSES_EVENTBUS = { PerfTestEventBus.Post.class,//
+    static final Class[] TEST_CLASSES_EVENTBUS = {PerfTestEventBus.Post.class,//
             PerfTestEventBus.RegisterOneByOne.class,//
             PerfTestEventBus.RegisterAll.class, //
-            PerfTestEventBus.RegisterFirstTime.class };
+            PerfTestEventBus.RegisterFirstTime.class};
 
-    static final Class[] TEST_CLASSES_OTTO = { PerfTestOtto.Post.class,//
+    static final Class[] TEST_CLASSES_OTTO = {PerfTestOtto.Post.class,//
             PerfTestOtto.RegisterOneByOne.class,//
             PerfTestOtto.RegisterAll.class, //
-            PerfTestOtto.RegisterFirstTime.class };
+            PerfTestOtto.RegisterFirstTime.class};
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +59,8 @@ public class TestSetupActivity extends Activity {
         String threadModeStr = spinnerThread.getSelectedItem().toString();
         ThreadMode threadMode = ThreadMode.valueOf(threadModeStr);
         params.setThreadMode(threadMode);
+
+        params.setEventInheritance(((CheckBox) findViewById(R.id.checkBoxEventBusEventHierarchy)).isChecked());
 
         EditText editTextEvent = (EditText) findViewById(R.id.editTextEvent);
         params.setEventCount(Integer.parseInt(editTextEvent.getText().toString()));

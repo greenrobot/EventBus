@@ -20,7 +20,7 @@ public abstract class PerfTestEventBus extends Test {
 
     public PerfTestEventBus(Context context, TestParams params) {
         super(context, params);
-        eventBus = new EventBus();
+        eventBus = EventBus.builder().eventInheritance(params.isEventInheritance()).build();
         subscribers = new ArrayList<Object>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
@@ -89,7 +89,8 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Post Events, " + params.getThreadMode();
+            String inheritance = params.isEventInheritance() ? ", event inheritance" : ", no event inheritance";
+            return "EventBus Post Events, " + params.getThreadMode() + inheritance;
         }
     }
 
