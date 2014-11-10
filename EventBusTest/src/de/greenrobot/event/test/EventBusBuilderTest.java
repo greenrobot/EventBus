@@ -68,6 +68,12 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         }
     }
 
+    public void testEventInheritance() {
+        eventBus = EventBus.builder().eventInheritance(false).build();
+        eventBus.register(new ThrowingSubscriber());
+        eventBus.post("Foo");
+    }
+
     class SubscriberExceptionEventTracker {
         public void onEvent(SubscriberExceptionEvent event) {
             trackEvent(event);
