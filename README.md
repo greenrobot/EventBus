@@ -33,19 +33,19 @@ EventBus is available on Maven Central. Just include it as a dependency in your 
 
 Gradle:
 ```
-    compile 'de.greenrobot:eventbus:2.2.1'
+    compile 'de.greenrobot:eventbus:2.3.0'
 ```
 Maven:
 ```
 <dependency>
     <groupId>de.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>2.2.1</version>
+    <version>2.3.0</version>
 </dependency>
 ```
 Ivy:
 ```
-<dependency name="eventbus" org="de.greenrobot" rev="2.2.1" />
+<dependency name="eventbus" org="de.greenrobot" rev="2.3.0" />
 ```
 [Or download EventBus from Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 

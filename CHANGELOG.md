@@ -1,4 +1,4 @@
-### V2.3.0 (2014-11-??) Feature release: EventBusBuilder and performance fix
+### V2.3.0 (2014-11-10) Feature release: EventBusBuilder and performance fix
 * New EventBusBuilder to configure EventBus instances (including the getDefault() instance, #124)
 * Added configuration to disable "No subscribers registered for event" logs (EventBusBuilder, #107, #117)
 * Added configuration to disable sending SubscriberExceptionEvent and NoSubscriberEvent (EventBusBuilder)
