@@ -1,8 +1,9 @@
-### V2.4.0 (2014-11-10) Clean up release
-* Removed deprecated APIs to stick to the core functionality
-Note: No new feature were added since 2.3.0. Use this release if you do not rely on the APIs deprecated in V2.2.0.
+### V2.4.0 (2014-11-11) Clean up release
+* Removed deprecated APIs: A year ago in Version 2.2.0, a couple of EventBus methods were deprecated and flagged to be removed in a future release. Well, version 2.4.0 is that release. Clean ups like this one keep the API concise and simple.
 
-### V2.3.0 (2014-11-10) Feature release: EventBusBuilder and performance fix
+**Note:** No new feature were added since 2.3.0. Use this release if you do not rely on deprecated APIs.
+
+### V2.3.0 (2014-11-11) Feature release: EventBusBuilder and performance fix
 * New EventBusBuilder to configure EventBus instances (including the getDefault() instance, #124)
 * Added configuration to disable "No subscribers registered for event" logs (EventBusBuilder, #107, #117)
 * Added configuration to disable sending SubscriberExceptionEvent and NoSubscriberEvent (EventBusBuilder)
@@ -16,6 +17,8 @@ Note: No new feature were added since 2.3.0. Use this release if you do not rely
 * Improved README.md and extracted an extended HOWTO.md and CHANGELOG.md from it
 * Ignore compiler generated methods (#76)
 * Various small code improvements (#120 among many others)
+
+**Note:** This is your last chance to use APIs that were deprecated in V2.2.0. It's recommended to switch to Version 2.4.0 (or above) at your earliest convenience.
 
 ### V2.2.1 (2014-05-21) Bug fix release
 * Fixed an issue with AsyncExecutor and execution scope
