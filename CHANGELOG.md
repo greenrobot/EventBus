@@ -4,6 +4,7 @@
 * Added configuration to disable sending SubscriberExceptionEvent and NoSubscriberEvent (EventBusBuilder)
 * Added configuration to fail when subscribers throw exceptions (EventBusBuilder, #55)
 * Added configuration to use an existing thread pool (EventBusBuilder, #115)
+* Added configuration to disable event inheritance and improve performance for apps with high event rates (EventBusBuilder)
 * Fixed performance regression sneaked into V2.2.x affecting (first time) registration of subscribers
 * Updated to Gradle 2.1, using wrapper
 * EventBusTest and EventBusPerformance use Gradle to build
