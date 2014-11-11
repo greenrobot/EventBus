@@ -20,21 +20,22 @@ EventBus...
 EventBus in 3 steps
 -------------------
 1. Define events:<br/>
-<code>public class MessageEvent { /* Additional fields if needed */ }</code>
+<code>public class MessageEvent { /* Additional fields if needed */ }</code><br/><br/>
 2. Prepare subscribers:<br/>
 <code>eventBus.register(this);</code><br/>
-<code>public void onEvent(AnyEventType event) {/* Do something */};</code>
+<code>public void onEvent(AnyEventType event) {/* Do something */};</code><br/><br/>
 3. Post events:<br/>
 <code>eventBus.post(event);</code>
 
 Add EventBus to your project
 ----------------------------
-EventBus is available on Maven Central. Just include it as a dependency in your build. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
+EventBus is available on Maven Central. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
 Gradle:
 ```
     compile 'de.greenrobot:eventbus:2.4.0'
 ```
+
 Maven:
 ```
 <dependency>
@@ -43,10 +44,7 @@ Maven:
     <version>2.4.0</version>
 </dependency>
 ```
-Ivy:
-```
-<dependency name="eventbus" org="de.greenrobot" rev="2.4.0" />
-```
+
 [Or download EventBus from Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
 How-to, Developer Documentation
