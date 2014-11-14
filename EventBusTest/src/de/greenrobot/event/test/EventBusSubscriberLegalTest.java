@@ -16,6 +16,7 @@
 package de.greenrobot.event.test;
 
 import de.greenrobot.event.EventBusException;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -51,6 +52,7 @@ public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
         eventBus.register(new Abstract() {
 
             @Override
+            @Subscribe
             public void onEvent(String event) {
                 trackEvent(event);
             }
@@ -61,20 +63,24 @@ public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
         assertEquals(1, eventCount.intValue());
     }
 
+    @Subscribe
     public void onEvent(String event) {
         trackEvent(event);
     }
 
     static class NotPublic {
+        @Subscribe
         void onEvent(String event) {
         }
     }
 
     static abstract class Abstract {
+        @Subscribe
         public abstract void onEvent(String event);
     }
 
     static class Static {
+        @Subscribe
         public static void onEvent(String event) {
         }
     }

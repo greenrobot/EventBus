@@ -17,6 +17,7 @@ package de.greenrobot.event.test;
 
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.SubscriberExceptionEvent;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -43,15 +44,18 @@ public class EventBusSubscriberExceptionTest extends AbstractEventBusTest {
         assertEventCount(1);
     }
 
+    @Subscribe
     public void onEvent(String event) {
         throw new RuntimeException("Bar");
     }
 
+    @Subscribe
     public void onEvent(SubscriberExceptionEvent event) {
         trackEvent(event);
     }
 
     class BadExceptionSubscriber {
+        @Subscribe
         public void onEvent(SubscriberExceptionEvent event) {
             throw new RuntimeException("Bad");
         }

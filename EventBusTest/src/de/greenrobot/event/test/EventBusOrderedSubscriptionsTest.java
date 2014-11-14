@@ -20,6 +20,8 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import android.util.Log;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -96,14 +98,17 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
             // TODO Auto-generated constructor stub
         }
 
+        @Subscribe
         public void onEvent(String event) {
             handleEvent(event);
         }
 
+        @Subscribe(threadMode = ThreadMode.MainThread)
         public void onEventMainThread(IntTestEvent event) {
             handleEvent(event);
         }
 
+        @Subscribe(threadMode = ThreadMode.BackgroundThread)
         public void onEventBackgroundThread(Integer event) {
             handleEvent(event);
         }

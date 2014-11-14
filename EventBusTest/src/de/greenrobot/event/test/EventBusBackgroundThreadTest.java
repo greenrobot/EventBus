@@ -16,6 +16,8 @@
 package de.greenrobot.event.test;
 
 import android.os.Looper;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -40,6 +42,7 @@ public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
         assertFalse(lastThread.equals(Looper.getMainLooper().getThread()));
     }
 
+    @Subscribe(threadMode = ThreadMode.BackgroundThread)
     public void onEventBackgroundThread(String event) {
         trackEvent(event);
     }

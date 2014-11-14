@@ -20,6 +20,8 @@ import java.util.concurrent.CountDownLatch;
 
 import android.os.Handler;
 import android.os.Looper;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -84,6 +86,7 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
         awaitLatch(doneLatch, 10);
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(String event) {
         trackEvent(event);
         if (unregistered) {

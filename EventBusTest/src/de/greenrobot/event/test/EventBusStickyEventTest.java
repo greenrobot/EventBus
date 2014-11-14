@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event.test;
 
+import de.greenrobot.event.annotations.Subscribe;
+
 /**
  * @author Markus Junginger, greenrobot
  */
@@ -119,6 +121,7 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
     public void testRemoveStickyEventInSubscriber() throws InterruptedException {
         eventBus.registerSticky(new Object() {
             @SuppressWarnings("unused")
+            @Subscribe
             public void onEvent(String event) {
                 eventBus.removeStickyEvent(event);
             }
@@ -130,10 +133,12 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         assertNull(eventBus.getStickyEvent(String.class));
     }
 
+    @Subscribe
     public void onEvent(String event) {
         trackEvent(event);
     }
 
+    @Subscribe
     public void onEvent(IntTestEvent event) {
         trackEvent(event);
     }

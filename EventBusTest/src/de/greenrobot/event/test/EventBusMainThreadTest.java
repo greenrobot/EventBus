@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.os.Looper;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -57,6 +59,7 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
         assertEquals(Looper.getMainLooper().getThread(), lastThread);
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(String event) {
         trackEvent(event);
     }

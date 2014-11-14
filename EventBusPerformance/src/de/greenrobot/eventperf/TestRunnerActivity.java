@@ -1,5 +1,8 @@
 package de.greenrobot.eventperf;
 
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Process;
@@ -43,6 +46,7 @@ public class TestRunnerActivity extends Activity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(TestFinishedEvent event) {
         Test test = event.test;
         String text = "<b>" + test.getDisplayName() + "</b><br/>" + //

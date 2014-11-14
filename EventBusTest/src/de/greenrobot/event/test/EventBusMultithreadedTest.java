@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import android.os.Looper;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -164,24 +166,28 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         return threads;
     }
 
+    @Subscribe(threadMode = ThreadMode.BackgroundThread)
     public void onEventBackgroundThread(String event) {
         lastStringEvent = event;
         countStringEvent.incrementAndGet();
         trackEvent(event);
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(Integer event) {
         lastIntegerEvent = event;
         countIntegerEvent.incrementAndGet();
         trackEvent(event);
     }
 
+    @Subscribe(threadMode = ThreadMode.Async)
     public void onEventAsync(IntTestEvent event) {
         countIntTestEvent.incrementAndGet();
         lastIntTestEvent = event;
         trackEvent(event);
     }
 
+    @Subscribe
     public void onEvent(Object event) {
         countObjectEvent.incrementAndGet();
         trackEvent(event);
@@ -239,18 +245,22 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
             }
         }
 
+        @Subscribe(threadMode = ThreadMode.MainThread)
         public void onEventMainThread(String event) {
             assertSame(Looper.getMainLooper(), Looper.myLooper());
         }
 
+        @Subscribe(threadMode = ThreadMode.BackgroundThread)
         public void onEventBackgroundThread(Integer event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }
 
+        @Subscribe
         public void onEvent(Object event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }
 
+        @Subscribe(threadMode = ThreadMode.Async)
         public void onEventAsync(Object event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }

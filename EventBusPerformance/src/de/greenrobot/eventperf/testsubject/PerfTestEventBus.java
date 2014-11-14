@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;
@@ -174,6 +176,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscribeClassEventBusDefault {
+        @Subscribe
         public void onEvent(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
@@ -195,6 +198,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscribeClassEventBusMain {
+        @Subscribe(threadMode = ThreadMode.MainThread)
         public void onEventMainThread(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
@@ -216,6 +220,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscribeClassEventBusBackground {
+        @Subscribe(threadMode = ThreadMode.BackgroundThread)
         public void onEventBackgroundThread(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
@@ -237,6 +242,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscriberClassEventBusAsync {
+        @Subscribe(threadMode = ThreadMode.Async)
         public void onEventAsync(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }

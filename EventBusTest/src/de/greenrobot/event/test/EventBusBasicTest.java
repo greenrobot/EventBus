@@ -18,6 +18,7 @@ package de.greenrobot.event.test;
 import android.app.Activity;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.annotations.Subscribe;
 import junit.framework.TestCase;
 
 import java.lang.ref.WeakReference;
@@ -187,6 +188,7 @@ public class EventBusBasicTest extends TestCase {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 
         Object subscriber = new Object() {
+            @Subscribe
             public void onEvent(Object event) {
             }
         };
@@ -201,6 +203,7 @@ public class EventBusBasicTest extends TestCase {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 
         Object subscriber = new Object() {
+            @Subscribe
             public void onEvent(CharSequence event) {
             }
         };
@@ -213,20 +216,24 @@ public class EventBusBasicTest extends TestCase {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
 
+    @Subscribe
     public void onEvent(String event) {
         lastStringEvent = event;
         countStringEvent++;
     }
 
+    @Subscribe
     public void onEvent(Integer event) {
         lastIntEvent = event;
         countIntEvent++;
     }
 
+    @Subscribe
     public void onEvent(MyEvent event) {
         countMyEvent++;
     }
 
+    @Subscribe
     public void onEvent(MyEventExtended event) {
         countMyEventExtended++;
     }
@@ -234,6 +241,7 @@ public class EventBusBasicTest extends TestCase {
     static class TestActivity extends Activity {
         public String lastStringEvent;
 
+        @Subscribe
         public void onEvent(String event) {
             lastStringEvent = event;
         }
@@ -249,6 +257,7 @@ public class EventBusBasicTest extends TestCase {
         public int lastEvent;
         public int countEvent;
 
+        @Subscribe
         public void onEvent(Integer event) {
             lastEvent = event;
             countEvent++;

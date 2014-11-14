@@ -18,6 +18,8 @@ package de.greenrobot.event.test;
 import android.os.Looper;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.EventBusException;
+import de.greenrobot.event.ThreadMode;
+import de.greenrobot.event.annotations.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -31,47 +33,28 @@ public class EventBusMethodModifiersTest extends AbstractEventBusTest {
         waitForEventCount(4, 1000);
     }
 
-    public void testIllegalMethodNameThrow() {
-        try {
-            eventBus.register(new IllegalEventMethodName());
-            fail("Illegal name registered");
-        } catch (EventBusException ex) {
-            // OK, expected
-        }
-    }
-
-    public void testIllegalMethodNameSkip() {
-        eventBus=EventBus.builder().skipMethodVerificationFor(IllegalEventMethodName.class).build();
-        eventBus.register(new IllegalEventMethodName());
-        eventBus.post(new Object());
-    }
-
+    @Subscribe
     public void onEvent(String event) {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(String event) {
         trackEvent(event);
         assertSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
+    @Subscribe(threadMode = ThreadMode.BackgroundThread)
     public void onEventBackgroundThread(String event) {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
+    @Subscribe(threadMode = ThreadMode.Async)
     public void onEventAsync(String event) {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
-    public static class IllegalEventMethodName {
-        public void onEventIllegalName(Object event) {
-            fail("onEventIllegalName got called");
-        }
-
-        public void onEvent(IntTestEvent event) {
-        }
-    }
 }
