@@ -19,7 +19,7 @@ public class MessageEvent {
 ```
 ### 2: Prepare subscribers ###
 
-Subscribers implement event handling `onEvent` methods that will be called when an event is received. They also need to register and unregister themselves to the bus.
+Subscribers implement event handling methods that will be called when an event is received.  These are defined with the ``@Subscribe`` annotation. They also need to register and unregister themselves to the bus.
 
 ```java
     @Override
@@ -35,11 +35,13 @@ Subscribers implement event handling `onEvent` methods that will be called when 
     }
     
     // This method will be called when a MessageEvent is posted
-    public void onEvent(MessageEvent event){
+    @Subscribe
+    public void onMessageEvent(MessageEvent event){
         Toast.makeText(getActivity(), event.message, Toast.LENGTH_SHORT).show();
     }
     
     // This method will be called when a SomeOtherEvent is posted
+    @Subscribe
     public void onEvent(SomeOtherEvent event){
         doSomethingWith(event);
     }
@@ -58,11 +60,12 @@ EventBus can handle threading for you: events can be posted in threads different
 
 A common use case is dealing with UI changes. In Android, UI changes must be done in the UI (main) thread. On the other hand, networking, or any time consuming task, must not run on the main thread. EventBus helps you to deal with those tasks and synchronize with the UI thread (without having to delve into thread transitions, using AsyncTask, etc).
 
-In EventBus, you may define the thread that will call the event handling method `onEvent` by using a **ThreadMode**:
+In EventBus, you may define the thread that will call the event handling method by using a **ThreadMode**:
 * **PostThread:** Subscriber will be called in the same thread, which is posting the event. This is the default. Event delivery implies the least overhead because it avoids thread switching completely. Thus this is the recommended mode for simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers using this mode should return quickly to avoid blocking the posting thread, which may be the main thread.
 Example:
 ```java
     // Called in the same thread (default)
+    @Subscribe
     public void onEvent(MessageEvent event) {
         log(event.message);
     }
@@ -71,6 +74,7 @@ Example:
 Example:
 ```java
     // Called in Android UI's main thread
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(MessageEvent event) {
         textField.setText(event.message);
     }
@@ -78,6 +82,7 @@ Example:
 * **BackgroundThread:** Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single background thread that will deliver all its events sequentially. Event handlers using this mode should try to return quickly to avoid blocking the background thread.
 ```java
     // Called in the background thread
+    @Subscribe(threadMode = ThreadMode.BackgroundThread)
     public void onEventBackgroundThread(MessageEvent event){
         saveToDisk(event.message);
     }
@@ -85,12 +90,13 @@ Example:
 * **Async:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
 ```java
     // Called in a separate thread
+    @Subscribe(threadMode = ThreadMode.Async)
     public void onEventAsync(MessageEvent event){
         backend.send(event.message);
     }
 ```
 
-*Note:* EventBus takes care of calling the `onEvent` method in the proper thread depending on its name (onEvent, onEventAsync, etc.).
+*Note:* EventBus takes care of calling the subscribing method in the proper thread depending on its annotations threadMode argument (threadMode=ThreadMode.Async, MainThread, etc...).
 
 Subscriber priorities and ordered event delivery
 ------------------------------------------------
@@ -164,7 +170,8 @@ After that, a new Activity gets started. During registration using registerStick
         super.onStart();
         EventBus.getDefault().registerSticky(this);
     }
-
+	
+	@Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(MessageEvent event) {
         textField.setText(event.message);
     }
@@ -185,9 +192,8 @@ ProGuard configuration
 ----------------------
 ProGuard obfuscates method names. However, the onEvent methods must not renamed because they are accessed using reflection. Use the following snip in your ProGuard configuration file (proguard.cfg):
 <pre><code>-keepclassmembers class ** {
-    public void onEvent*(**);
-}
-</code></pre>
+    @de.greenrobot.event.annotations.Subscribe public *;
+}</code></pre>
 
 
 Comparison with Square's Otto
@@ -199,11 +205,6 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
         <th>EventBus</th>
         <th>Otto</th>
     </tr>
-    <tr>
-        <th>Declare event handling methods</th>
-        <td>Name conventions</td>
-        <td>Annotations</td>
-    </tr>	
     <tr>
         <th>Event inheritance</th>
         <td>Yes</td>

@@ -17,14 +17,16 @@ EventBus...
 
  [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 
-EventBus in 3 steps
+EventBus in 4 steps
 -------------------
 1. Define events:<br/>
 <code>public class MessageEvent { /* Additional fields if needed */ }</code><br/><br/>
-2. Prepare subscribers:<br/>
-<code>eventBus.register(this);</code><br/>
+2. Register your subscriber (in your onCreate or in a constructor):<br/>
+<code>eventBus.register(this);</code><br/><br/>
+3. Declare your subscribing method<br/>
+<code>@Subscribe</code><br/>
 <code>public void onEvent(AnyEventType event) {/* Do something */};</code><br/><br/>
-3. Post events:<br/>
+4. Post events:<br/>
 <code>eventBus.post(event);</code>
 
 Add EventBus to your project
@@ -54,8 +56,7 @@ Details on EventBus and its API are available in the [HOWTO document](HOWTO.md).
 Additional Features and Notes
 -----------------------------
 
-* **NOT based on annotations:** Querying annotations are slow on Android, especially before Android 4.0. Have a look at this [Android bug report](http://code.google.com/p/android/issues/detail?id=7811).
-* **Based on conventions:** Event handling methods are called "onEvent".
+* **Based on annotations:** Event handling methods can be named however you want, and only need to be annotated with **@Subscribe**.
 * **Performance optimized:** It's probably the fastest event bus for Android.
 * **Convenience singleton:** You can get a process wide event bus instance by calling EventBus.getDefault(). You can still call new EventBus() to create any number of local busses.
 * **Subscriber and event inheritance:** Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.
