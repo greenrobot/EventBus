@@ -160,7 +160,8 @@ public class EventBus {
     }
 
     private synchronized void register(Object subscriber, boolean sticky, int priority) {
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass());
+        List<SubscriberMethod> subscriberMethods
+                = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass(), logSubscriberExceptions);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
         }
