@@ -51,6 +51,8 @@ How-to, Developer Documentation
 -------------------------------
 Details on EventBus and its API are available in the [HOWTO document](HOWTO.md).
 
+How does EventBus compare to other solutions, like Otto from Square? Check this [comparison](COMPARISON.md).
+
 Additional Features and Notes
 -----------------------------
 
