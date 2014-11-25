@@ -181,6 +181,8 @@ You may also get the last sticky event of a certain type with:
     EventBus.getDefault().getStickyEvent(Class<?> eventType)
 ```
 
+It's also possible to remove previously posted sticky events using one of the removeStickyEvent methods. They take either a concrete event object, or an event class. Like this it's possible to create consumable events. Keep in mind though that that only the last event of an event type is kept.
+
 ProGuard configuration
 ----------------------
 ProGuard obfuscates method names. However, the onEvent methods must not renamed because they are accessed using reflection. Use the following snip in your ProGuard configuration file (proguard.cfg):
@@ -188,7 +190,7 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
     public void onEvent*(**);
 }
 
-# Only if you use AsyncExecutor
+# Only required if you use AsyncExecutor
 -keepclassmembers class * extends de.greenrobot.event.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
 }
@@ -222,8 +224,7 @@ AsyncExecutor.create().execute(
 Code example for the receiving part:
 
 ```java
-public void
-onEventMainThread(LoggedInEvent event) {
+public void onEventMainThread(LoggedInEvent event) {
   // Change some UI
 }
 
