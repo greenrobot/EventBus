@@ -195,6 +195,50 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
 </code></pre>
 
 
+AsyncExecutor
+-------------
+_Disclaimer:_ AsyncExecutor is a non-core utility class. It might save you some code with error handling in background threads, but it's not a core EventBus class.
+
+AsyncExecutor is like a thread pool, but with failure handling. Failures are thrown exceptions, which get are wrapped inside an event, which is posted automatically by AsyncExecutor.
+
+Usually, you call AsyncExecutor.create() to create an instance and keep it in Application scope. To execute something, implement the RunnableEx interface and pass it to the execute method of the AsyncExecutor. Unlike Runnable, RunnableEx may throw an Exception.
+
+If the RunnableEx implementation throws an exception, it will be catched and wrapped into a ThrowableFailureEvent, which will be posted.
+
+Code example for execution:
+
+```java
+AsyncExecutor.create().execute(
+  new RunnableEx {
+    public void run throws LoginException {
+      remote.login();
+      EventBus.getDefault().postSticky(new LoggedInEvent());
+      // No need to catch Exception
+    }
+  }
+}
+```
+
+Code example for the receiving part:
+
+```java
+public void
+onEventMainThread(LoggedInEvent event) {
+  // Change some UI
+}
+
+public void onEventMainThread(ThrowableFailureEvent event) {
+  // Show error in UI
+}
+```
+
+AsyncExecutor Builder
+---------------------
+If you want to customize your AsyncExecutor instance, call the static method AsyncExecutor.builder(). It will return a builder which lets you customize the EventBus instance, the thread pool, and the class of the failure event.
+
+Another customization options is the execution scope, which gives failure events context information. For example, an failure event may be relevant only to a specific Activity instance or class. If your custom failure event class implements the HasExecutionScope interface, AsyncExecutor will set the execution scope automatically. Like this, your subscriber can query the failure event for its execution scope and react depending on it.
+
+
 Comparison with Square's Otto
 -----------------------------
 Check the [COMPARISON.md](COMPARISON.md)
