@@ -38,7 +38,9 @@ import java.util.concurrent.ExecutorService;
  */
 public class EventBus {
 
-    /** Log tag, apps may override it. */
+    /**
+     * Log tag, apps may override it.
+     */
     public static String TAG = "Event";
 
     static volatile EventBus defaultInstance;
@@ -71,7 +73,9 @@ public class EventBus {
     private final boolean sendNoSubscriberEvent;
     private final boolean eventInheritance;
 
-    /** Convenience singleton for apps using a process-wide EventBus instance. */
+    /**
+     * Convenience singleton for apps using a process-wide EventBus instance.
+     */
     public static EventBus getDefault() {
         if (defaultInstance == null) {
             synchronized (EventBus.class) {
@@ -87,7 +91,9 @@ public class EventBus {
         return new EventBusBuilder();
     }
 
-    /** For unit test primarily. */
+    /**
+     * For unit test primarily.
+     */
     public static void clearCaches() {
         SubscriberMethodFinder.clearCaches();
         eventTypesCache.clear();
@@ -216,7 +222,9 @@ public class EventBus {
         return typesBySubscriber.containsKey(subscriber);
     }
 
-    /** Only updates subscriptionsByEventType, not typesBySubscriber! Caller must update typesBySubscriber. */
+    /**
+     * Only updates subscriptionsByEventType, not typesBySubscriber! Caller must update typesBySubscriber.
+     */
     private void unubscribeByEventType(Object subscriber, Class<?> eventType) {
         List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions != null) {
@@ -233,7 +241,9 @@ public class EventBus {
         }
     }
 
-    /** Unregisters the given subscriber from all event classes. */
+    /**
+     * Unregisters the given subscriber from all event classes.
+     */
     public synchronized void unregister(Object subscriber) {
         List<Class<?>> subscribedTypes = typesBySubscriber.get(subscriber);
         if (subscribedTypes != null) {
@@ -246,8 +256,36 @@ public class EventBus {
         }
     }
 
-    /** Posts the given event to the event bus. */
+    /**
+     * Posts the given event to the event bus.
+     */
     public void post(Object event) {
+        post(event, (String) null);
+    }
+
+    /**
+     * Posts the given event to the event bus.
+     * And post the event to those subscribers whose class type matches the given one;
+     *
+     * @param event           event to post
+     * @param subscriberClass given subscriber's class.
+     * @see #post(Object event, String subscriberClassName)
+     */
+    public void post(Object event, Class<?> subscriberClass) {
+        post(event, subscriberClass.getName());
+    }
+
+    /**
+     * Posts the given event to the event bus.
+     * And post the event to those subscribers whose class name matches
+     * the given name;
+     *
+     * @param event               event to post
+     * @param subscriberClassName given subscriber's class <b>Full</b> name provided by
+     *                            {@code Class.getName()} or Canonical name like {@code Class.getCanonicalName()}
+     * @see #post(Object event, Class subscriberClass)
+     */
+    public void post(Object event, String subscriberClassName) {
         PostingThreadState postingState = currentPostingThreadState.get();
         List<Object> eventQueue = postingState.eventQueue;
         eventQueue.add(event);
@@ -260,7 +298,7 @@ public class EventBus {
             }
             try {
                 while (!eventQueue.isEmpty()) {
-                    postSingleEvent(eventQueue.remove(0), postingState);
+                    postSingleEvent(eventQueue.remove(0), postingState, subscriberClassName);
                 }
             } finally {
                 postingState.isPosting = false;
@@ -298,11 +336,19 @@ public class EventBus {
      * {@link #getStickyEvent(Class)}.
      */
     public void postSticky(Object event) {
+        postSticky(event, (String) null);
+    }
+
+    public void postSticky(Object event, Class<?> clazz) {
+        postSticky(event, clazz.getName());
+    }
+
+    public void postSticky(Object event, String subscriberClassName) {
         synchronized (stickyEvents) {
             stickyEvents.put(event.getClass(), event);
         }
         // Should be posted after it is putted, in case the subscriber wants to remove immediately
-        post(event);
+        post(event, subscriberClassName);
     }
 
     /**
@@ -372,7 +418,9 @@ public class EventBus {
         return false;
     }
 
-    private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
+    private void postSingleEvent(Object event,
+                                 PostingThreadState postingState,
+                                 String subscriberClassName) throws Error {
         Class<?> eventClass = event.getClass();
         boolean subscriptionFound = false;
         if (eventInheritance) {
@@ -380,10 +428,10 @@ public class EventBus {
             int countTypes = eventTypes.size();
             for (int h = 0; h < countTypes; h++) {
                 Class<?> clazz = eventTypes.get(h);
-                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
+                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz, subscriberClassName);
             }
         } else {
-            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
+            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass, subscriberClassName);
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
@@ -396,13 +444,22 @@ public class EventBus {
         }
     }
 
-    private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass) {
+    private boolean postSingleEventForEventType(Object event,
+                                                PostingThreadState postingState,
+                                                Class<?> eventClass,
+                                                String subscriberClassName) {
         CopyOnWriteArrayList<Subscription> subscriptions;
         synchronized (this) {
             subscriptions = subscriptionsByEventType.get(eventClass);
         }
         if (subscriptions != null && !subscriptions.isEmpty()) {
             for (Subscription subscription : subscriptions) {
+                if (subscriberClassName != null &&
+                        !subscriberClassName.equals(subscription.subscriber.getClass().getName()) &&
+                        !subscriberClassName.equals(subscription.subscriber.getClass().getCanonicalName())) {
+                    //this subscriber doesn't match the given class, skip it
+                    continue;
+                }
                 postingState.event = event;
                 postingState.subscription = subscription;
                 boolean aborted = false;
@@ -450,7 +507,9 @@ public class EventBus {
         }
     }
 
-    /** Looks up all Class objects including super classes and interfaces. Should also work for interfaces. */
+    /**
+     * Looks up all Class objects including super classes and interfaces. Should also work for interfaces.
+     */
     private List<Class<?>> lookupAllEventTypes(Class<?> eventClass) {
         synchronized (eventTypesCache) {
             List<Class<?>> eventTypes = eventTypesCache.get(eventClass);
@@ -468,7 +527,9 @@ public class EventBus {
         }
     }
 
-    /** Recurses through super interfaces. */
+    /**
+     * Recurses through super interfaces.
+     */
     static void addInterfaces(List<Class<?>> eventTypes, Class<?>[] interfaces) {
         for (Class<?> interfaceClass : interfaces) {
             if (!eventTypes.contains(interfaceClass)) {
@@ -529,7 +590,9 @@ public class EventBus {
         }
     }
 
-    /** For ThreadLocal, much faster to set (and get multiple values). */
+    /**
+     * For ThreadLocal, much faster to set (and get multiple values).
+     */
     final static class PostingThreadState {
         final List<Object> eventQueue = new ArrayList<Object>();
         boolean isPosting;

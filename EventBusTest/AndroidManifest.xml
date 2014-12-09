@@ -8,7 +8,7 @@
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="de.greenrobot.event.test" />
+        android:targetPackage="de.greenrobot.event.testapp" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
