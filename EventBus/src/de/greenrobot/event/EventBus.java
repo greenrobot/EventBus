@@ -17,6 +17,7 @@ package de.greenrobot.event;
 
 import android.os.Looper;
 import android.util.Log;
+import de.greenrobot.event.util.TargetedEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class EventBus {
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
-    private final Map<Class<?>, Object> stickyEvents;
+    private final Map<Class<?>, TargetedEvent> stickyEvents;
 
     private final ThreadLocal<PostingThreadState> currentPostingThreadState = new ThreadLocal<PostingThreadState>() {
         @Override
@@ -110,7 +111,7 @@ public class EventBus {
     EventBus(EventBusBuilder builder) {
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
-        stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
+        stickyEvents = new ConcurrentHashMap<Class<?>, TargetedEvent>();
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
@@ -206,14 +207,15 @@ public class EventBus {
         subscribedEvents.add(eventType);
 
         if (sticky) {
-            Object stickyEvent;
+            TargetedEvent targetedEvent;
             synchronized (stickyEvents) {
-                stickyEvent = stickyEvents.get(eventType);
+                targetedEvent = stickyEvents.get(eventType);
             }
-            if (stickyEvent != null) {
+            if (targetedEvent != null &&
+                    TargetedEvent.matchesTargetClass(subscriber.getClass(), targetedEvent.target)) {
                 // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
                 // --> Strange corner case, which we don't take care of here.
-                postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+                postToSubscription(newSubscription, targetedEvent.event, Looper.getMainLooper() == Looper.myLooper());
             }
         }
     }
@@ -287,8 +289,8 @@ public class EventBus {
      */
     public void post(Object event, String subscriberClassName) {
         PostingThreadState postingState = currentPostingThreadState.get();
-        List<Object> eventQueue = postingState.eventQueue;
-        eventQueue.add(event);
+        List<TargetedEvent> eventQueue = postingState.eventQueue;
+        eventQueue.add(TargetedEvent.obtain(event, subscriberClassName));
 
         if (!postingState.isPosting) {
             postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
@@ -298,8 +300,9 @@ public class EventBus {
             }
             try {
                 while (!eventQueue.isEmpty()) {
-                    //FIXME different event has different target
-                    postSingleEvent(eventQueue.remove(0), postingState, subscriberClassName);
+                    TargetedEvent t = eventQueue.remove(0);
+                    postSingleEvent(t, postingState);
+                    t.recycle();
                 }
             } finally {
                 postingState.isPosting = false;
@@ -336,23 +339,30 @@ public class EventBus {
      * event of an event's type is kept in memory for future access. This can be {@link #registerSticky(Object)} or
      * {@link #getStickyEvent(Class)}.
      */
-    //TODO by young
     public void postSticky(Object event) {
         postSticky(event, (String) null);
     }
 
-    //TODO by young
-    public void postSticky(Object event, Class<?> clazz) {
-        postSticky(event, clazz.getName());
+    /**
+     * Author: landerlyoung@gmail.com
+     * @param event
+     * @param targetClazz
+     */
+    public void postSticky(Object event, Class<?> targetClazz) {
+        postSticky(event, targetClazz.getName());
     }
 
-    //TODO by young
-    public void postSticky(Object event, String subscriberClassName) {
+    /**
+     * Author: landerlyoung@gmail.com
+     * @param event
+     * @param targetClassName
+     */
+    public void postSticky(Object event, String targetClassName) {
         synchronized (stickyEvents) {
-            stickyEvents.put(event.getClass(), event);
+            stickyEvents.put(event.getClass(), TargetedEvent.obtain(event, targetClassName));
         }
         // Should be posted after it is putted, in case the subscriber wants to remove immediately
-        post(event, subscriberClassName);
+        post(event, targetClassName);
     }
 
     /**
@@ -362,18 +372,19 @@ public class EventBus {
      */
     public <T> T getStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
-            return eventType.cast(stickyEvents.get(eventType));
+            return eventType.cast(TargetedEvent.getEvent(stickyEvents.get(eventType)));
         }
     }
 
-    //TODO by young
-    public <T> T getStickyEvent(Class<T> enentType, Class<?> subscriptionClazz) {
-        return null;
-    }
-
-    //TODO by young
-    public <T> T getStickyEvent(Class<T> enentType, String subscriptionClassName) {
-        return null;
+    /**
+     * Author: landerlyoung@gmail.com
+     * @param eventType
+     * @return
+     */
+    public TargetedEvent getTargetedStickyEvent(Class<?> eventType) {
+        synchronized (stickyEvents) {
+            return stickyEvents.get(eventType);
+        }
     }
 
     /**
@@ -383,18 +394,15 @@ public class EventBus {
      */
     public <T> T removeStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
-            return eventType.cast(stickyEvents.remove(eventType));
+            TargetedEvent t = stickyEvents.remove(eventType);
+            T ret;
+            try {
+                ret = eventType.cast(t.event);
+            } finally {
+                t.recycle();
+            }
+            return ret;
         }
-    }
-
-    //TODO by young
-    public <T> T removeStickyEvent(Class<T> eventType, Class<?> subscriptionClazz) {
-        return null;
-    }
-
-    //TODO by young
-    public <T> T removeStickyEvent(Class<T> eventType, String subscriptionClassName) {
-        return null;
     }
 
     /**
@@ -405,9 +413,10 @@ public class EventBus {
     public boolean removeStickyEvent(Object event) {
         synchronized (stickyEvents) {
             Class<?> eventType = event.getClass();
-            Object existingEvent = stickyEvents.get(eventType);
-            if (event.equals(existingEvent)) {
+            TargetedEvent existingEvent = stickyEvents.get(eventType);
+            if (event.equals(existingEvent.event)) {
                 stickyEvents.remove(eventType);
+                existingEvent.recycle();
                 return true;
             } else {
                 return false;
@@ -420,6 +429,10 @@ public class EventBus {
      */
     public void removeAllStickyEvents() {
         synchronized (stickyEvents) {
+            //recycle targeted Event
+            for (Map.Entry<Class<?>, TargetedEvent> entry : stickyEvents.entrySet()) {
+                entry.getValue().recycle();
+            }
             stickyEvents.clear();
         }
     }
@@ -442,20 +455,19 @@ public class EventBus {
         return false;
     }
 
-    private void postSingleEvent(Object event,
-                                 PostingThreadState postingState,
-                                 String subscriberClassName) throws Error {
-        Class<?> eventClass = event.getClass();
+    private void postSingleEvent(TargetedEvent targetedEvent,
+                                 PostingThreadState postingState) throws Error {
+        Class<?> eventClass = targetedEvent.event.getClass();
         boolean subscriptionFound = false;
         if (eventInheritance) {
             List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
             int countTypes = eventTypes.size();
             for (int h = 0; h < countTypes; h++) {
                 Class<?> clazz = eventTypes.get(h);
-                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz, subscriberClassName);
+                subscriptionFound |= postSingleEventForEventType(targetedEvent, postingState, clazz);
             }
         } else {
-            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass, subscriberClassName);
+            subscriptionFound = postSingleEventForEventType(targetedEvent, postingState, eventClass);
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
@@ -463,25 +475,23 @@ public class EventBus {
             }
             if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
                     eventClass != SubscriberExceptionEvent.class) {
-                post(new NoSubscriberEvent(this, event));
+                post(new NoSubscriberEvent(this, targetedEvent.event));
             }
         }
     }
 
-    private boolean postSingleEventForEventType(Object event,
+    private boolean postSingleEventForEventType(TargetedEvent targetedEvent,
                                                 PostingThreadState postingState,
-                                                Class<?> eventClass,
-                                                String subscriberClassName) {
+                                                Class<?> eventClass) {
         CopyOnWriteArrayList<Subscription> subscriptions;
         synchronized (this) {
             subscriptions = subscriptionsByEventType.get(eventClass);
         }
+        final String subscriberClassName = targetedEvent.target;
+        final Object event = targetedEvent.event;
         if (subscriptions != null && !subscriptions.isEmpty()) {
             for (Subscription subscription : subscriptions) {
-                if (subscriberClassName != null &&
-                        !subscriberClassName.equals(subscription.subscriber.getClass().getName()) &&
-                        !subscriberClassName.equals(subscription.subscriber.getClass().getCanonicalName())) {
-                    //this subscriber doesn't match the given class, skip it
+                if (!TargetedEvent.matchesTargetClass(subscription.subscriber.getClass(), subscriberClassName)) {
                     continue;
                 }
                 postingState.event = event;
@@ -618,7 +628,7 @@ public class EventBus {
      * For ThreadLocal, much faster to set (and get multiple values).
      */
     final static class PostingThreadState {
-        final List<Object> eventQueue = new ArrayList<Object>();
+        final List<TargetedEvent> eventQueue = new ArrayList<TargetedEvent>();
         boolean isPosting;
         boolean isMainThread;
         Subscription subscription;

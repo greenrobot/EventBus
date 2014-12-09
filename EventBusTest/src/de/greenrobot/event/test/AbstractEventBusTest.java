@@ -15,25 +15,25 @@
  */
 package de.greenrobot.event.test;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import de.greenrobot.event.EventBus;
+import junit.framework.TestCase;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import de.greenrobot.event.EventBus;
-
 /**
  * @author Markus Junginger, greenrobot
  */
 public class AbstractEventBusTest extends TestCase {
     /** Activates long(er) running tests e.g. testing multi-threading more throughly.  */
-    protected static final boolean LONG_TESTS = false;
+    protected static final boolean LONG_TESTS = true;
 
     protected EventBus eventBus;
 

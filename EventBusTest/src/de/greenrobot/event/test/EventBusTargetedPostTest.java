@@ -1,7 +1,7 @@
 package de.greenrobot.event.test;
 
 /**
- * Author: taylorcyang
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-08
  * Time:   17:41
  * Life with passion. Code with creativity!
@@ -30,40 +30,40 @@ public class EventBusTargetedPostTest extends EventBusTargetedBasicTest {
         eventResult = 0;
         eventBus.post(event, "de.greenrobot.event.test.EventBusTargetedBasicTest.SubscribeActivity1");
         eventBus.post(new Object());
-        assertEquals(eventResult, SubscribeActivity1.RES);
+        assertEquals(SubscribeActivity1.RES, eventResult);
     }
 
     public void testNormalTargetedPostCanonicalClassName() throws InterruptedException {
         eventResult = 0;
         eventBus.post(event, "de.greenrobot.event.test.EventBusTargetedBasicTest$SubscribeActivity1");
         eventBus.post(new Object());
-        assertEquals(eventResult, SubscribeActivity1.RES);
+        assertEquals(SubscribeActivity1.RES, eventResult);
     }
 
     public void testNormalTargetedPostClazz1() throws InterruptedException {
         eventResult = 0;
         eventBus.post(event, SubscribeActivity1.class);
         eventBus.post(new Object());
-        assertEquals(eventResult, SubscribeActivity1.RES);
+        assertEquals(SubscribeActivity1.RES, eventResult);
     }
 
     public void testNormalTargetedPostClazz2() throws InterruptedException {
         eventResult = 0;
         eventBus.post(event, SubscribeActivity2.class);
-        assertEquals(eventResult, SubscribeActivity2.RES);
+        assertEquals(SubscribeActivity2.RES, eventResult);
     }
 
     public void testNormalTargetedPostClazz3() throws InterruptedException {
         eventResult = 0;
         eventBus.post(event, SubscribeActivity3.class.getName());
-        assertEquals(eventResult, SubscribeActivity3.RES);
+        assertEquals(SubscribeActivity3.RES, eventResult);
     }
 
     public void testNormalTargetedPostClazz4() throws InterruptedException {
 
         eventResult = 0;
         eventBus.post(event, SubscribeActivity4.class.getCanonicalName());
-        assertEquals(eventResult, SubscribeActivity4.RES);
+        assertEquals(SubscribeActivity4.RES, eventResult);
     }
 
     public void testNormalTargetedPostClazz3and4() throws InterruptedException {
@@ -71,14 +71,15 @@ public class EventBusTargetedPostTest extends EventBusTargetedBasicTest {
         eventResult = 0;
         eventBus.post(event, SubscribeActivity4.class.getCanonicalName());
         eventBus.post(event, SubscribeActivity3.class);
-        assertEquals(eventResult, SubscribeActivity3.RES | SubscribeActivity4.RES);
+        assertEquals(SubscribeActivity3.RES | SubscribeActivity4.RES, eventResult);
     }
 
     public void testNormalTargetedPostNoTarget() throws InterruptedException {
         eventResult = 0;
         eventBus.post(event);
-        assertEquals(eventResult, SubscribeActivity1.RES | SubscribeActivity2.RES |
-                SubscribeActivity3.RES | SubscribeActivity4.RES);
+        assertEquals(SubscribeActivity1.RES | SubscribeActivity2.RES |
+                        SubscribeActivity3.RES | SubscribeActivity4.RES,
+                eventResult);
     }
 
 }

@@ -1,7 +1,7 @@
 package de.greenrobot.event.test;
 
 /**
- * Author: taylorcyang
+ * Author: landerlyoung@gmail.com
  * Date:   2014-12-09
  * Time:   14:42
  * Life with passion. Code with creativity!
@@ -28,12 +28,20 @@ public class EventBusTargetedBasicTest extends AbstractEventBusTest {
         public void onEvent(IntTestEvent e) {
             eventResult |= RES;
         }
+
+        public void onEvent(String s) {
+            eventResult |= RES;
+        }
     }
 
     protected class SubscribeActivity3 {
         public static final int RES = 1 << 2;
 
         public void onEvent(IntTestEvent e) {
+            eventResult |= RES;
+        }
+
+        public void onEvent(String s) {
             eventResult |= RES;
         }
     }
