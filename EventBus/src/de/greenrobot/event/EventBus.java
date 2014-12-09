@@ -39,9 +39,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class EventBus {
 
-    /**
-     * Log tag, apps may override it.
-     */
+    /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
     static volatile EventBus defaultInstance;
@@ -74,9 +72,7 @@ public class EventBus {
     private final boolean sendNoSubscriberEvent;
     private final boolean eventInheritance;
 
-    /**
-     * Convenience singleton for apps using a process-wide EventBus instance.
-     */
+    /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
         if (defaultInstance == null) {
             synchronized (EventBus.class) {
@@ -92,9 +88,7 @@ public class EventBus {
         return new EventBusBuilder();
     }
 
-    /**
-     * For unit test primarily.
-     */
+    /** For unit test primarily. */
     public static void clearCaches() {
         SubscriberMethodFinder.clearCaches();
         eventTypesCache.clear();
@@ -224,9 +218,7 @@ public class EventBus {
         return typesBySubscriber.containsKey(subscriber);
     }
 
-    /**
-     * Only updates subscriptionsByEventType, not typesBySubscriber! Caller must update typesBySubscriber.
-     */
+    /** Only updates subscriptionsByEventType, not typesBySubscriber! Caller must update typesBySubscriber. */
     private void unubscribeByEventType(Object subscriber, Class<?> eventType) {
         List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions != null) {
@@ -243,9 +235,7 @@ public class EventBus {
         }
     }
 
-    /**
-     * Unregisters the given subscriber from all event classes.
-     */
+    /** Unregisters the given subscriber from all event classes. */
     public synchronized void unregister(Object subscriber) {
         List<Class<?>> subscribedTypes = typesBySubscriber.get(subscriber);
         if (subscribedTypes != null) {
@@ -258,9 +248,7 @@ public class EventBus {
         }
     }
 
-    /**
-     * Posts the given event to the event bus.
-     */
+    /** Posts the given event to the event bus. */
     public void post(Object event) {
         post(event, (String) null);
     }
@@ -268,7 +256,7 @@ public class EventBus {
     /**
      * Posts the given event to the event bus.
      * And post the event to those subscribers whose class type matches the given one;
-     *
+     * Author: landerlyoung@gmail
      * @param event           event to post
      * @param subscriberClass given subscriber's class.
      * @see #post(Object event, String subscriberClassName)
@@ -281,6 +269,7 @@ public class EventBus {
      * Posts the given event to the event bus.
      * And post the event to those subscribers whose class name matches
      * the given name;
+     * Author: landerlyoung@gmail
      *
      * @param event               event to post
      * @param subscriberClassName given subscriber's class <b>Full</b> name provided by
@@ -345,8 +334,10 @@ public class EventBus {
 
     /**
      * Author: landerlyoung@gmail.com
-     * @param event
-     * @param targetClazz
+     * post a sticky event to the targetClass who has registered to eventbus
+     * @param event event
+     * @param targetClazz Class of target class
+     * @see #post(Object event, String subscriberClassName)
      */
     public void postSticky(Object event, Class<?> targetClazz) {
         postSticky(event, targetClazz.getName());
@@ -354,8 +345,10 @@ public class EventBus {
 
     /**
      * Author: landerlyoung@gmail.com
-     * @param event
-     * @param targetClassName
+     * post a sticky event to the targetClassName who has registered to eventbus
+     * @param event event name
+     * @param targetClassName ClassName of target class
+     * @see #post(Object event, String subscriberClassName)
      */
     public void postSticky(Object event, String targetClassName) {
         synchronized (stickyEvents) {
@@ -378,8 +371,7 @@ public class EventBus {
 
     /**
      * Author: landerlyoung@gmail.com
-     * @param eventType
-     * @return
+     * @see #getStickyEvent
      */
     public TargetedEvent getTargetedStickyEvent(Class<?> eventType) {
         synchronized (stickyEvents) {
@@ -424,14 +416,15 @@ public class EventBus {
         }
     }
 
-    /**
-     * Removes all sticky events.
-     */
+    /** Removes all sticky events. */
     public void removeAllStickyEvents() {
         synchronized (stickyEvents) {
             //recycle targeted Event
             for (Map.Entry<Class<?>, TargetedEvent> entry : stickyEvents.entrySet()) {
-                entry.getValue().recycle();
+                TargetedEvent t = entry.getValue();
+                if (t != null) {
+                    t.recycle();
+                }
             }
             stickyEvents.clear();
         }
@@ -491,6 +484,8 @@ public class EventBus {
         final Object event = targetedEvent.event;
         if (subscriptions != null && !subscriptions.isEmpty()) {
             for (Subscription subscription : subscriptions) {
+                //determine whether subscription matches the target of the given event
+                //if not, don't invoke this subscription
                 if (!TargetedEvent.matchesTargetClass(subscription.subscriber.getClass(), subscriberClassName)) {
                     continue;
                 }
@@ -541,9 +536,7 @@ public class EventBus {
         }
     }
 
-    /**
-     * Looks up all Class objects including super classes and interfaces. Should also work for interfaces.
-     */
+    /** Looks up all Class objects including super classes and interfaces. Should also work for interfaces. */
     private List<Class<?>> lookupAllEventTypes(Class<?> eventClass) {
         synchronized (eventTypesCache) {
             List<Class<?>> eventTypes = eventTypesCache.get(eventClass);
@@ -561,9 +554,7 @@ public class EventBus {
         }
     }
 
-    /**
-     * Recurses through super interfaces.
-     */
+    /** Recurses through super interfaces. */
     static void addInterfaces(List<Class<?>> eventTypes, Class<?>[] interfaces) {
         for (Class<?> interfaceClass : interfaces) {
             if (!eventTypes.contains(interfaceClass)) {
@@ -624,9 +615,7 @@ public class EventBus {
         }
     }
 
-    /**
-     * For ThreadLocal, much faster to set (and get multiple values).
-     */
+    /** For ThreadLocal, much faster to set (and get multiple values). */
     final static class PostingThreadState {
         final List<TargetedEvent> eventQueue = new ArrayList<TargetedEvent>();
         boolean isPosting;
