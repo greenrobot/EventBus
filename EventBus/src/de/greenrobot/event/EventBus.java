@@ -298,6 +298,7 @@ public class EventBus {
             }
             try {
                 while (!eventQueue.isEmpty()) {
+                    //FIXME different event has different target
                     postSingleEvent(eventQueue.remove(0), postingState, subscriberClassName);
                 }
             } finally {
@@ -335,14 +336,17 @@ public class EventBus {
      * event of an event's type is kept in memory for future access. This can be {@link #registerSticky(Object)} or
      * {@link #getStickyEvent(Class)}.
      */
+    //TODO by young
     public void postSticky(Object event) {
         postSticky(event, (String) null);
     }
 
+    //TODO by young
     public void postSticky(Object event, Class<?> clazz) {
         postSticky(event, clazz.getName());
     }
 
+    //TODO by young
     public void postSticky(Object event, String subscriberClassName) {
         synchronized (stickyEvents) {
             stickyEvents.put(event.getClass(), event);
@@ -362,6 +366,16 @@ public class EventBus {
         }
     }
 
+    //TODO by young
+    public <T> T getStickyEvent(Class<T> enentType, Class<?> subscriptionClazz) {
+        return null;
+    }
+
+    //TODO by young
+    public <T> T getStickyEvent(Class<T> enentType, String subscriptionClassName) {
+        return null;
+    }
+
     /**
      * Remove and gets the recent sticky event for the given event type.
      *
@@ -371,6 +385,16 @@ public class EventBus {
         synchronized (stickyEvents) {
             return eventType.cast(stickyEvents.remove(eventType));
         }
+    }
+
+    //TODO by young
+    public <T> T removeStickyEvent(Class<T> eventType, Class<?> subscriptionClazz) {
+        return null;
+    }
+
+    //TODO by young
+    public <T> T removeStickyEvent(Class<T> eventType, String subscriptionClassName) {
+        return null;
     }
 
     /**
