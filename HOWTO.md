@@ -52,6 +52,14 @@ Post an event from any part of your code. All subscribers matching the event typ
     EventBus.getDefault().post(new MessageEvent("Hello everyone!"));
 ```
 
+Or post a event to the certain Activity. Only the given activity will receive this event.
+
+```java
+    EventBus.getDefault().post(new MessageEvent("Hello everyone!"), "com.example.MainActivity");
+	//or like this
+	EventBus.getDefault().post(new MessageEvent("Hello everyone!"), com.example.MainActivity.class);
+```
+
 Delivery threads and ThreadModes
 --------------------------------
 EventBus can handle threading for you: events can be posted in threads different from the posting thread. 
@@ -155,6 +163,14 @@ Some events carry information that is of interest after the event is posted. For
 Let's say, an sticky event was posted some time ago:
 ```java
     EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"));
+```
+
+Again, sticky event can also be "Targeted". Only given class can receive this sticky event, BUT every body can get this sticky event by `EventBus.getStickyEvent(Class<T> eventType)` or `EventBus.getTargetedStickyEvent(Class<?> eventType)`.
+
+```java
+    EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"), "com.example.MainActivity");
+	//or like this
+	EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"), com.example.MainActivity.class);
 ```
 
 After that, a new Activity gets started. During registration using registerSticky, it will immediately get the previously posted sticky event:
