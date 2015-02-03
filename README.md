@@ -19,22 +19,8 @@ Using EventBus takes four simple steps:
 
 Add EventBus to your project
 ----------------------------
-EventBus is pushed to [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22) repository, so you can simply add a dependency (group ID "de.greenrobot" and arifact ID "eventbus"). If you do not use Maven or Gradle, download the jar from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22) and copy it into the libs folder of your Android project.
+Will be in the future pushed to Maven.
 
-Gradle template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
-```
-dependencies {
-    compile 'de.greenrobot:eventbus:2.2.1'
-}
-```
-Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
-```
-<dependency>
-    <groupId>de.greenrobot</groupId>
-    <artifactId>eventbus</artifactId>
-    <version>2.2.1</version>
-</dependency>
-```
 
 Delivery Threads
 ----------------
