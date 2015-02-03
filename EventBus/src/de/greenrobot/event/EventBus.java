@@ -469,7 +469,7 @@ public class EventBus {
 
     /**
      * Attempts to cancel a future of a event run on AsyncTracked. It will do nothing to events on other modes.
-     * 
+     *
      * @return the number of single events cancelled (a single event is a combination of event + subscriber)
      */
     public int cancelEvent(AbstractEvent event) {
@@ -707,7 +707,7 @@ public class EventBus {
         this.losslessState = losslessState;
     }
 
-    public static Integer getAsyncMaxThreads() {
+    public static Integer getThreadPoolConfiguration() {
         return asyncMaxThreads;
     }
 
@@ -717,7 +717,7 @@ public class EventBus {
      * 
      * @param asyncMaxThreads Number of threads
      */
-    public static void setAsyncMaxThreads(Integer asyncMaxThreads) {
+    public static void setThreadPoolConfiguration(/*String threadPoolName,*/ Integer asyncMaxThreads) {
         EventBus.asyncMaxThreads = asyncMaxThreads;
     }
 }
