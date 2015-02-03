@@ -185,6 +185,7 @@ Release History
 ---------------
 ### V3.0 (2015-02-01) AsyncTracked ThreadMode
 * Forked from main project and added a new ThreadMode. 
+* Added loseless state (experimental feature that can be removed in the future)
 
 -- Now being developed by neteinstein.
 
