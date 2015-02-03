@@ -19,22 +19,8 @@ Using EventBus takes four simple steps:
 
 Add EventBus to your project
 ----------------------------
-EventBus is pushed to [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22) repository, so you can simply add a dependency (group ID "de.greenrobot" and arifact ID "eventbus"). If you do not use Maven or Gradle, download the jar from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22) and copy it into the libs folder of your Android project.
+Will be in the future pushed to Maven.
 
-Gradle template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
-```
-dependencies {
-    compile 'de.greenrobot:eventbus:2.2.1'
-}
-```
-Maven template ([check current version](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)):
-```
-<dependency>
-    <groupId>de.greenrobot</groupId>
-    <artifactId>eventbus</artifactId>
-    <version>2.2.1</version>
-</dependency>
-```
 
 Delivery Threads
 ----------------
@@ -45,6 +31,9 @@ In EventBus, each event handling method is associated with a thread mode (have a
 * **MainThread:** Subscriber will be called in Android's main thread (sometimes referred to as UI thread). If the posting thread is the main thread, event handler methods will be called directly. Event handlers using this mode must return quickly to avoid blocking the main thread.
 * **BackgroundThread:** Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single background thread that will deliver all its events sequentially. Event handlers using this mode should try to return quickly to avoid blocking the background thread.
 * **Async:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
+* **AsyncTracked:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications. This is different from the simple Async mode as you can manage the events running (avoid the same event to be run in 2 threads in parallel for example). Note: You can only use this mode if your event objects extend from AbstractEvent.
+* 
+Note: Both the Async and AsyncTracked ThreadPools can be set to a number of specific threads with the `setThreadPoolConfiguration` method.
 
 *Example:* Consider your subscriber updates the UI, but the triggering event is posted by a background thread (using `eventBus.post(event)`). The name of the event handling method should be `onEventMainThread`. EventBus takes care of calling the method in the main thread without any further code required
 
@@ -55,8 +44,12 @@ Like register(Object) with an additional subscriber priority to influence the or
 
 Cancelling further event delivery
 ---------------------------------
-*TODO. For now, this is just the javadoc for the method cancelEventDelivery(Object event):*
+You have 2 options: 
+*cancelEventDelivery(Object event):*
 Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent subscribers won't receive the event. Events are usually canceled by higher priority subscribers (see register(Object, int)). Canceling is restricted to event handling methods running in posting thread ThreadMode.PostThread.
+
+*cancelEvent(AbstractEvent event):*
+This will only work if the mode you are trying to cancel is AsyncTracked.
 
 Sticky Events
 -------------
@@ -190,6 +183,12 @@ FAQ
 
 Release History
 ---------------
+### V3.0 (2015-02-01) AsyncTracked ThreadMode
+* Forked from main project and added a new ThreadMode. 
+* Added loseless state (experimental feature that can be removed in the future)
+
+-- Now being developed by neteinstein.
+
 ### V2.2.1 (2014-05-21) Bug fix release
 * Fixed an issue with AsyncExecutor and execution scope
 
@@ -237,7 +236,7 @@ Please update! Now, EventBus.unregister releases all internal references to the 
 
 License
 -------
-Copyright (C) 2012-2014 Markus Junginger, greenrobot (http://greenrobot.de)
+Copyright (C) 2012-2014 Pedro Vicente, neteinstein.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
