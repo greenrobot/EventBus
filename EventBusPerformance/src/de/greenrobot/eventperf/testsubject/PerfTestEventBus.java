@@ -20,7 +20,7 @@ public abstract class PerfTestEventBus extends Test {
 
     public PerfTestEventBus(Context context, TestParams params) {
         super(context, params);
-        eventBus = new EventBus();
+        eventBus = EventBus.builder().eventInheritance(params.isEventInheritance()).build();
         subscribers = new ArrayList<Object>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
@@ -42,16 +42,16 @@ public abstract class PerfTestEventBus extends Test {
 
     private Class<?> getSubscriberClassForThreadMode() {
         switch (params.getThreadMode()) {
-        case MainThread:
-            return SubscribeClassEventBusMain.class;
-        case BackgroundThread:
-            return SubscribeClassEventBusBackground.class;
-        case Async:
-            return SubscriberClassEventBusAsync.class;
-        case PostThread:
-            return SubscribeClassEventBusDefault.class;
-        default:
-            throw new RuntimeException("Unknown: " + params.getThreadMode());
+            case MainThread:
+                return SubscribeClassEventBusMain.class;
+            case BackgroundThread:
+                return SubscribeClassEventBusBackground.class;
+            case Async:
+                return SubscriberClassEventBusAsync.class;
+            case PostThread:
+                return SubscribeClassEventBusDefault.class;
+            default:
+                throw new RuntimeException("Unknown: " + params.getThreadMode());
         }
     }
 
@@ -67,9 +67,10 @@ public abstract class PerfTestEventBus extends Test {
         }
 
         public void runTest() {
+            TestEvent event = new TestEvent();
             long timeStart = System.nanoTime();
             for (int i = 0; i < super.eventCount; i++) {
-                super.eventBus.post(new TestEvent());
+                super.eventBus.post(event);
                 if (canceled) {
                     break;
                 }
@@ -88,7 +89,8 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Post Events, " + params.getThreadMode();
+            String inheritance = params.isEventInheritance() ? ", event inheritance" : ", no event inheritance";
+            return "EventBus Post Events, " + params.getThreadMode() + inheritance;
         }
     }
 

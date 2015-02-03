@@ -1,3 +1,24 @@
-language: java
+language: android
 jdk:
   - openjdk6
+  - oraclejdk7
+
+# http://docs.travis-ci.com/user/languages/android/
+android:
+  components:
+    - build-tools-21.0.2
+    - android-10
+
+before_script:
+  - chmod +x gradlew
+#  - echo no | android create avd --force -n test -t android-10 --abi armeabi
+#  - emulator -avd test -no-skin -no-audio -no-window &
+#  - android-wait-for-emulator
+#  - adb shell input keyevent 82 &
+
+# Currently connectedCheck fails, so don't run unit test on Emulator for now. Issue:
+# com.android.builder.testing.ConnectedDevice > hasTests[test(AVD) - 2.3.3] FAILED
+# No tests found.
+
+script:
+    - TERM=dumb ./gradlew check

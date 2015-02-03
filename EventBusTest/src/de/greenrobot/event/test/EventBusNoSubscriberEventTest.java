@@ -15,6 +15,7 @@
  */
 package de.greenrobot.event.test;
 
+import de.greenrobot.event.EventBus;
 import de.greenrobot.event.NoSubscriberEvent;
 import de.greenrobot.event.SubscriberExceptionEvent;
 
@@ -43,9 +44,9 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
         eventBus.unregister(subscriber);
         testNoSubscriberEvent();
     }
-    
+
     public void testBadNoSubscriberSubscriber() {
-        eventBus.configureLogSubscriberExceptions(false);
+        eventBus = EventBus.builder().logNoSubscriberMessages(false).build();
         eventBus.register(this);
         eventBus.register(new BadNoSubscriberSubscriber());
         eventBus.post("Foo");

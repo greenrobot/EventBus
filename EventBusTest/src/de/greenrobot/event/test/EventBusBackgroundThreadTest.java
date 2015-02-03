@@ -32,7 +32,7 @@ public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
     }
 
     public void testPostFromMain() throws InterruptedException {
-        eventBus.register(this, "onEvent");
+        eventBus.register(this);
         postInMainThread("Hello");
         waitForEventCount(1, 1000);
         assertEquals("Hello", lastEvent);

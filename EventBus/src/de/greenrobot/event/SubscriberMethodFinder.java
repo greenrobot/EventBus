@@ -27,12 +27,32 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 class SubscriberMethodFinder {
-    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC;
-    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
-    private static final Map<Class<?>, Class<?>> skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+    private static final String ON_EVENT_METHOD_NAME = "onEvent";
 
-    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
-        String key = subscriberClass.getName() + '.' + eventMethodName;
+    /*
+     * In newer class files, compilers may add methods. Those are called bridge or synthetic methods.
+     * EventBus must ignore both. There modifiers are not public but defined in the Java class file format:
+     * http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.6-200-A.1
+     */
+    private static final int BRIDGE = 0x40;
+    private static final int SYNTHETIC = 0x1000;
+
+    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
+    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
+
+    private final Map<Class<?>, Class<?>> skipMethodVerificationForClasses;
+
+    SubscriberMethodFinder(List<Class<?>> skipMethodVerificationForClassesList) {
+        skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+        if (skipMethodVerificationForClassesList != null) {
+            for (Class<?> clazz : skipMethodVerificationForClassesList) {
+                skipMethodVerificationForClasses.put(clazz, clazz);
+            }
+        }
+    }
+
+    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
+        String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
         synchronized (methodCache) {
             subscriberMethods = methodCache.get(key);
@@ -52,15 +72,15 @@ class SubscriberMethodFinder {
             }
 
             // Starting with EventBus 2.2 we enforced methods to be public (might change with annotations again)
-            Method[] methods = clazz.getMethods();
+            Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
                 String methodName = method.getName();
-                if (methodName.startsWith(eventMethodName)) {
+                if (methodName.startsWith(ON_EVENT_METHOD_NAME)) {
                     int modifiers = method.getModifiers();
                     if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
                         Class<?>[] parameterTypes = method.getParameterTypes();
                         if (parameterTypes.length == 1) {
-                            String modifierString = methodName.substring(eventMethodName.length());
+                            String modifierString = methodName.substring(ON_EVENT_METHOD_NAME.length());
                             ThreadMode threadMode;
                             if (modifierString.length() == 0) {
                                 threadMode = ThreadMode.PostThread;
@@ -99,7 +119,7 @@ class SubscriberMethodFinder {
         }
         if (subscriberMethods.isEmpty()) {
             throw new EventBusException("Subscriber " + subscriberClass + " has no public methods called "
-                    + eventMethodName);
+                    + ON_EVENT_METHOD_NAME);
         } else {
             synchronized (methodCache) {
                 methodCache.put(key, subscriberMethods);
@@ -114,14 +134,4 @@ class SubscriberMethodFinder {
         }
     }
 
-    static void skipMethodVerificationFor(Class<?> clazz) {
-        if (!methodCache.isEmpty()) {
-            throw new IllegalStateException("This method must be called before registering anything");
-        }
-        skipMethodVerificationForClasses.put(clazz, clazz);
-    }
-
-    public static void clearSkipMethodVerifications() {
-        skipMethodVerificationForClasses.clear();
-    }
 }

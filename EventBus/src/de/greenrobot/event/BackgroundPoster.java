@@ -25,9 +25,9 @@ import android.util.Log;
 final class BackgroundPoster implements Runnable {
 
     private final PendingPostQueue queue;
-    private volatile boolean executorRunning;
-
     private final EventBus eventBus;
+
+    private volatile boolean executorRunning;
 
     BackgroundPoster(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -40,7 +40,7 @@ final class BackgroundPoster implements Runnable {
             queue.enqueue(pendingPost);
             if (!executorRunning) {
                 executorRunning = true;
-                EventBus.executorService.execute(this);
+                eventBus.getExecutorService().execute(this);
             }
         }
     }
