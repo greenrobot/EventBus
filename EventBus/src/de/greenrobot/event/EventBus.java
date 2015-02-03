@@ -15,6 +15,9 @@
  */
 package de.greenrobot.event;
 
+import android.os.Looper;
+import android.util.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,10 +26,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import android.os.Looper;
-import android.util.Log;
+import de.greenrobot.event.models.AbstractEvent;
 
 /**
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)} to the
@@ -38,7 +43,9 @@ import android.util.Log;
  * @author Markus Junginger, greenrobot
  */
 public class EventBus {
-    static ExecutorService executorService = Executors.newCachedThreadPool();
+    private static Integer asyncMaxThreads = Integer.MAX_VALUE;
+
+    static ExecutorService executorService = null;
 
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
@@ -59,10 +66,10 @@ public class EventBus {
         }
     };
 
-
     private final HandlerPoster mainThreadPoster;
     private final BackgroundPoster backgroundPoster;
     private final AsyncPoster asyncPoster;
+    private final AsyncTrackedPoster asyncTrackedPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
 
     private boolean subscribed;
@@ -74,6 +81,8 @@ public class EventBus {
         if (defaultInstance == null) {
             synchronized (EventBus.class) {
                 if (defaultInstance == null) {
+                    executorService = new ThreadPoolExecutor(0, asyncMaxThreads, 60L, TimeUnit.SECONDS,
+                            new SynchronousQueue<Runnable>());
                     defaultInstance = new EventBus();
                 }
             }
@@ -112,6 +121,7 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
+        asyncTrackedPoster = new AsyncTrackedPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder();
         logSubscriberExceptions = true;
     }
@@ -189,9 +199,9 @@ public class EventBus {
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
         }
-        
-        if(losslessState){
-        	checkQueue();
+
+        if (losslessState) {
+            checkQueue();
         }
     }
 
@@ -258,7 +268,9 @@ public class EventBus {
         } else {
             for (Subscription subscription : subscriptions) {
                 if (subscription.equals(newSubscription)) {
-                    throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
+                    throw new EventBusException("Subscriber "
+                            + subscriber.getClass()
+                            + " already registered to event "
                             + eventType);
                 }
             }
@@ -366,18 +378,18 @@ public class EventBus {
                 throw new EventBusException("Internal error. Abort state was not reset");
             }
             try {
-            	int queuePosition = 0;
-            	
+                int queuePosition = 0;
+
                 while (!eventQueue.isEmpty()) {
-                	if(queuePosition < eventQueue.size()){
-	                	if(typesBySubscriber.containsKey(eventQueue.get(queuePosition))){
-	                		postSingleEvent(eventQueue.remove(queuePosition), postingState);
-	                	}else if(queuePosition < eventQueue.size() ){
-	                		queuePosition++;
-	                	}
-                	}else{
-                		break;
-                	}
+                    if (queuePosition < eventQueue.size()) {
+                        if (typesBySubscriber.containsKey(eventQueue.get(queuePosition))) {
+                            postSingleEvent(eventQueue.remove(queuePosition), postingState);
+                        } else if (queuePosition < eventQueue.size()) {
+                            queuePosition++;
+                        }
+                    } else {
+                        break;
+                    }
                 }
             } finally {
                 postingState.isPosting = false;
@@ -385,12 +397,15 @@ public class EventBus {
             }
         }
     }
-    
-    /** Everytime some object registers, it validates if the queue is empty, if not checks if someone is listening and if it is sends the events */
-    private void checkQueue(){    	
-    	PostingThreadState postingState = currentPostingThreadState.get();
+
+    /**
+     * Everytime some object registers, it validates if the queue is empty, if not checks if someone is listening and if
+     * it is sends the events
+     */
+    private void checkQueue() {
+        PostingThreadState postingState = currentPostingThreadState.get();
         final List<Object> eventQueue = postingState.eventQueue;
-        
+
         if (postingState.isPosting || eventQueue.isEmpty()) {
             return;
         } else {
@@ -400,27 +415,28 @@ public class EventBus {
                 throw new EventBusException("Internal error. Abort state was not reset");
             }
             try {
-            	int queuePosition = 0;
-            	
+                int queuePosition = 0;
+
                 while (!eventQueue.isEmpty()) {
-                	if(queuePosition < eventQueue.size()){
-                		final Object ob = eventQueue.get(queuePosition);
-                		boolean hasSubscriber = false;
-	                	for(List<Class<?>> clazzes : typesBySubscriber.values()){
-	                		for(Class<?> clazz : clazzes){
-		                		if(clazz.getName().equals(ob.getClass().getName())){
-		                			postSingleEvent(eventQueue.remove(queuePosition), postingState);
-		                			hasSubscriber = true;
-		                			//break; Should not break. Although not very likely, there can be more than one subscriber registered here already.
-		                		}
-	                		}
-	                	}
-	                	if(!hasSubscriber && queuePosition < eventQueue.size() ){
-	                		queuePosition++;
-	                	}
-                	}else{
-                		break;
-                	}
+                    if (queuePosition < eventQueue.size()) {
+                        final Object ob = eventQueue.get(queuePosition);
+                        boolean hasSubscriber = false;
+                        for (List<Class<?>> clazzes : typesBySubscriber.values()) {
+                            for (Class<?> clazz : clazzes) {
+                                if (clazz.getName().equals(ob.getClass().getName())) {
+                                    postSingleEvent(eventQueue.remove(queuePosition), postingState);
+                                    hasSubscriber = true;
+                                    // break; Should not break. Although not very likely, there can be more than one
+                                    // subscriber registered here already.
+                                }
+                            }
+                        }
+                        if (!hasSubscriber && queuePosition < eventQueue.size()) {
+                            queuePosition++;
+                        }
+                    } else {
+                        break;
+                    }
                 }
             } finally {
                 postingState.isPosting = false;
@@ -449,6 +465,15 @@ public class EventBus {
         }
 
         postingState.canceled = true;
+    }
+
+    /**
+     * Attempts to cancel a future of a event run on AsyncTracked. It will do nothing to events on other modes.
+     * 
+     * @return the number of single events cancelled (a single event is a combination of event + subscriber)
+     */
+    public int cancelEvent(AbstractEvent event) {
+        return asyncTrackedPoster.cancel(event);
     }
 
     /**
@@ -552,7 +577,8 @@ public class EventBus {
         }
     }
 
-    private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
+    private Future postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
+        Future future = null;
         switch (subscription.subscriberMethod.threadMode) {
         case PostThread:
             invokeSubscriber(subscription, event);
@@ -574,9 +600,14 @@ public class EventBus {
         case Async:
             asyncPoster.enqueue(subscription, event);
             break;
+        case AsyncTracked:
+            asyncTrackedPoster.enqueue(subscription, event);
+            break;
         default:
             throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }
+
+        return future;
     }
 
     /** Finds all Class objects including super classes and interfaces. */
@@ -629,14 +660,19 @@ public class EventBus {
             Throwable cause = e.getCause();
             if (event instanceof SubscriberExceptionEvent) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
-                Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                Log.e(TAG, "SubscriberExceptionEvent subscriber "
+                        + subscription.subscriber.getClass()
                         + " threw an exception", cause);
                 SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
-                Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
+                Log.e(TAG, "Initial event "
+                        + exEvent.causingEvent
+                        + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
             } else {
                 if (logSubscriberExceptions) {
-                    Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                    Log.e(TAG, "Could not dispatch event: "
+                            + event.getClass()
+                            + " to subscribing class "
                             + subscription.subscriber.getClass(), cause);
                 }
                 SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
@@ -663,12 +699,25 @@ public class EventBus {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
 
-	public boolean isLosslessState() {
-		return losslessState;
-	}
+    public boolean isLosslessState() {
+        return losslessState;
+    }
 
-	public void setLosslessState(boolean losslessState) {
-		this.losslessState = losslessState;
-	}
+    public void setLosslessState(boolean losslessState) {
+        this.losslessState = losslessState;
+    }
 
+    public static Integer getAsyncMaxThreads() {
+        return asyncMaxThreads;
+    }
+
+    /**
+     * Max number of threads of Async mode. This MUST be set BEFORE initializing the EventBus or else it will not have
+     * any influence
+     * 
+     * @param asyncMaxThreads Number of threads
+     */
+    public static void setAsyncMaxThreads(Integer asyncMaxThreads) {
+        EventBus.asyncMaxThreads = asyncMaxThreads;
+    }
 }

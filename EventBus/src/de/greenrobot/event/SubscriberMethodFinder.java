@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event;
 
+import android.util.Log;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -23,8 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import android.util.Log;
 
 class SubscriberMethodFinder {
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC;
@@ -70,6 +70,8 @@ class SubscriberMethodFinder {
                                 threadMode = ThreadMode.BackgroundThread;
                             } else if (modifierString.equals("Async")) {
                                 threadMode = ThreadMode.Async;
+                            } else if (modifierString.equals("AsyncTracked")) {
+                                threadMode = ThreadMode.AsyncTracked;
                             } else {
                                 if (skipMethodVerificationForClasses.containsKey(clazz)) {
                                     continue;

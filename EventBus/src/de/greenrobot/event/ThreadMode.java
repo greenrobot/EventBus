@@ -53,5 +53,17 @@ public enum ThreadMode {
      * of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus
      * uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
      */
-    Async
+    Async,
+
+    /**
+     * Event handler methods are called in a separate thread. This is always independent from the posting thread and the
+     * main thread. Posting events never wait for event handler methods using this mode. Event handler methods should
+     * use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number
+     * of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus
+     * uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications. This is
+     * different from the simple Async mode as you can manage the events running (avoid the same event to be run in 2
+     * threads in parallel for example).
+     * Note: You can only use this mode if your event objects extend from AbstractEvent
+     */
+    AsyncTracked
 }
