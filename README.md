@@ -58,8 +58,12 @@ Like register(Object) with an additional subscriber priority to influence the or
 
 Cancelling further event delivery
 ---------------------------------
-*TODO. For now, this is just the javadoc for the method cancelEventDelivery(Object event):*
+You have 2 options: 
+*cancelEventDelivery(Object event):*
 Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent subscribers won't receive the event. Events are usually canceled by higher priority subscribers (see register(Object, int)). Canceling is restricted to event handling methods running in posting thread ThreadMode.PostThread.
+
+*cancelEvent(AbstractEvent event):*
+This will only work if the mode you are trying to cancel is AsyncTracked.
 
 Sticky Events
 -------------
@@ -193,6 +197,11 @@ FAQ
 
 Release History
 ---------------
+### V3.0 (2015-02-01) AsyncTracked ThreadMode
+* Forked from main project and added a new ThreadMode. 
+
+-- Now being developed by neteinstein.
+
 ### V2.2.1 (2014-05-21) Bug fix release
 * Fixed an issue with AsyncExecutor and execution scope
 
@@ -240,7 +249,7 @@ Please update! Now, EventBus.unregister releases all internal references to the 
 
 License
 -------
-Copyright (C) 2012-2014 Markus Junginger, greenrobot (http://greenrobot.de)
+Copyright (C) 2012-2014 Pedro Vicente, neteinstein.org
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
