@@ -186,7 +186,7 @@ It's also possible to remove previously posted sticky events using one of the re
 ProGuard configuration
 ----------------------
 ProGuard obfuscates method names. However, the onEvent methods must not renamed because they are accessed using reflection. Use the following snip in your ProGuard configuration file (proguard.cfg):
-<pre><code>-keepclassmembers class ** {
+<pre><code>-keepnames class ** {
     public void onEvent*(**);
 }
 
