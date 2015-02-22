@@ -108,7 +108,7 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
-        subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
+        subscriberMethodFinder = new SubscriberMethodFinder(/* TODO */ false);
         logSubscriberExceptions = builder.logSubscriberExceptions;
         logNoSubscriberMessages = builder.logNoSubscriberMessages;
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
@@ -160,8 +160,7 @@ public class EventBus {
     }
 
     private synchronized void register(Object subscriber, boolean sticky, int priority) {
-        List<SubscriberMethod> subscriberMethods
-                = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass(), logSubscriberExceptions);
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass());
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
         }
