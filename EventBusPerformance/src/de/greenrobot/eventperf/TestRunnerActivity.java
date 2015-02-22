@@ -1,7 +1,7 @@
 package de.greenrobot.eventperf;
 
 import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 
 import android.app.Activity;
 import android.os.Bundle;

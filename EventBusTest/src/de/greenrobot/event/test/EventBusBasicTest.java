@@ -18,7 +18,7 @@ package de.greenrobot.event.test;
 import android.app.Activity;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 import junit.framework.TestCase;
 
 import java.lang.ref.WeakReference;

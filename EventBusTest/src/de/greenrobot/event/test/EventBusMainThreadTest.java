@@ -20,7 +20,7 @@ import java.util.List;
 
 import android.os.Looper;
 import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot

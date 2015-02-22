@@ -21,7 +21,7 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import android.util.Log;
 import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot

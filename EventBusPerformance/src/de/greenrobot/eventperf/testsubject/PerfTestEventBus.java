@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;

@@ -1,4 +1,4 @@
-package de.greenrobot.event.annotations;
+package de.greenrobot.event;
 
 
 import java.lang.annotation.Documented;

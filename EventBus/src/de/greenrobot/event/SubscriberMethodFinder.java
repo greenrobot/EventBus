@@ -15,8 +15,6 @@
  */
 package de.greenrobot.event;
 
-import de.greenrobot.event.annotations.Subscribe;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;

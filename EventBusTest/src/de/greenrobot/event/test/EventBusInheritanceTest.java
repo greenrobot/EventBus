@@ -15,7 +15,7 @@
  */
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 import junit.framework.TestCase;
 import de.greenrobot.event.EventBus;
 

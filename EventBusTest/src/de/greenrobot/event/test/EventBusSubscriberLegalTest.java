@@ -16,7 +16,7 @@
 package de.greenrobot.event.test;
 
 import de.greenrobot.event.EventBusException;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot

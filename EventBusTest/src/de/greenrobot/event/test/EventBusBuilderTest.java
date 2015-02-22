@@ -20,7 +20,7 @@ import de.greenrobot.event.EventBusBuilder;
 import de.greenrobot.event.EventBusException;
 import de.greenrobot.event.NoSubscriberEvent;
 import de.greenrobot.event.SubscriberExceptionEvent;
-import de.greenrobot.event.annotations.Subscribe;
+import de.greenrobot.event.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
