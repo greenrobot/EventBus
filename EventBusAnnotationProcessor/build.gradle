@@ -3,15 +3,17 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'de.greenrobot'
-version = '3.0.0'
+version = '3.0.0-alpha1'
+
 sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
 def sonatypeRepositoryUrl
-if(isSnapshot) {
-	sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+if (isSnapshot) {
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 } else {
-	sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 }
 
 repositories {
@@ -53,8 +55,8 @@ artifacts {
 }
 
 signing {
-    if(project.hasProperty('signing.keyId') && project.hasProperty('signing.password') &&
-    project.hasProperty('signing.secretKeyRingFile')) {
+    if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') &&
+            project.hasProperty('signing.secretKeyRingFile')) {
         sign configurations.archives
     } else {
         println "Signing information missing/incomplete for ${project.name}"
@@ -64,13 +66,13 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            if(project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername') 
-                && project.hasProperty('preferedPassword')) {
+            if (project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
+                    && project.hasProperty('preferedPassword')) {
                 configuration = configurations.deployerJars
                 repository(url: preferedRepo) {
                     authentication(userName: preferedUsername, password: preferedPassword)
                 }
-            } else if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
+            } else if (project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
                 repository(url: sonatypeRepositoryUrl) {
                     authentication(userName: sonatypeUsername, password: sonatypePassword)
@@ -81,42 +83,42 @@ uploadArchives {
 
             pom.artifactId = 'eventbus-annotation-processor'
             pom.project {
-               name 'EventBus Annotation Processor'
-               packaging 'jar'
-               description 'Precompiler for EventBus Annotations.'
-               url 'https://github.com/greenrobot/EventBus'
+                name 'EventBus Annotation Processor'
+                packaging 'jar'
+                description 'Precompiler for EventBus Annotations.'
+                url 'https://github.com/greenrobot/EventBus'
 
-               scm {
-                   url 'https://github.com/greenrobot/EventBus'
-                   connection 'scm:git@github.com:greenrobot/EventBus.git'
-                   developerConnection 'scm:git@github.com:greenrobot/EventBus.git'
-               }
+                scm {
+                    url 'https://github.com/greenrobot/EventBus'
+                    connection 'scm:git@github.com:greenrobot/EventBus.git'
+                    developerConnection 'scm:git@github.com:greenrobot/EventBus.git'
+                }
 
-               licenses {
-                   license {
-                       name 'The Apache Software License, Version 2.0'
-                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                       distribution 'repo'
-                   }
-               }
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
 
-               developers {
-                   developer {
-                       id 'greenrobot'
-                       name 'greenrobot'
-                   }
-               }
-               
-               issueManagement {
-                   system 'GitHub Issues'
-                   url 'https://github.com/greenrobot/EventBus/issues'
-               }
+                developers {
+                    developer {
+                        id 'greenrobot'
+                        name 'greenrobot'
+                    }
+                }
 
-               organization {
-                   name 'greenrobot'
-                   url 'http://greenrobot.de'
-               }
-           }
+                issueManagement {
+                    system 'GitHub Issues'
+                    url 'https://github.com/greenrobot/EventBus/issues'
+                }
+
+                organization {
+                    name 'greenrobot'
+                    url 'http://greenrobot.de'
+                }
+            }
         }
     }
 }
