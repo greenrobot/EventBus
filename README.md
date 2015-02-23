@@ -33,9 +33,12 @@ Add EventBus to your project
 ----------------------------
 EventBus is available on Maven Central. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
+Note: This SNAPSHOT version is only available on Sonatype's snapshot repository (https://oss.sonatype.org/content/repositories/snapshots).
+
 Gradle:
 ```
-    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'de.greenrobot:eventbus:3.0.0-SNAPSHOT'
+    provided 'de.greenrobot:eventbus-annotation-processor:3.0.0-SNAPSHOT'
 ```
 
 Maven:
@@ -43,7 +46,7 @@ Maven:
 <dependency>
     <groupId>de.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>2.4.0</version>
+    <version>3.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
