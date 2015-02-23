@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event;
 
+import android.util.Log;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -34,7 +36,37 @@ class SubscriberMethodFinder {
     private static final int SYNTHETIC = 0x1000;
 
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
-    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
+    private static final Map<String, List<SubscriberMethod>> METHOD_CACHE = new HashMap<String, List<SubscriberMethod>>();
+
+    /** Optional generated index without entries from subscribers super classes */
+    private static final Map<String, List<SubscriberMethod>> METHOD_INDEX;
+
+    static {
+        Map<String, List<SubscriberMethod>> index = null;
+        try {
+            Class<?> clazz = Class.forName("MyGeneratedEventBusSubscriberIndex");
+            SubscriberIndexEntry[] entries = (SubscriberIndexEntry[]) clazz.getField("INDEX").get(null);
+            Map<String, List<SubscriberMethod>> newIndex = new HashMap<String, List<SubscriberMethod>>();
+            for (SubscriberIndexEntry entry : entries) {
+                String key = entry.subscriberType.getName();
+                List<SubscriberMethod> subscriberMethods = newIndex.get(key);
+                if (subscriberMethods == null) {
+                    subscriberMethods = new ArrayList<SubscriberMethod>();
+                    newIndex.put(key, subscriberMethods);
+                }
+                Method method = entry.subscriberType.getMethod(entry.methodName, entry.eventType);
+                SubscriberMethod subscriberMethod = new SubscriberMethod(method, entry.threadMode, entry.eventType);
+                subscriberMethods.add(subscriberMethod);
+            }
+            index = newIndex;
+        } catch (ClassNotFoundException e) {
+            // Fine
+        } catch (Exception e) {
+            Log.w("Could not init @Subscribe index, reverting to dynamic look-up (slower)", e);
+        }
+        METHOD_INDEX = index;
+    }
+
     private final boolean strictMethodVerification;
 
     SubscriberMethodFinder(boolean strictMethodVerification) {
@@ -44,13 +76,47 @@ class SubscriberMethodFinder {
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
         String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
-        synchronized (methodCache) {
-            subscriberMethods = methodCache.get(key);
+        synchronized (METHOD_CACHE) {
+            subscriberMethods = METHOD_CACHE.get(key);
         }
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        subscriberMethods = new ArrayList<SubscriberMethod>();
+        if(METHOD_INDEX != null) {
+            subscriberMethods = findSubscriberMethodsWithIndex(subscriberClass);
+        } else {
+            subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);
+        }
+        if (subscriberMethods.isEmpty()) {
+            throw new EventBusException("Subscriber " + subscriberClass
+                    + " and its super classes have no public methods with the @Subscribe annotation");
+        } else {
+            synchronized (METHOD_CACHE) {
+                METHOD_CACHE.put(key, subscriberMethods);
+            }
+            return subscriberMethods;
+        }
+    }
+
+    private List<SubscriberMethod> findSubscriberMethodsWithIndex(Class<?> subscriberClass) {
+        List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
+        Class<?> clazz = subscriberClass;
+        while (clazz != null) {
+            String name = clazz.getName();
+            if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
+                // Skip system classes, this just degrades performance
+                break;
+            }
+            List<SubscriberMethod> flatList = METHOD_INDEX.get(name);
+            subscriberMethods.addAll(flatList);
+
+            clazz = clazz.getSuperclass();
+        }
+        return subscriberMethods;
+    }
+
+    private List<SubscriberMethod> findSubscriberMethodsWithReflection(Class<?> subscriberClass) {
+        List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
         Class<?> clazz = subscriberClass;
         HashSet<String> eventTypesFound = new HashSet<String>();
         StringBuilder methodKeyBuilder = new StringBuilder();
@@ -102,20 +168,12 @@ class SubscriberMethodFinder {
 
             clazz = clazz.getSuperclass();
         }
-        if (subscriberMethods.isEmpty()) {
-            throw new EventBusException("Subscriber " + subscriberClass
-                    + " has no public methods called with the @Subscribe annotation");
-        } else {
-            synchronized (methodCache) {
-                methodCache.put(key, subscriberMethods);
-            }
-            return subscriberMethods;
-        }
+        return subscriberMethods;
     }
 
     static void clearCaches() {
-        synchronized (methodCache) {
-            methodCache.clear();
+        synchronized (METHOD_CACHE) {
+            METHOD_CACHE.clear();
         }
     }
 
