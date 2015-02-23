@@ -62,6 +62,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             return;
         }
 
+        if (!element.getModifiers().contains(Modifier.PUBLIC)) {
+            messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must be public", element);
+            return;
+        }
+
         Set<Modifier> subscriberClassModifiers = element.getEnclosingElement().getModifiers();
         if (!subscriberClassModifiers.contains(Modifier.PUBLIC)) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber class must be public",
