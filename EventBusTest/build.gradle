@@ -5,16 +5,19 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:1.1.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    androidTestApt project(':EventBusAnnotationProcessor')
     androidTestCompile project(':EventBus')
 }
 

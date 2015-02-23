@@ -54,7 +54,7 @@ public class EventBusSubscriberExceptionTest extends AbstractEventBusTest {
         trackEvent(event);
     }
 
-    class BadExceptionSubscriber {
+    public class BadExceptionSubscriber {
         @Subscribe
         public void onEvent(SubscriberExceptionEvent event) {
             throw new RuntimeException("Bad");

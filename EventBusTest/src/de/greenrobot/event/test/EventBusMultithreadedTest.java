@@ -220,7 +220,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         }
     }
 
-    class SubscribeUnsubscribeThread extends Thread {
+    public class SubscribeUnsubscribeThread extends Thread {
         boolean running = true;
 
         public void shutdown() {

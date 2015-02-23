@@ -30,23 +30,24 @@ public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
         assertEquals(1, eventCount.intValue());
     }
 
-    public void testSubscriberNotPublic() {
-        try {
-            eventBus.register(new NotPublic());
-            fail("Registration of ilegal subscriber successful");
-        } catch (EventBusException e) {
-            // Expected
-        }
-    }
+    // With build time verification, some of these tests are obsolete (and cause problems during build)
+//    public void testSubscriberNotPublic() {
+//        try {
+//            eventBus.register(new NotPublic());
+//            fail("Registration of ilegal subscriber successful");
+//        } catch (EventBusException e) {
+//            // Expected
+//        }
+//    }
 
-    public void testSubscriberStatic() {
-        try {
-            eventBus.register(new Static());
-            fail("Registration of ilegal subscriber successful");
-        } catch (EventBusException e) {
-            // Expected
-        }
-    }
+//    public void testSubscriberStatic() {
+//        try {
+//            eventBus.register(new Static());
+//            fail("Registration of ilegal subscriber successful");
+//        } catch (EventBusException e) {
+//            // Expected
+//        }
+//    }
 
     public void testSubscriberLegalAbstract() {
         eventBus.register(new Abstract() {
@@ -68,21 +69,21 @@ public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
         trackEvent(event);
     }
 
-    static class NotPublic {
-        @Subscribe
-        void onEvent(String event) {
-        }
-    }
+//    public static class NotPublic {
+//        @Subscribe
+//        void onEvent(String event) {
+//        }
+//    }
 
-    static abstract class Abstract {
+    public static abstract class Abstract {
         @Subscribe
         public abstract void onEvent(String event);
     }
 
-    static class Static {
-        @Subscribe
-        public static void onEvent(String event) {
-        }
-    }
+//    public static class Static {
+//        @Subscribe
+//        public static void onEvent(String event) {
+//        }
+//    }
 
 }

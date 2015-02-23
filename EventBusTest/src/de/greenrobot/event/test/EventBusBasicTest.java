@@ -238,7 +238,7 @@ public class EventBusBasicTest extends TestCase {
         countMyEventExtended++;
     }
 
-    static class TestActivity extends Activity {
+    public static class TestActivity extends Activity {
         public String lastStringEvent;
 
         @Subscribe
@@ -247,13 +247,13 @@ public class EventBusBasicTest extends TestCase {
         }
     }
 
-    class MyEvent {
+    public class MyEvent {
     }
 
-    class MyEventExtended extends MyEvent {
+    public class MyEventExtended extends MyEvent {
     }
 
-    class RepostInteger {
+    public class RepostInteger {
         public int lastEvent;
         public int countEvent;
 

@@ -117,19 +117,19 @@ public class EventBusInheritanceTest extends TestCase {
         countMyEventInterfaceExtended++;
     }
 
-    static interface MyEventInterface {
+    public static interface MyEventInterface {
     }
 
-    static class MyEvent implements MyEventInterface {
+    public static class MyEvent implements MyEventInterface {
     }
 
-    static interface MyEventInterfaceExtended extends MyEventInterface {
+    public static interface MyEventInterfaceExtended extends MyEventInterface {
     }
 
-    static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
+    public static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
     }
 
-    static class SubscriberExtended extends EventBusInheritanceTest {
+    public static class SubscriberExtended extends EventBusInheritanceTest {
         private int countMyEventOverwritten;
 
         @Subscribe

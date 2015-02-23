@@ -77,7 +77,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
         assertNotNull(failed);
     }
 
-    class Subscriber {
+    public class Subscriber {
         private final boolean cancel;
 
         public Subscriber(boolean cancel) {
@@ -93,7 +93,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
         }
     }
 
-    class SubscriberCancelOtherEvent {
+    public class SubscriberCancelOtherEvent {
         @Subscribe
         public void onEvent(String event) {
             try {
@@ -104,7 +104,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
         }
     }
 
-    class SubscriberMainThread {
+    public class SubscriberMainThread {
         final CountDownLatch done = new CountDownLatch(1);
 
         @Subscribe(threadMode = ThreadMode.MainThread)

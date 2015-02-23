@@ -89,7 +89,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
         return subscriber;
     }
 
-    private final class PrioSubscriber {
+    public final class PrioSubscriber {
 
         final int prio;
 

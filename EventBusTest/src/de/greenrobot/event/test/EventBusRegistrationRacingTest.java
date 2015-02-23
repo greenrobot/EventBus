@@ -72,7 +72,7 @@ public class EventBusRegistrationRacingTest extends AbstractEventBusTest {
         return threads;
     }
 
-    class SubscriberThread implements Runnable {
+    public class SubscriberThread implements Runnable {
         volatile int eventCount;
 
         @Override

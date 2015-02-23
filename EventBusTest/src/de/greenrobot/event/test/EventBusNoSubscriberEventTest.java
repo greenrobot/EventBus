@@ -69,7 +69,7 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
         trackEvent(event);
     }
 
-    class BadNoSubscriberSubscriber {
+    public class BadNoSubscriberSubscriber {
         @Subscribe
         public void onEvent(NoSubscriberEvent event) {
             throw new RuntimeException("I'm bad");

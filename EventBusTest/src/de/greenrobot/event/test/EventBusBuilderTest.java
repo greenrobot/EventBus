@@ -75,21 +75,21 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         eventBus.post("Foo");
     }
 
-    class SubscriberExceptionEventTracker {
+    public class SubscriberExceptionEventTracker {
         @Subscribe
         public void onEvent(SubscriberExceptionEvent event) {
             trackEvent(event);
         }
     }
 
-    class NoSubscriberEventTracker {
+    public class NoSubscriberEventTracker {
         @Subscribe
         public void onEvent(NoSubscriberEvent event) {
             trackEvent(event);
         }
     }
 
-    class ThrowingSubscriber {
+    public class ThrowingSubscriber {
         @Subscribe
         public void onEvent(Object event) {
             throw new RuntimeException();
