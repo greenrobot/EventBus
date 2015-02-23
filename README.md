@@ -17,6 +17,14 @@ EventBus...
 
  [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 
+Limitations of the SNAPSHOT version
+-----------------------------------
+The "subscriber index" is an optional optimization to speed up initial subscriber registration. The subscriber index is created during build time using an annotation processor. There are a couple of limitations of the current implementation:
+
+ * Subscriber classes must be public
+ * Event classes must be public
+ * @Subscribe seems to be not recognized when inside of anonymous classes
+
 EventBus in 4 steps
 -------------------
 1. Define events:<br/>
