@@ -200,14 +200,20 @@ public class EventBus {
         subscribedEvents.add(eventType);
 
         if (sticky) {
-            Object stickyEvent;
+            final List<Object> registeredStickyEvents = new ArrayList<Object>();
             synchronized (stickyEvents) {
-                stickyEvent = stickyEvents.get(eventType);
+                for (final Map.Entry<Class<?>, Object> stickyEventClasses : stickyEvents.entrySet()) {
+                    if (stickyEventClasses.getKey().isAssignableFrom(eventType)) {
+                        registeredStickyEvents.add(stickyEventClasses.getValue());
+                    }
+                }
             }
-            if (stickyEvent != null) {
-                // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
-                // --> Strange corner case, which we don't take care of here.
-                postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+            for(final Object stickyEvent : registeredStickyEvents) {
+                if (stickyEvent != null) {
+                    // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
+                    // --> Strange corner case, which we don't take care of here.
+                    postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+                }
             }
         }
     }
