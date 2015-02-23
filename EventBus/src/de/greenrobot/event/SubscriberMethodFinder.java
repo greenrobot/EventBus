@@ -54,15 +54,24 @@ class SubscriberMethodFinder {
                     subscriberMethods = new ArrayList<SubscriberMethod>();
                     newIndex.put(key, subscriberMethods);
                 }
-                Method method = entry.subscriberType.getMethod(entry.methodName, entry.eventType);
-                SubscriberMethod subscriberMethod = new SubscriberMethod(method, entry.threadMode, entry.eventType);
-                subscriberMethods.add(subscriberMethod);
+                try {
+                    Method method = entry.subscriberType.getMethod(entry.methodName, entry.eventType);
+                    SubscriberMethod subscriberMethod = new SubscriberMethod(method, entry.threadMode, entry.eventType);
+                    subscriberMethods.add(subscriberMethod);
+                } catch (NoSuchMethodException e) {
+                    // Offending class is not part of standard message
+                    throw new NoSuchMethodException(entry.subscriberType.getName() + "." +
+                            entry.methodName + "(" + entry.eventType.getName() + ")");
+                }
             }
             index = newIndex;
+            Log.d(EventBus.TAG, "Initialized subscriber index with " + entries.length + " entries for " + index.size()
+                    + " classes");
         } catch (ClassNotFoundException e) {
+            Log.d(EventBus.TAG, "No subscriber index available, reverting to dynamic look-up (slower)");
             // Fine
         } catch (Exception e) {
-            Log.w("Could not init @Subscribe index, reverting to dynamic look-up (slower)", e);
+            Log.w(EventBus.TAG, "Could not init subscriber index, reverting to dynamic look-up (slower)", e);
         }
         METHOD_INDEX = index;
     }
@@ -82,7 +91,7 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        if(METHOD_INDEX != null) {
+        if (METHOD_INDEX != null) {
             subscriberMethods = findSubscriberMethodsWithIndex(subscriberClass);
         } else {
             subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);
@@ -108,7 +117,9 @@ class SubscriberMethodFinder {
                 break;
             }
             List<SubscriberMethod> flatList = METHOD_INDEX.get(name);
-            subscriberMethods.addAll(flatList);
+            if(flatList != null) {
+                subscriberMethods.addAll(flatList);
+            }
 
             clazz = clazz.getSuperclass();
         }
