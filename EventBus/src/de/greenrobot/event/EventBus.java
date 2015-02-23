@@ -39,7 +39,7 @@ import java.util.concurrent.ExecutorService;
 public class EventBus {
 
     /** Log tag, apps may override it. */
-    public static String TAG = "Event";
+    public static String TAG = "EventBus";
 
     static volatile EventBus defaultInstance;
 
