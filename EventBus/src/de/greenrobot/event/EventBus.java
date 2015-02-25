@@ -160,7 +160,12 @@ public class EventBus {
     }
 
     private synchronized void register(Object subscriber, boolean sticky, int priority) {
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass());
+        Class<?> subscriberClass = subscriber.getClass();
+        if(subscriberClass.isAnonymousClass()) {
+            // We cannot get @Subscribe annotations from anonymous classes, so fail fast
+            throw new EventBusException("Anonymous class cannot be registered: "+ subscriberClass);
+        }
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
         }
