@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 class SubscriberMethodFinder {
-
     /*
      * In newer class files, compilers may add methods. Those are called bridge or synthetic methods.
      * EventBus must ignore both. There modifiers are not public but defined in the Java class file format:
@@ -39,41 +38,20 @@ class SubscriberMethodFinder {
     private static final Map<String, List<SubscriberMethod>> METHOD_CACHE = new HashMap<String, List<SubscriberMethod>>();
 
     /** Optional generated index without entries from subscribers super classes */
-    private static final Map<String, List<SubscriberMethod>> METHOD_INDEX;
+    private static final SubscriberIndex INDEX;
 
     static {
-        Map<String, List<SubscriberMethod>> index = null;
+        SubscriberIndex newIndex = null;
         try {
-            Class<?> clazz = Class.forName("MyGeneratedEventBusSubscriberIndex");
-            SubscriberIndexEntry[] entries = (SubscriberIndexEntry[]) clazz.getField("INDEX").get(null);
-            Map<String, List<SubscriberMethod>> newIndex = new HashMap<String, List<SubscriberMethod>>();
-            for (SubscriberIndexEntry entry : entries) {
-                String key = entry.subscriberType.getName();
-                List<SubscriberMethod> subscriberMethods = newIndex.get(key);
-                if (subscriberMethods == null) {
-                    subscriberMethods = new ArrayList<SubscriberMethod>();
-                    newIndex.put(key, subscriberMethods);
-                }
-                try {
-                    Method method = entry.subscriberType.getMethod(entry.methodName, entry.eventType);
-                    SubscriberMethod subscriberMethod = new SubscriberMethod(method, entry.threadMode, entry.eventType);
-                    subscriberMethods.add(subscriberMethod);
-                } catch (NoSuchMethodException e) {
-                    // Offending class is not part of standard message
-                    throw new NoSuchMethodException(entry.subscriberType.getName() + "." +
-                            entry.methodName + "(" + entry.eventType.getName() + ")");
-                }
-            }
-            index = newIndex;
-            Log.d(EventBus.TAG, "Initialized subscriber index with " + entries.length + " entries for " + index.size()
-                    + " classes");
+            Class<?> clazz = Class.forName("de.greenrobot.event.MyGeneratedSubscriberIndex");
+            newIndex = (SubscriberIndex) clazz.newInstance();
         } catch (ClassNotFoundException e) {
-            Log.d(EventBus.TAG, "No subscriber index available, reverting to dynamic look-up (slower)");
+            Log.d(EventBus.TAG, "No subscriber index available, reverting to dynamic look-up");
             // Fine
         } catch (Exception e) {
-            Log.w(EventBus.TAG, "Could not init subscriber index, reverting to dynamic look-up (slower)", e);
+            Log.w(EventBus.TAG, "Could not init subscriber index, reverting to dynamic look-up", e);
         }
-        METHOD_INDEX = index;
+        INDEX = newIndex;
     }
 
     private final boolean strictMethodVerification;
@@ -91,7 +69,7 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        if (METHOD_INDEX != null) {
+        if (INDEX != null) {
             subscriberMethods = findSubscriberMethodsWithIndex(subscriberClass);
         } else {
             subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);
@@ -116,9 +94,12 @@ class SubscriberMethodFinder {
                 // Skip system classes, this just degrades performance
                 break;
             }
-            List<SubscriberMethod> flatList = METHOD_INDEX.get(name);
-            if(flatList != null) {
-                subscriberMethods.addAll(flatList);
+            SubscriberMethod[] flatList = INDEX.getSubscribersFor(clazz);
+            if (flatList != null) {
+                // TODO check
+                for (SubscriberMethod subscriberMethod : flatList) {
+                    subscriberMethods.add(subscriberMethod);
+                }
             }
 
             clazz = clazz.getSuperclass();
