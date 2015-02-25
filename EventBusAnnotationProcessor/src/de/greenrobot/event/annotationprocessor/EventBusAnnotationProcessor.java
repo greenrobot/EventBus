@@ -14,12 +14,14 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,20 +54,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             messager.printMessage(Diagnostic.Kind.ERROR,
                     "Unexpected processing state: annotations still available after writing.");
         }
-        for (TypeElement annotation : annotations) {
-            Set<? extends Element> elements = env.getElementsAnnotatedWith(annotation);
-            for (Element element : elements) {
-                if (checkElement(element, messager)) {
-                    Element classElement = element.getEnclosingElement();
-                    List<Element> methods = methodsByClass.get(classElement);
-                    if (methods == null) {
-                        methods = new ArrayList<Element>();
-                        methodsByClass.put(classElement, methods);
-                    }
-                    methods.add(element);
-                }
-            }
-        }
+        collectSubscribers(annotations, env, messager);
 
         if (!methodsByClass.isEmpty()) {
             writeSources();
@@ -111,6 +100,23 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
+    private void collectSubscribers(Set<? extends TypeElement> annotations, RoundEnvironment env, Messager messager) {
+        for (TypeElement annotation : annotations) {
+            Set<? extends Element> elements = env.getElementsAnnotatedWith(annotation);
+            for (Element element : elements) {
+                if (checkElement(element, messager)) {
+                    Element classElement = element.getEnclosingElement();
+                    List<Element> methods = methodsByClass.get(classElement);
+                    if (methods == null) {
+                        methods = new ArrayList<Element>();
+                        methodsByClass.put(classElement, methods);
+                    }
+                    methods.add(element);
+                }
+            }
+        }
+    }
+
     private void writeSources() {
         String pack = "de.greenrobot.event";
         String className = "MyGeneratedSubscriberIndex";
@@ -134,9 +140,19 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 } else {
                     ifPrefix = "} else ";
                 }
-                writeLine(writer, 2, ifPrefix + "if(subscriberClass ==", entry.getKey().asType() + ".class) {");
+                TypeElement subscriberClass = (TypeElement) entry.getKey();
+                writeLine(writer, 2, ifPrefix + "if(subscriberClass ==", subscriberClass.asType() + ".class) {");
                 writer.write("            return new SubscriberMethod[] {\n");
-                writeIndexEntries(writer, entry.getValue());
+
+                Set<String> methodSignatures = new HashSet<String>();
+                writeIndexEntries(writer, null, entry.getValue(), methodSignatures);
+                while (subscriberClass.getSuperclass().getKind() == TypeKind.DECLARED) {
+                    subscriberClass = (TypeElement) processingEnv.getTypeUtils().asElement(subscriberClass.getSuperclass());
+                    List<Element> superClassMethods = methodsByClass.get(subscriberClass);
+                    if (superClassMethods != null) {
+                        writeIndexEntries(writer, subscriberClass, superClassMethods, methodSignatures);
+                    }
+                }
                 writer.write("            };\n");
             }
             if (!methodsByClass.isEmpty()) {
@@ -155,17 +171,24 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-
-    private void writeIndexEntries(BufferedWriter writer, List<Element> elements) throws IOException {
+    private void writeIndexEntries(BufferedWriter writer, TypeElement subscriberClass, List<Element> elements, Set<String> methodSignatures) throws IOException {
         for (Element element : elements) {
-            Subscribe subscribe = element.getAnnotation(Subscribe.class);
 
             List<? extends VariableElement> parameters = ((ExecutableElement) element).getParameters();
             VariableElement param = parameters.get(0);
             DeclaredType paramType = (DeclaredType) param.asType();
 
+            String methodSignature = element+">"+paramType;
+            if(!methodSignatures.add(methodSignature)) {
+                continue;
+            }
+
             String methodName = element.getSimpleName().toString();
-            writeLine(writer, 4, "createSubscriberMethod(subscriberClass,",
+            String subscriberClassString = subscriberClass == null ? "subscriberClass" :
+                    subscriberClass.asType().toString() + ".class";
+
+            Subscribe subscribe = element.getAnnotation(Subscribe.class);
+            writeLine(writer, 4, "createSubscriberMethod(" + subscriberClassString + ",",
                     "\"" + methodName + "\",",
                     paramType.toString() + ".class,",
                     "ThreadMode." + subscribe.threadMode().name() + "),");

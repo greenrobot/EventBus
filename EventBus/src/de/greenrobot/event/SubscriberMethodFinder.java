@@ -20,6 +20,7 @@ import android.util.Log;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -86,25 +87,16 @@ class SubscriberMethodFinder {
     }
 
     private List<SubscriberMethod> findSubscriberMethodsWithIndex(Class<?> subscriberClass) {
-        List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
-        Class<?> clazz = subscriberClass;
-        while (clazz != null) {
-            String name = clazz.getName();
-            if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
-                // Skip system classes, this just degrades performance
-                break;
+        SubscriberMethod[] array = INDEX.getSubscribersFor(subscriberClass);
+        if (array != null && array.length > 0) {
+            List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
+            for (SubscriberMethod subscriberMethod : array) {
+                subscriberMethods.add(subscriberMethod);
             }
-            SubscriberMethod[] flatList = INDEX.getSubscribersFor(clazz);
-            if (flatList != null) {
-                // TODO check
-                for (SubscriberMethod subscriberMethod : flatList) {
-                    subscriberMethods.add(subscriberMethod);
-                }
-            }
-
-            clazz = clazz.getSuperclass();
+            return subscriberMethods;
+        } else {
+            return Collections.EMPTY_LIST;
         }
-        return subscriberMethods;
     }
 
     private List<SubscriberMethod> findSubscriberMethodsWithReflection(Class<?> subscriberClass) {
