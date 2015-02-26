@@ -91,6 +91,23 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(2, subscriber.countMyEventOverwritten);
     }
 
+    public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
+        SubscriberExtendedWithoutNewSubscriberMethod subscriber = new SubscriberExtendedWithoutNewSubscriberMethod();
+        eventBus.register(subscriber);
+
+        eventBus.post("Hello");
+        assertEquals(1, subscriber.countObjectEvent);
+
+        eventBus.post(new MyEvent());
+        assertEquals(2, subscriber.countObjectEvent);
+        assertEquals(1, subscriber.countMyEvent);
+
+        eventBus.post(new MyEventExtended());
+        assertEquals(3, subscriber.countObjectEvent);
+        assertEquals(2, subscriber.countMyEvent);
+        assertEquals(1, subscriber.countMyEventExtended);
+    }
+
     public void onEvent(Object event) {
         countObjectEvent++;
     }
@@ -129,6 +146,9 @@ public class EventBusInheritanceTest extends TestCase {
         public void onEvent(MyEvent event) {
             countMyEventOverwritten++;
         }
+    }
+
+    static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
     }
 
 }
