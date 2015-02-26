@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -200,15 +201,31 @@ public class EventBus {
         subscribedEvents.add(eventType);
 
         if (sticky) {
-            Object stickyEvent;
-            synchronized (stickyEvents) {
-                stickyEvent = stickyEvents.get(eventType);
+            if (eventInheritance) {
+                // Existing sticky events of all subclasses of eventType have to be considered.
+                // Note: Iterating over all events may be inefficient with lots of sticky events,
+                // thus data structure should be changed to allow a more efficient lookup
+                // (e.g. an additional map storing sub classes of super classes: Class -> List<Class>).
+                Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
+                for (Map.Entry<Class<?>, Object> entry : entries) {
+                    Class<?> candidateEventType = entry.getKey();
+                    if (eventType.isAssignableFrom(candidateEventType)) {
+                        Object stickyEvent = entry.getValue();
+                        checkPostStickyEventToSubscription(newSubscription, stickyEvent);
+                    }
+                }
+            } else {
+                Object stickyEvent = stickyEvents.get(eventType);
+                checkPostStickyEventToSubscription(newSubscription, stickyEvent);
             }
-            if (stickyEvent != null) {
-                // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
-                // --> Strange corner case, which we don't take care of here.
-                postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
-            }
+        }
+    }
+
+    private void checkPostStickyEventToSubscription(Subscription newSubscription, Object stickyEvent) {
+        if (stickyEvent != null) {
+            // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
+            // --> Strange corner case, which we don't take care of here.
+            postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
         }
     }
 
