@@ -113,7 +113,7 @@ EventBus 2.3 added EventBusBuilder to configure various aspects of EventBus. For
     EventBus eventBus = EventBus.builder().logNoSubscriberMessages(false).sendNoSubscriberEvent(false).build();
 ```
 
-Another example is to fail when a subscriber throws an exception. Note: by default, EventBus catches exceptions thrown from onEvent methods and sends an SubscriberExceptionEvent that may but do not have to be handled.
+Another example is to fail when a subscriber throws an exception. Note: by default, EventBus catches exceptions thrown from onEvent methods and sends a SubscriberExceptionEvent that may but do not have to be handled.
 
 ```java
     EventBus eventBus = EventBus.builder().throwSubscriberException(true).build();
@@ -122,7 +122,7 @@ Another example is to fail when a subscriber throws an exception. Note: by defau
 Check the EventBusBuilder class and its JavaDoc for all possible configuration possibilities.
 
 ### Configure the default EventBus instance ###
-Using EventBus.getDefault() is a simple way to get an shared EventBus instance. EventBusBuilder also allows to configure this default instance using the method <code>installDefaultEventBus()</code>.
+Using EventBus.getDefault() is a simple way to get a shared EventBus instance. EventBusBuilder also allows to configure this default instance using the method <code>installDefaultEventBus()</code>.
 
 For example, it's possible to configure the default EventBus instance to rethrow exceptions, which occurred in onEvent methods. But let's to this only for DEBUG builds, because this will likely crash the app on exceptions:
 
@@ -152,7 +152,7 @@ Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
 
-Let's say, an sticky event was posted some time ago:
+Let's say, a sticky event was posted some time ago:
 ```java
     EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"));
 ```
@@ -239,7 +239,7 @@ AsyncExecutor Builder
 ---------------------
 If you want to customize your AsyncExecutor instance, call the static method AsyncExecutor.builder(). It will return a builder which lets you customize the EventBus instance, the thread pool, and the class of the failure event.
 
-Another customization options is the execution scope, which gives failure events context information. For example, an failure event may be relevant only to a specific Activity instance or class. If your custom failure event class implements the HasExecutionScope interface, AsyncExecutor will set the execution scope automatically. Like this, your subscriber can query the failure event for its execution scope and react depending on it.
+Another customization options is the execution scope, which gives failure events context information. For example, a failure event may be relevant only to a specific Activity instance or class. If your custom failure event class implements the HasExecutionScope interface, AsyncExecutor will set the execution scope automatically. Like this, your subscriber can query the failure event for its execution scope and react depending on it.
 
 
 Comparison with Square's Otto
