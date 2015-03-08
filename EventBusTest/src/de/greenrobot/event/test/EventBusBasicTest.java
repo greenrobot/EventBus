@@ -35,6 +35,7 @@ public class EventBusBasicTest extends TestCase {
     private int lastIntEvent;
     private int countMyEventExtended;
     private int countMyEvent;
+    private int countMyEvent2;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -130,6 +131,14 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(count, countMyEvent);
     }
 
+    public void testMultipleSubscribeMethodsForEvent() {
+        eventBus.register(this);
+        MyEvent event = new MyEvent();
+        eventBus.post(event);
+        assertEquals(1, countMyEvent);
+        assertEquals(1, countMyEvent2);
+    }
+
     public void testPostAfterUnregister() {
         eventBus.register(this);
         eventBus.unregister(this);
@@ -223,6 +232,11 @@ public class EventBusBasicTest extends TestCase {
     @Subscribe
     public void onEvent(MyEvent event) {
         countMyEvent++;
+    }
+
+    @Subscribe
+    public void onEvent2(MyEvent event) {
+        countMyEvent2++;
     }
 
     @Subscribe
