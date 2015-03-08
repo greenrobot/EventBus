@@ -186,10 +186,17 @@ You may also get the last sticky event of a certain type with:
 ProGuard configuration
 ----------------------
 ProGuard obfuscates method names. However, the onEvent methods must not renamed because they are accessed using reflection. Use the following snip in your ProGuard configuration file (proguard.cfg):
-<pre><code>-keepclassmembers class ** {
+
+```
+-keepclassmembers class ** {
     public void onEvent*(**);
 }
-</code></pre>
+
+# Only required if you use AsyncExecutor
+-keepclassmembers class * extends de.greenrobot.event.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
+```
 
 
 Comparison with Square's Otto
