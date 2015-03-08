@@ -87,16 +87,25 @@ class SubscriberMethodFinder {
     }
 
     private List<SubscriberMethod> findSubscriberMethodsWithIndex(Class<?> subscriberClass) {
-        SubscriberMethod[] array = INDEX.getSubscribersFor(subscriberClass);
-        if (array != null && array.length > 0) {
-            List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
-            for (SubscriberMethod subscriberMethod : array) {
-                subscriberMethods.add(subscriberMethod);
+        Class<?> clazz = subscriberClass;
+        while (clazz != null) {
+            SubscriberMethod[] array = INDEX.getSubscribersFor(clazz);
+            if (array != null && array.length > 0) {
+                List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
+                for (SubscriberMethod subscriberMethod : array) {
+                    subscriberMethods.add(subscriberMethod);
+                }
+                return subscriberMethods;
+            } else {
+                String name = clazz.getName();
+                if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
+                    // Skip system classes, this just degrades performance
+                    break;
+                }
+                clazz = clazz.getSuperclass();
             }
-            return subscriberMethods;
-        } else {
-            return Collections.EMPTY_LIST;
         }
+        return Collections.EMPTY_LIST;
     }
 
     private List<SubscriberMethod> findSubscriberMethodsWithReflection(Class<?> subscriberClass) {
