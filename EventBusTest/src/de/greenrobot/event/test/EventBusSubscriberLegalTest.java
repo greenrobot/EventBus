@@ -50,15 +50,7 @@ public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
 //    }
 
     public void testSubscriberLegalAbstract() {
-        eventBus.register(new Abstract() {
-
-            @Override
-            @Subscribe
-            public void onEvent(String event) {
-                trackEvent(event);
-            }
-
-        });
+        eventBus.register(new AbstractImpl());
 
         eventBus.post("42");
         assertEquals(1, eventCount.intValue());
@@ -78,6 +70,16 @@ public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
     public static abstract class Abstract {
         @Subscribe
         public abstract void onEvent(String event);
+    }
+
+    public class AbstractImpl extends Abstract {
+
+        @Override
+        @Subscribe
+        public void onEvent(String event) {
+            trackEvent(event);
+        }
+
     }
 
 //    public static class Static {

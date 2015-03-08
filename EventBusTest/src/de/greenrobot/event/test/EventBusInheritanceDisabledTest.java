@@ -16,6 +16,7 @@
 package de.greenrobot.event.test;
 
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
 import junit.framework.TestCase;
 
 /**
@@ -118,41 +119,47 @@ public class EventBusInheritanceDisabledTest extends TestCase {
         assertEquals(1, subscriber.countMyEventExtended);
     }
 
+    @Subscribe
     public void onEvent(Object event) {
         countObjectEvent++;
     }
 
+    @Subscribe
     public void onEvent(MyEvent event) {
         countMyEvent++;
     }
 
+    @Subscribe
     public void onEvent(MyEventExtended event) {
         countMyEventExtended++;
     }
 
+    @Subscribe
     public void onEvent(MyEventInterface event) {
         countMyEventInterface++;
     }
 
+    @Subscribe
     public void onEvent(MyEventInterfaceExtended event) {
         countMyEventInterfaceExtended++;
     }
 
-    static interface MyEventInterface {
+    public static interface MyEventInterface {
     }
 
-    static class MyEvent implements MyEventInterface {
+    public static class MyEvent implements MyEventInterface {
     }
 
-    static interface MyEventInterfaceExtended extends MyEventInterface {
+    public static interface MyEventInterfaceExtended extends MyEventInterface {
     }
 
-    static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
+    public static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
     }
 
-    static class SubscriberExtended extends EventBusInheritanceDisabledTest {
+    public static class SubscriberExtended extends EventBusInheritanceDisabledTest {
         private int countMyEventOverwritten;
 
+        @Subscribe
         public void onEvent(MyEvent event) {
             countMyEventOverwritten++;
         }

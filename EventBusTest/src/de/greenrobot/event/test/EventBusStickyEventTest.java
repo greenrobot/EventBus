@@ -119,13 +119,7 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
     }
 
     public void testRemoveStickyEventInSubscriber() throws InterruptedException {
-        eventBus.registerSticky(new Object() {
-            @SuppressWarnings("unused")
-            @Subscribe
-            public void onEvent(String event) {
-                eventBus.removeStickyEvent(event);
-            }
-        });
+        eventBus.registerSticky(new RemoveStickySubscriber());
         eventBus.postSticky("Sticky");
         eventBus.registerSticky(this);
         assertNull(lastEvent);
@@ -143,4 +137,11 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         trackEvent(event);
     }
 
+    public class RemoveStickySubscriber {
+        @SuppressWarnings("unused")
+        @Subscribe
+        public void onEvent(String event) {
+            eventBus.removeStickyEvent(event);
+        }
+    }
 }

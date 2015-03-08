@@ -187,11 +187,7 @@ public class EventBusBasicTest extends TestCase {
     public void testHasSubscriberForEventSuperclass() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 
-        Object subscriber = new Object() {
-            @Subscribe
-            public void onEvent(Object event) {
-            }
-        };
+        Object subscriber = new ObjectSubscriber();
         eventBus.register(subscriber);
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
 
@@ -202,11 +198,7 @@ public class EventBusBasicTest extends TestCase {
     public void testHasSubscriberForEventImplementedInterface() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 
-        Object subscriber = new Object() {
-            @Subscribe
-            public void onEvent(CharSequence event) {
-            }
-        };
+        Object subscriber = new CharSequenceSubscriber();
         eventBus.register(subscriber);
         assertTrue(eventBus.hasSubscriberForEvent(CharSequence.class));
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
@@ -244,6 +236,18 @@ public class EventBusBasicTest extends TestCase {
         @Subscribe
         public void onEvent(String event) {
             lastStringEvent = event;
+        }
+    }
+
+    public static class CharSequenceSubscriber {
+        @Subscribe
+        public void onEvent(CharSequence event) {
+        }
+    }
+
+    public static class ObjectSubscriber {
+        @Subscribe
+        public void onEvent(Object event) {
         }
     }
 
