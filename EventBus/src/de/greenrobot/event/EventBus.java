@@ -234,7 +234,7 @@ public class EventBus {
     }
 
     /** Only updates subscriptionsByEventType, not typesBySubscriber! Caller must update typesBySubscriber. */
-    private void unubscribeByEventType(Object subscriber, Class<?> eventType) {
+    private void unsubscribeByEventType(Object subscriber, Class<?> eventType) {
         List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions != null) {
             int size = subscriptions.size();
@@ -255,7 +255,7 @@ public class EventBus {
         List<Class<?>> subscribedTypes = typesBySubscriber.get(subscriber);
         if (subscribedTypes != null) {
             for (Class<?> eventType : subscribedTypes) {
-                unubscribeByEventType(subscriber, eventType);
+                unsubscribeByEventType(subscriber, eventType);
             }
             typesBySubscriber.remove(subscriber);
         } else {
