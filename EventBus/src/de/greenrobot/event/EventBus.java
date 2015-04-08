@@ -42,7 +42,9 @@ public class EventBus {
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
-    static volatile EventBus defaultInstance;
+    private static class EventBusHolder {
+        public static EventBus eventBus = new EventBus();
+    }
 
     private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder();
     private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
@@ -74,14 +76,7 @@ public class EventBus {
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
-        if (defaultInstance == null) {
-            synchronized (EventBus.class) {
-                if (defaultInstance == null) {
-                    defaultInstance = new EventBus();
-                }
-            }
-        }
-        return defaultInstance;
+        return EventBusHolder.eventBus;
     }
 
     public static EventBusBuilder builder() {
