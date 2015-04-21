@@ -34,20 +34,6 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         assertEquals(2, eventCount.intValue());
     }
 
-    public void testPostStickyTwoEventsRegisterEventTypes() throws InterruptedException {
-        eventBus.postSticky("Sticky");
-        eventBus.postSticky(new IntTestEvent(7));
-        eventBus.registerSticky(this, String.class, IntTestEvent.class);
-        assertEquals(2, eventCount.intValue());
-    }
-
-    public void testPostStickyRegisterForType() throws InterruptedException {
-        eventBus.postSticky("Sticky");
-        eventBus.registerSticky(this, String.class);
-        assertEquals("Sticky", lastEvent);
-        assertEquals(Thread.currentThread(), lastThread);
-    }
-
     public void testPostStickyRegisterNonSticky() throws InterruptedException {
         eventBus.postSticky("Sticky");
         eventBus.register(this);
@@ -114,6 +100,17 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         eventBus.postSticky("Sticky");
         assertTrue(eventBus.removeStickyEvent("Sticky"));
         assertNull(eventBus.getStickyEvent(String.class));
+        eventBus.registerSticky(this);
+        assertNull(lastEvent);
+        assertEquals(0, eventCount.intValue());
+    }
+
+    public void testPostStickyRemoveAll() throws InterruptedException {
+        eventBus.postSticky("Sticky");
+        eventBus.postSticky(new IntTestEvent(77));
+        eventBus.removeAllStickyEvents();
+        assertNull(eventBus.getStickyEvent(String.class));
+        assertNull(eventBus.getStickyEvent(IntTestEvent.class));
         eventBus.registerSticky(this);
         assertNull(lastEvent);
         assertEquals(0, eventCount.intValue());

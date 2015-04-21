@@ -1,0 +1,39 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    androidTestCompile project(':EventBus')
+}
+
+android {
+    buildToolsVersion '21.1.2'
+    compileSdkVersion 19
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+
+        androidTest {
+            java.srcDirs = ['src']
+        }
+    }
+
+    defaultConfig {
+        testApplicationId "de.greenrobot.event.test"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    }
+}

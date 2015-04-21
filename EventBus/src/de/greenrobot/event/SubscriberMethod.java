@@ -32,10 +32,14 @@ final class SubscriberMethod {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof SubscriberMethod) {
+        if (other == this) {
+            return true;
+        } else if (other instanceof SubscriberMethod) {
             checkMethodString();
+            SubscriberMethod otherSubscriberMethod = (SubscriberMethod)other;
+            otherSubscriberMethod.checkMethodString();
             // Don't use method.equals because of http://code.google.com/p/android/issues/detail?id=7811#c6
-            return methodString.equals(((SubscriberMethod) other).methodString);
+            return methodString.equals(otherSubscriberMethod.methodString);
         } else {
             return false;
         }

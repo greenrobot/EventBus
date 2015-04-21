@@ -62,9 +62,9 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
     }
 
     class BackgroundPoster extends Thread {
-        private boolean running = true;
-        private List<Object> eventQ = new ArrayList<Object>();
-        private List<Object> eventsDone = new ArrayList<Object>();
+        volatile boolean running = true;
+        private final List<Object> eventQ = new ArrayList<Object>();
+        private final List<Object> eventsDone = new ArrayList<Object>();
 
         public BackgroundPoster() {
             super("BackgroundPoster");
@@ -89,10 +89,11 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
             synchronized (eventQ) {
                 if (eventQ.isEmpty()) {
                     try {
-                        eventQ.wait();
+                        eventQ.wait(1000);
                     } catch (InterruptedException e) {
                     }
-                } else {
+                }
+                if(!eventQ.isEmpty()) {
                     event = eventQ.remove(0);
                 }
             }

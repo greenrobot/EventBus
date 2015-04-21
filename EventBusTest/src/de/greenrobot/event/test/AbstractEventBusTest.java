@@ -17,20 +17,23 @@ package de.greenrobot.event.test;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import junit.framework.TestCase;
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.test.ApplicationTestCase;
 import de.greenrobot.event.EventBus;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class AbstractEventBusTest extends ApplicationTestCase<Application> {
+public class AbstractEventBusTest extends TestCase {
+    /** Activates long(er) running tests e.g. testing multi-threading more throughly.  */
+    protected static final boolean LONG_TESTS = false;
 
     protected EventBus eventBus;
 
@@ -47,7 +50,6 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     }
 
     public AbstractEventBusTest(boolean collectEventsReceived) {
-        super(Application.class);
         if (collectEventsReceived) {
             eventsReceived = new CopyOnWriteArrayList<Object>();
         } else {
@@ -58,7 +60,6 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
         EventBus.clearCaches();
-        EventBus.clearSkipMethodNameVerifications();
         eventBus = new EventBus();
         mainPoster = new EventPostHandler(Looper.getMainLooper());
         assertFalse(Looper.getMainLooper().getThread().equals(Thread.currentThread()));
@@ -68,7 +69,7 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
         mainPoster.post(event);
     }
 
-    protected void waitForEventCount(int expectedCount, int maxMillis) throws InterruptedException {
+    protected void waitForEventCount(int expectedCount, int maxMillis) {
         for (int i = 0; i < maxMillis; i++) {
             int currentCount = eventCount.get();
             if (currentCount == expectedCount) {
@@ -77,7 +78,11 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
                 fail("Current count (" + currentCount + ") is already higher than expected count (" + expectedCount
                         + ")");
             } else {
-                Thread.sleep(1);
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         assertEquals(expectedCount, eventCount.get());
@@ -112,6 +117,19 @@ public class AbstractEventBusTest extends ApplicationTestCase<Application> {
     
     protected void assertEventCount(int expectedEventCount) {
         assertEquals(expectedEventCount, eventCount.intValue());
+    }
+    
+    protected void countDownAndAwaitLatch(CountDownLatch latch, long seconds) {
+        latch.countDown();
+        awaitLatch(latch, seconds);
+    }
+
+    protected void awaitLatch(CountDownLatch latch, long seconds) {
+        try {
+            assertTrue(latch.await(seconds, TimeUnit.SECONDS));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

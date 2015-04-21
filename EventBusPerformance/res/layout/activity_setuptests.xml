@@ -39,23 +39,35 @@
                 android:id="@+id/spinnerThread"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dp"
+                android:layout_marginLeft="48dp"
                 android:entries="@array/spinnerThreadModes" />
+
+            <CheckBox
+                android:id="@+id/checkBoxEventBusEventHierarchy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:onClick="checkEventBus"
+                android:layout_marginLeft="48dp"
+                android:text="@string/test_eventBusEventHierarchy" />
 
             <CheckBox
                 android:id="@+id/checkBoxOtto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
+                android:layout_marginTop="16dp"
                 android:text="@string/test_otto" />
-
+
+
             <CheckBox
                 android:id="@+id/checkBoxBroadcast"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/test_broadcast"
                 android:visibility="gone" />
-
+
+
             <CheckBox
                 android:id="@+id/checkBoxLocalBroadcast"
                 android:layout_width="wrap_content"

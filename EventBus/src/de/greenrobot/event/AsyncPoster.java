@@ -24,7 +24,6 @@ package de.greenrobot.event;
 class AsyncPoster implements Runnable {
 
     private final PendingPostQueue queue;
-
     private final EventBus eventBus;
 
     AsyncPoster(EventBus eventBus) {
@@ -35,7 +34,7 @@ class AsyncPoster implements Runnable {
     public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         queue.enqueue(pendingPost);
-        EventBus.executorService.execute(this);
+        eventBus.getExecutorService().execute(this);
     }
 
     @Override

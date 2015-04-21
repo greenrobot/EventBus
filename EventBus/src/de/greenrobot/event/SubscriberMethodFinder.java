@@ -15,7 +15,11 @@
  */
 package de.greenrobot.event;
 
+import android.os.Build;
+import android.util.Log;
+
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,12 +27,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class SubscriberMethodFinder {
-    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
-    private static final Map<Class<?>, Class<?>> skipMethodNameVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+import de.greenrobot.event.util.MethodUtil;
 
-    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, String eventMethodName) {
-        String key = subscriberClass.getName() + '.' + eventMethodName;
+class SubscriberMethodFinder {
+    private static final String ON_EVENT_METHOD_NAME = "onEvent";
+
+    // 默认的MethodFinderType为系统方式,保证EventBus源码最全性
+    private static MethodFinderType mCurMethodFinderType = null;
+
+    static {
+        mCurMethodFinderType = MethodFinderType.CUSTOM_FINDER;
+        // 目前Api10以下的系统MethodFind方法是全局Method列表返回方式,且当前项目明确发现有方法参数高于Api10,故做兼容,直接使用CustomMethodFinder
+        if (Build.VERSION.SDK_INT <= 10) {
+            mCurMethodFinderType = MethodFinderType.CUSTOM_FINDER;
+        }
+    }
+
+    /*
+     * In newer class files, compilers may add methods. Those are called bridge or synthetic methods.
+     * EventBus must ignore both. There modifiers are not public but defined in the Java class file format:
+     * http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.6-200-A.1
+     */
+    private static final int BRIDGE = 0x40;
+    private static final int SYNTHETIC = 0x1000;
+
+    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
+    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
+
+    private final Map<Class<?>, Class<?>> skipMethodVerificationForClasses;
+
+    SubscriberMethodFinder(List<Class<?>> skipMethodVerificationForClassesList) {
+        skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+        if (skipMethodVerificationForClassesList != null) {
+            for (Class<?> clazz : skipMethodVerificationForClassesList) {
+                skipMethodVerificationForClasses.put(clazz, clazz);
+            }
+        }
+    }
+
+    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, Object subscriber) {
+        String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
         synchronized (methodCache) {
             subscriberMethods = methodCache.get(key);
@@ -47,45 +85,83 @@ class SubscriberMethodFinder {
                 break;
             }
 
-            Method[] methods = clazz.getDeclaredMethods();
-            for (Method method : methods) {
-                String methodName = method.getName();
-                if (methodName.startsWith(eventMethodName)) {
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    if (parameterTypes.length == 1) {
-                        String modifierString = methodName.substring(eventMethodName.length());
-                        ThreadMode threadMode;
-                        if (modifierString.length() == 0) {
-                            threadMode = ThreadMode.PostThread;
-                        } else if (modifierString.equals("MainThread")) {
-                            threadMode = ThreadMode.MainThread;
-                        } else if (modifierString.equals("BackgroundThread")) {
-                            threadMode = ThreadMode.BackgroundThread;
-                        } else if (modifierString.equals("Async")) {
-                            threadMode = ThreadMode.Async;
-                        } else {
-                            if (skipMethodNameVerificationForClasses.containsKey(clazz)) {
-                                continue;
-                            } else {
-                                throw new EventBusException("Illegal onEvent method, check for typos: " + method);
+            // Starting with EventBus 2.2 we enforced methods to be public (might change with annotations again)
+            /**
+             * getDeclaredMethods NoSuchMethodException Issue
+             * https://github.com/square/otto/issues/37
+             * http://corner.squareup.com/2012/08/getting-to-the-bottom.html
+             */
+            Method[] methods = null;
+            // when system getDeclaredMethods failed
+            // try  custom JNI way
+            if (mCurMethodFinderType == MethodFinderType.SYSTEM_FINDER) {
+                try {
+                    methods = clazz.getDeclaredMethods();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mCurMethodFinderType = MethodFinderType.CUSTOM_FINDER;
+                } catch (Error e) {
+                    e.printStackTrace();
+                    mCurMethodFinderType = MethodFinderType.CUSTOM_FINDER;
+                }
+            }
+            // 使用自定义方法寻找Method
+            // try  custom JNI way
+            if (mCurMethodFinderType == MethodFinderType.CUSTOM_FINDER) {
+                methods = getEventMethods(subscriber);
+            }
+            if (null != methods) {
+                for (Method method : methods) {
+                    String methodName = method.getName();
+                    if (methodName.startsWith(ON_EVENT_METHOD_NAME)) {
+                        int modifiers = method.getModifiers();
+                        if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
+                            Class<?>[] parameterTypes = method.getParameterTypes();
+                            if (parameterTypes.length == 1) {
+                                String modifierString = methodName.substring(ON_EVENT_METHOD_NAME.length());
+                                ThreadMode threadMode;
+                                if (modifierString.length() == 0) {
+                                    threadMode = ThreadMode.PostThread;
+                                } else if (modifierString.equals("MainThread")) {
+                                    threadMode = ThreadMode.MainThread;
+                                } else if (modifierString.equals("BackgroundThread")) {
+                                    threadMode = ThreadMode.BackgroundThread;
+                                } else if (modifierString.equals("Async")) {
+                                    threadMode = ThreadMode.Async;
+                                } else {
+                                    if (skipMethodVerificationForClasses.containsKey(clazz)) {
+                                        continue;
+                                    } else {
+                                        throw new EventBusException("Illegal onEvent method, check for typos: " + method);
+                                    }
+                                }
+                                Class<?> eventType = parameterTypes[0];
+                                methodKeyBuilder.setLength(0);
+                                methodKeyBuilder.append(methodName);
+                                methodKeyBuilder.append('>').append(eventType.getName());
+                                String methodKey = methodKeyBuilder.toString();
+                                if (eventTypesFound.add(methodKey)) {
+                                    // Only add if not already found in a sub class
+                                    subscriberMethods.add(new SubscriberMethod(method, threadMode, eventType));
+                                }
                             }
-                        }
-                        Class<?> eventType = parameterTypes[0];
-                        methodKeyBuilder.setLength(0);
-                        methodKeyBuilder.append(methodName);
-                        methodKeyBuilder.append('>').append(eventType.getName());
-                        String methodKey = methodKeyBuilder.toString();
-                        if (eventTypesFound.add(methodKey)) {
-                            // Only add if not already found in a sub class
-                            subscriberMethods.add(new SubscriberMethod(method, threadMode, eventType));
+                        } else if (!skipMethodVerificationForClasses.containsKey(clazz)) {
+                            Log.d(EventBus.TAG, "Skipping method (not public, static or abstract): " + clazz + "."
+                                    + methodName);
                         }
                     }
                 }
             }
-            clazz = clazz.getSuperclass();
+            if (mCurMethodFinderType == MethodFinderType.SYSTEM_FINDER) {
+                // 维持继承性,获取父类,进行解析
+                clazz = clazz.getSuperclass();
+            } else if (mCurMethodFinderType == MethodFinderType.CUSTOM_FINDER) {
+                clazz = null;
+            }
         }
+        // 如果订阅类无onEvent方法,则直接抛出异常
         if (subscriberMethods.isEmpty()) {
-            throw new EventBusException("Subscriber " + subscriberClass + " has no methods called " + eventMethodName);
+            throw new EventBusException("Subscriber " + subscriberClass + " has no public methods called " + ON_EVENT_METHOD_NAME);
         } else {
             synchronized (methodCache) {
                 methodCache.put(key, subscriberMethods);
@@ -94,18 +170,24 @@ class SubscriberMethodFinder {
         }
     }
 
+    /**
+     * get all registered method by IEventSubscriber interface
+     *
+     * @param subscriber
+     * @return
+     */
+    private Method[] getEventMethods(Object subscriber) {
+        return MethodUtil.listMethods(subscriber);
+    }
+
     static void clearCaches() {
-        methodCache.clear();
-    }
-
-    static void skipMethodNameVerificationFor(Class<?> clazz) {
-        if (!methodCache.isEmpty()) {
-            throw new IllegalStateException("This method must be called before registering anything");
+        synchronized (methodCache) {
+            methodCache.clear();
         }
-        skipMethodNameVerificationForClasses.put(clazz, clazz);
     }
 
-    public static void clearSkipMethodNameVerifications() {
-        skipMethodNameVerificationForClasses.clear();
+    public static enum MethodFinderType {
+        SYSTEM_FINDER, CUSTOM_FINDER;
     }
+
 }
