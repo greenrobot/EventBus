@@ -15,7 +15,7 @@
  */
 package de.greenrobot.event;
 
-import android.util.Log;
+import de.greenrobot.event.log.EBLog;
 
 /**
  * Posts events in background.
@@ -64,7 +64,7 @@ final class BackgroundPoster implements Runnable {
                     eventBus.invokeSubscriber(pendingPost);
                 }
             } catch (InterruptedException e) {
-                Log.w("Event", Thread.currentThread().getName() + " was interruppted", e);
+                EBLog.w(Thread.currentThread().getName() + " was interruppted", e);
             }
         } finally {
             executorRunning = false;

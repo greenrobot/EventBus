@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import android.util.Log;
-import de.greenrobot.event.EventBus;
+import de.greenrobot.event.log.EBLog;
 
 
 /**
@@ -35,7 +34,7 @@ public class ExceptionToResourceMapping {
                 throwableToCheck = throwableToCheck.getCause();
                 depthToGo--;
                 if (depthToGo <= 0 || throwableToCheck == throwable || throwableToCheck == null) {
-                    Log.d(EventBus.TAG, "No specific message ressource ID found for " + throwable);
+                    EBLog.d("No specific message resource ID found for " + throwable);
                     // return config.defaultErrorMsgId;
                     return null;
                 }
