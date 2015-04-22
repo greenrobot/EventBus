@@ -17,33 +17,19 @@ package de.greenrobot.event;
 
 
 /**
- * Posts events in background.
+ * Posts events in the current Thread.
  * 
- * @author Markus
+ * @author William Ferguson
  */
-class AsyncPoster implements Runnable, Poster {
+class SyncPoster implements Poster {
 
-    private final PendingPostQueue queue;
     private final EventBus eventBus;
 
-    AsyncPoster(EventBus eventBus) {
+    SyncPoster(EventBus eventBus) {
         this.eventBus = eventBus;
-        queue = new PendingPostQueue();
     }
 
     public void enqueue(Subscription subscription, Object event) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
-        queue.enqueue(pendingPost);
-        eventBus.getExecutorService().execute(this);
+        eventBus.invokeSubscriber(subscription, event);
     }
-
-    @Override
-    public void run() {
-        PendingPost pendingPost = queue.poll();
-        if(pendingPost == null) {
-            throw new IllegalStateException("No pending post available");
-        }
-        eventBus.invokeSubscriber(pendingPost);
-    }
-
 }

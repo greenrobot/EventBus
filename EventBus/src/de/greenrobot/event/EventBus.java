@@ -15,9 +15,12 @@
  */
 package de.greenrobot.event;
 
-import android.os.Looper;
 import de.greenrobot.event.log.AndroidLog;
 import de.greenrobot.event.log.EBLog;
+import de.greenrobot.event.log.SystemOutLog;
+import de.greenrobot.event.util.AndroidMTCalculator;
+import de.greenrobot.event.util.MainThreadCalculator;
+import de.greenrobot.event.util.NonAndroidMTCalculator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -60,11 +63,12 @@ public class EventBus {
     };
 
 
-    private final HandlerPoster mainThreadPoster;
-    private final BackgroundPoster backgroundPoster;
-    private final AsyncPoster asyncPoster;
+    private final Poster mainThreadPoster;
+    private final Poster backgroundPoster;
+    private final Poster asyncPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
     private final ExecutorService executorService;
+    private final MainThreadCalculator mtCalculator;
 
     private final boolean throwSubscriberException;
     private final boolean logSubscriberExceptions;
@@ -104,11 +108,15 @@ public class EventBus {
     }
 
     EventBus(EventBusBuilder builder) {
-        EBLog.setLogTarget(builder.logTarget == null ? new AndroidLog(TAG) : builder.logTarget);
+        if (builder.logTarget == null) {
+            EBLog.setLogTarget(builder.nonAndroidEnvironment ? new SystemOutLog() : new AndroidLog(TAG));
+        } else {
+            EBLog.setLogTarget(builder.logTarget);
+        }
         subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
         typesBySubscriber = new HashMap<Object, List<Class<?>>>();
         stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
-        mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
+        mainThreadPoster = (builder.nonAndroidEnvironment ? new SyncPoster(this) : new HandlerPoster(this, 10));
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
@@ -119,6 +127,7 @@ public class EventBus {
         throwSubscriberException = builder.throwSubscriberException;
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
+        mtCalculator = (builder.nonAndroidEnvironment ? new NonAndroidMTCalculator() : new AndroidMTCalculator());
     }
 
 
@@ -227,7 +236,7 @@ public class EventBus {
         if (stickyEvent != null) {
             // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
             // --> Strange corner case, which we don't take care of here.
-            postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+            postToSubscription(newSubscription, stickyEvent, mtCalculator.isMainThread());
         }
     }
 
@@ -272,7 +281,7 @@ public class EventBus {
         eventQueue.add(event);
 
         if (!postingState.isPosting) {
-            postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
+            postingState.isMainThread = mtCalculator.isMainThread();
             postingState.isPosting = true;
             if (postingState.canceled) {
                 throw new EventBusException("Internal error. Abort state was not reset");

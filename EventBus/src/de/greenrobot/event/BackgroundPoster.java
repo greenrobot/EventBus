@@ -22,7 +22,7 @@ import de.greenrobot.event.log.EBLog;
  * 
  * @author Markus
  */
-final class BackgroundPoster implements Runnable {
+final class BackgroundPoster implements Runnable, Poster {
 
     private final PendingPostQueue queue;
     private final EventBus eventBus;

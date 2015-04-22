@@ -38,6 +38,7 @@ public class EventBusBuilder {
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
     GenericLog logTarget;
+    boolean nonAndroidEnvironment;
 
     EventBusBuilder() {
     }
@@ -120,8 +121,13 @@ public class EventBusBuilder {
      * By default all logging is via {@link android.util.Log} but if you want to use EventBus
      * outside the Android environment then you will need to provide another log target.
      */
-    public EventBusBuilder setLogger(GenericLog logTarget) {
+    public EventBusBuilder logger(GenericLog logTarget) {
         this.logTarget = logTarget;
+        return this;
+    }
+
+    public EventBusBuilder nonAndroidEnvironment(boolean nonAndroidEnvironment) {
+        this.nonAndroidEnvironment = nonAndroidEnvironment;
         return this;
     }
 
