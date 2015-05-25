@@ -178,8 +178,8 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             VariableElement param = parameters.get(0);
             DeclaredType paramType = (DeclaredType) param.asType();
 
-            String methodSignature = element+">"+paramType;
-            if(!methodSignatures.add(methodSignature)) {
+            String methodSignature = element + ">" + paramType;
+            if (!methodSignatures.add(methodSignature)) {
                 continue;
             }
 

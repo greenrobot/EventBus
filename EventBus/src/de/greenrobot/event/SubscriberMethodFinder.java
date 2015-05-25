@@ -61,7 +61,7 @@ class SubscriberMethodFinder {
         this.strictMethodVerification = strictMethodVerification;
     }
 
-    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
+    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, boolean forceReflection) {
         String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
         synchronized (METHOD_CACHE) {
@@ -70,7 +70,7 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        if (INDEX != null) {
+        if (INDEX != null && !forceReflection) {
             subscriberMethods = findSubscriberMethodsWithIndex(subscriberClass);
         } else {
             subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);

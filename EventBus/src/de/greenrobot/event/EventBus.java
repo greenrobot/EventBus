@@ -162,11 +162,10 @@ public class EventBus {
 
     private synchronized void register(Object subscriber, boolean sticky, int priority) {
         Class<?> subscriberClass = subscriber.getClass();
-        if(subscriberClass.isAnonymousClass()) {
-            // We cannot get @Subscribe annotations from anonymous classes, so fail fast
-            throw new EventBusException("Anonymous class cannot be registered: "+ subscriberClass);
-        }
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
+        // @Subscribe in anonymous classes is invisible to annotation processing, always fall back to reflection
+        boolean forceReflection = subscriberClass.isAnonymousClass();
+        List<SubscriberMethod> subscriberMethods =
+                subscriberMethodFinder.findSubscriberMethods(subscriberClass, forceReflection);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
         }
