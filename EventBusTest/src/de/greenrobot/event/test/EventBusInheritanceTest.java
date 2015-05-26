@@ -105,32 +105,6 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(2, subscriber.countMyEventOverwritten);
     }
 
-    public void testSubscriberClassHierarchyAnonymousExtension() {
-        SubscriberExtended subscriber = new SubscriberExtended() {
-
-        };
-        eventBus.register(subscriber);
-
-        eventBus.post("Hello");
-        assertEquals(1, subscriber.countObjectEvent);
-    }
-
-    public void testSubscriberClassHierarchyAnonymous() {
-        final List<String> received = new ArrayList<String>();
-        Object subscriber = new Object() {
-            @Subscribe
-            public void onEvent(String event) {
-                received.add(event);
-            }
-        };
-        eventBus.register(subscriber);
-
-        eventBus.post("Hello");
-        assertEquals(1, received.size());
-        assertEquals("Hello", received.get(0));
-    }
-
-
     public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
         SubscriberExtendedWithoutNewSubscriberMethod subscriber = new SubscriberExtendedWithoutNewSubscriberMethod();
         eventBus.register(subscriber);
