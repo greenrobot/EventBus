@@ -44,7 +44,7 @@ class SubscriberMethodFinder {
     static {
         SubscriberIndex newIndex = null;
         try {
-            Class<?> clazz = Class.forName("de.greenrobot.event.MyGeneratedSubscriberIndex");
+            Class<?> clazz = Class.forName("de.greenrobot.event.GeneratedSubscriberIndex");
             newIndex = (SubscriberIndex) clazz.newInstance();
         } catch (ClassNotFoundException e) {
             Log.d(EventBus.TAG, "No subscriber index available, reverting to dynamic look-up");
@@ -72,6 +72,9 @@ class SubscriberMethodFinder {
         }
         if (INDEX != null && !forceReflection) {
             subscriberMethods = findSubscriberMethodsWithIndex(subscriberClass);
+            if (subscriberMethods.isEmpty()) {
+                subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);
+            }
         } else {
             subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);
         }

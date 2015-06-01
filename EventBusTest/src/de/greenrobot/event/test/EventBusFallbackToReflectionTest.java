@@ -2,9 +2,6 @@ package de.greenrobot.event.test;
 
 import de.greenrobot.event.Subscribe;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /** TODO */
 public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     public class PublicSuperClass {
@@ -14,12 +11,19 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         }
     }
 
-//    private class PrivateSuperClass {
-//        @Subscribe
-//        public void onEvent(Object any) {
-//            trackEvent(any);
-//        }
-//    }
+    private class PrivateSuperClass {
+        @Subscribe
+        public void onEvent(Object any) {
+            trackEvent(any);
+        }
+    }
+
+    public class PublicWithPrivateSuperClass extends PrivateSuperClass {
+        @Subscribe
+        public void onEvent(String any) {
+            trackEvent(any);
+        }
+    }
 
     public EventBusFallbackToReflectionTest() {
         super(true);
@@ -48,6 +52,13 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         };
         eventBus.register(subscriber);
 
+        eventBus.post("Hello");
+        assertEquals("Hello", lastEvent);
+        assertEquals(2, eventsReceived.size());
+    }
+
+    public void testAnonymousSubscriberClassWithPrivateSuperclass() {
+        eventBus.register(new PublicWithPrivateSuperClass());
         eventBus.post("Hello");
         assertEquals("Hello", lastEvent);
         assertEquals(2, eventsReceived.size());

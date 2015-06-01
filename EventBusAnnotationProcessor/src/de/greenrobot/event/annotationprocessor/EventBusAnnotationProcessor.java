@@ -29,44 +29,75 @@ import java.util.Set;
 @SupportedAnnotationTypes("de.greenrobot.event.Subscribe")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class EventBusAnnotationProcessor extends AbstractProcessor {
-    private final Map<Element, List<Element>> methodsByClass = new HashMap<Element, List<Element>>();
+    private final Map<TypeElement, List<ExecutableElement>> methodsByClass =
+            new HashMap<TypeElement, List<ExecutableElement>>();
+    private final Set<TypeElement> classesToSkip = new HashSet<TypeElement>();
+
     private boolean writerRoundDone;
     private int round;
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
         Messager messager = processingEnv.getMessager();
-        round++;
-        messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " +
-                !annotations.isEmpty() + ", processingOver: " + env.processingOver());
-        if (env.processingOver()) {
-            if (!annotations.isEmpty()) {
-                messager.printMessage(Diagnostic.Kind.ERROR,
-                        "Unexpected processing state: annotations still available after processing over");
+        try {
+            round++;
+            messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " +
+                    !annotations.isEmpty() + ", processingOver: " + env.processingOver());
+            if (env.processingOver()) {
+                if (!annotations.isEmpty()) {
+                    messager.printMessage(Diagnostic.Kind.ERROR,
+                            "Unexpected processing state: annotations still available after processing over");
+                    return false;
+                }
+            }
+            if (annotations.isEmpty()) {
                 return false;
             }
-        }
-        if (annotations.isEmpty()) {
-            return false;
-        }
 
-        if (writerRoundDone) {
-            messager.printMessage(Diagnostic.Kind.ERROR,
-                    "Unexpected processing state: annotations still available after writing.");
-        }
-        collectSubscribers(annotations, env, messager);
+            if (writerRoundDone) {
+                messager.printMessage(Diagnostic.Kind.ERROR,
+                        "Unexpected processing state: annotations still available after writing.");
+            }
+            collectSubscribers(annotations, env, messager);
+            checkForSubscribersToSkip(messager);
 
-        if (!methodsByClass.isEmpty()) {
-            writeSources();
-        } else {
-            messager.printMessage(Diagnostic.Kind.WARNING, "No @Subscribe annotations found");
+            if (!methodsByClass.isEmpty()) {
+                writeSources();
+            } else {
+                messager.printMessage(Diagnostic.Kind.WARNING, "No @Subscribe annotations found");
+            }
+            writerRoundDone = true;
+        } catch (RuntimeException e) {
+            // IntelliJ does not handle exceptions nicely, so log and print a message
+            e.printStackTrace();
+            messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected error in EventBusAnnotationProcessor: " + e);
         }
-        writerRoundDone = true;
-
         return true;
     }
 
-    private boolean checkElement(Element element, Messager messager) {
+    private void collectSubscribers(Set<? extends TypeElement> annotations, RoundEnvironment env, Messager messager) {
+        for (TypeElement annotation : annotations) {
+            Set<? extends Element> elements = env.getElementsAnnotatedWith(annotation);
+            for (Element element : elements) {
+                if (element instanceof ExecutableElement) {
+                    ExecutableElement method = (ExecutableElement) element;
+                    if (checkHasErrors(method, messager)) {
+                        Element classElement = method.getEnclosingElement();
+                        List<ExecutableElement> methods = methodsByClass.get(classElement);
+                        if (methods == null) {
+                            methods = new ArrayList<ExecutableElement>();
+                            methodsByClass.put((TypeElement) classElement, methods);
+                        }
+                        methods.add(method);
+                    }
+                } else {
+                    messager.printMessage(Diagnostic.Kind.ERROR, "@Subscribe is only valid for methods", element);
+                }
+            }
+        }
+    }
+
+    private boolean checkHasErrors(ExecutableElement element, Messager messager) {
         if (element.getModifiers().contains(Modifier.STATIC)) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must not be static", element);
             return false;
@@ -77,49 +108,78 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             return false;
         }
 
-        Set<Modifier> subscriberClassModifiers = element.getEnclosingElement().getModifiers();
-        if (!subscriberClassModifiers.contains(Modifier.PUBLIC)) {
-            messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber class must be public",
-                    element.getEnclosingElement());
-            return false;
-        }
-
         List<? extends VariableElement> parameters = ((ExecutableElement) element).getParameters();
         if (parameters.size() != 1) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must have exactly 1 parameter", element);
             return false;
         }
-
-        VariableElement param = parameters.get(0);
-        DeclaredType paramType = (DeclaredType) param.asType();
-        Set<Modifier> eventClassModifiers = paramType.asElement().getModifiers();
-        if (!eventClassModifiers.contains(Modifier.PUBLIC)) {
-            messager.printMessage(Diagnostic.Kind.ERROR, "Event type must be public: " + paramType, param);
-            return false;
-        }
         return true;
     }
 
-    private void collectSubscribers(Set<? extends TypeElement> annotations, RoundEnvironment env, Messager messager) {
-        for (TypeElement annotation : annotations) {
-            Set<? extends Element> elements = env.getElementsAnnotatedWith(annotation);
-            for (Element element : elements) {
-                if (checkElement(element, messager)) {
-                    Element classElement = element.getEnclosingElement();
-                    List<Element> methods = methodsByClass.get(classElement);
-                    if (methods == null) {
-                        methods = new ArrayList<Element>();
-                        methodsByClass.put(classElement, methods);
+    private void checkForSubscribersToSkip(Messager messager) {
+        for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
+            TypeElement skipCandidate = entry.getKey();
+            TypeElement subscriberClass = skipCandidate;
+            while (subscriberClass != null) {
+                if (!subscriberClass.getModifiers().contains(Modifier.PUBLIC)) {
+                    boolean added = classesToSkip.add(skipCandidate);
+                    if (added) {
+                        String msg;
+                        if (subscriberClass.equals(skipCandidate)) {
+                            msg = "Falling back to reflection because class is not public";
+                        } else {
+                            msg = "Falling back to reflection because " + skipCandidate +
+                                    " has a non-public super class";
+                        }
+                        messager.printMessage(Diagnostic.Kind.NOTE, msg, subscriberClass);
                     }
-                    methods.add(element);
+                    break;
                 }
+                List<ExecutableElement> methods = methodsByClass.get(subscriberClass);
+                if (methods != null) {
+                    for (ExecutableElement method : methods) {
+                        VariableElement param = method.getParameters().get(0);
+                        DeclaredType paramType = (DeclaredType) param.asType();
+                        Set<Modifier> eventClassModifiers = paramType.asElement().getModifiers();
+                        if (!eventClassModifiers.contains(Modifier.PUBLIC)) {
+                            boolean added = classesToSkip.add(skipCandidate);
+                            if (added) {
+                                String msg;
+                                if (subscriberClass.equals(skipCandidate)) {
+                                    msg = "Falling back to reflection because event type is not public";
+                                } else {
+                                    msg = "Falling back to reflection because " + skipCandidate +
+                                            " has a super class using a non-public event type";
+                                }
+                                messager.printMessage(Diagnostic.Kind.NOTE, msg, subscriberClass);
+                            }
+                            break;
+                        }
+                    }
+                }
+                subscriberClass = getSuperclass(subscriberClass);
             }
+        }
+    }
+
+    private TypeElement getSuperclass(TypeElement type) {
+        if (type.getSuperclass().getKind() == TypeKind.DECLARED) {
+            TypeElement superclass = (TypeElement) processingEnv.getTypeUtils().asElement(type.getSuperclass());
+            String name = superclass.getQualifiedName().toString();
+            if (name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("android.")) {
+                // Skip system classes, this just degrades performance
+                return null;
+            } else {
+                return superclass;
+            }
+        } else {
+            return null;
         }
     }
 
     private void writeSources() {
         String pack = "de.greenrobot.event";
-        String className = "MyGeneratedSubscriberIndex";
+        String className = "GeneratedSubscriberIndex";
         BufferedWriter writer = null;
         try {
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(pack + '.' + className);
@@ -132,7 +192,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             writer.write("    SubscriberMethod[] createSubscribersFor(Class<?> subscriberClass) {\n");
 
             boolean first = true;
-            for (Map.Entry<Element, List<Element>> entry : methodsByClass.entrySet()) {
+            for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
+                TypeElement subscriberClass = entry.getKey();
+                if (classesToSkip.contains(subscriberClass)) {
+                    continue;
+                }
                 String ifPrefix;
                 if (first) {
                     ifPrefix = "";
@@ -140,18 +204,18 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 } else {
                     ifPrefix = "} else ";
                 }
-                TypeElement subscriberClass = (TypeElement) entry.getKey();
                 writeLine(writer, 2, ifPrefix + "if(subscriberClass ==", subscriberClass.asType() + ".class) {");
                 writer.write("            return new SubscriberMethod[] {\n");
 
                 Set<String> methodSignatures = new HashSet<String>();
                 writeIndexEntries(writer, null, entry.getValue(), methodSignatures);
-                while (subscriberClass.getSuperclass().getKind() == TypeKind.DECLARED) {
-                    subscriberClass = (TypeElement) processingEnv.getTypeUtils().asElement(subscriberClass.getSuperclass());
-                    List<Element> superClassMethods = methodsByClass.get(subscriberClass);
+                TypeElement superclass = getSuperclass(subscriberClass);
+                while (superclass != null) {
+                    List<ExecutableElement> superClassMethods = methodsByClass.get(superclass);
                     if (superClassMethods != null) {
-                        writeIndexEntries(writer, subscriberClass, superClassMethods, methodSignatures);
+                        writeIndexEntries(writer, superclass, superClassMethods, methodSignatures);
                     }
+                    superclass = getSuperclass(superclass);
                 }
                 writer.write("            };\n");
             }
@@ -171,30 +235,30 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private void writeIndexEntries(BufferedWriter writer, TypeElement subscriberClass, List<Element> elements, Set<String> methodSignatures) throws IOException {
-        for (Element element : elements) {
+    private void writeIndexEntries(BufferedWriter writer, TypeElement subscriberClass, List<ExecutableElement> methods, Set<String> methodSignatures) throws IOException {
+        for (ExecutableElement method : methods) {
 
-            List<? extends VariableElement> parameters = ((ExecutableElement) element).getParameters();
+            List<? extends VariableElement> parameters = method.getParameters();
             VariableElement param = parameters.get(0);
             DeclaredType paramType = (DeclaredType) param.asType();
 
-            String methodSignature = element + ">" + paramType;
+            String methodSignature = method + ">" + paramType;
             if (!methodSignatures.add(methodSignature)) {
                 continue;
             }
 
-            String methodName = element.getSimpleName().toString();
+            String methodName = method.getSimpleName().toString();
             String subscriberClassString = subscriberClass == null ? "subscriberClass" :
                     subscriberClass.asType().toString() + ".class";
 
-            Subscribe subscribe = element.getAnnotation(Subscribe.class);
+            Subscribe subscribe = method.getAnnotation(Subscribe.class);
             writeLine(writer, 4, "createSubscriberMethod(" + subscriberClassString + ",",
                     "\"" + methodName + "\",",
                     paramType.toString() + ".class,",
                     "ThreadMode." + subscribe.threadMode().name() + "),");
 
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
-                    element.getEnclosingElement().getSimpleName() + "." + methodName +
+                    method.getEnclosingElement().getSimpleName() + "." + methodName +
                     "(" + paramType.asElement().getSimpleName() + ")");
         }
     }
