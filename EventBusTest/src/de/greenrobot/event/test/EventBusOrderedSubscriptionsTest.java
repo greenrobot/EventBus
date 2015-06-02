@@ -15,13 +15,13 @@
  */
 package de.greenrobot.event.test;
 
+import android.util.Log;
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import de.greenrobot.event.EventBus;
-import android.util.Log;
-import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.Subscribe;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -33,87 +33,167 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
     private String fail;
 
     public void testOrdered() {
-        runTestOrdered("42", false);
+        runTestOrdered("42", false, 5);
     }
 
     public void testOrderedMainThread() {
-        runTestOrdered(new IntTestEvent(42), false);
+        runTestOrdered(new IntTestEvent(42), false, 3);
     }
 
     public void testOrderedBackgroundThread() {
-        runTestOrdered(Integer.valueOf(42), false);
+        runTestOrdered(Integer.valueOf(42), false, 3);
     }
-    
+
     public void testOrderedSticky() {
-        runTestOrdered("42", true);
+        runTestOrdered("42", true, 5);
     }
 
     public void testOrderedMainThreadSticky() {
-        runTestOrdered(new IntTestEvent(42), true);
+        runTestOrdered(new IntTestEvent(42), true, 3);
     }
 
     public void testOrderedBackgroundThreadSticky() {
-        runTestOrdered(Integer.valueOf(42), true);
+        runTestOrdered(Integer.valueOf(42), true, 3);
     }
 
-    protected void runTestOrdered(Object event, boolean sticky) {
-        register(1, sticky);
-        register(-1, sticky);
-        register(10, sticky);
-        register(0, sticky);
-        register(-100, sticky);
-        assertEquals(5, registered.size());
-
+    protected void runTestOrdered(Object event, boolean sticky, int expectedEventCount) {
+        Object subscriber = sticky ? new PrioSubscriberSticky() : new PrioSubscriber();
+        eventBus.register(subscriber);
         eventBus.post(event);
 
-        waitForEventCount(5, 10000);
+        waitForEventCount(expectedEventCount, 10000);
         assertEquals(null, fail);
 
-        unregisterAll();
-    }
-
-    private void unregisterAll() {
-        for (PrioSubscriber subscriber : registered) {
-            eventBus.unregister(subscriber);
-        }
-    }
-
-    protected PrioSubscriber register(int priority, boolean sticky) {
-        PrioSubscriber subscriber = new PrioSubscriber(priority);
-        if (sticky) {
-            eventBus.registerSticky(subscriber, priority);
-        } else {
-            eventBus.register(subscriber, priority);
-        }
-        registered.add(subscriber);
-        return subscriber;
+        eventBus.unregister(subscriber);
     }
 
     public final class PrioSubscriber {
-
-        final int prio;
-
-        public PrioSubscriber(int prio) {
-            this.prio = prio;
-            // TODO Auto-generated constructor stub
+        @Subscribe(priority = 1)
+        public void onEventP1(String event) {
+            handleEvent(1, event);
         }
 
-        @Subscribe
-        public void onEvent(String event) {
-            handleEvent(event);
+        @Subscribe(priority = -1)
+        public void onEventM1(String event) {
+            handleEvent(-1, event);
+        }
+
+        @Subscribe(priority = 0)
+        public void onEventP0(String event) {
+            handleEvent(0, event);
+        }
+
+        @Subscribe(priority = 10)
+        public void onEventP10(String event) {
+            handleEvent(10, event);
+        }
+
+        @Subscribe(priority = -100)
+        public void onEventM100(String event) {
+            handleEvent(-100, event);
+        }
+
+
+        @Subscribe(threadMode = ThreadMode.MainThread, priority = -1)
+        public void onEventMainThreadM1(IntTestEvent event) {
+            handleEvent(-1, event);
         }
 
         @Subscribe(threadMode = ThreadMode.MainThread)
-        public void onEventMainThread(IntTestEvent event) {
-            handleEvent(event);
+        public void onEventMainThreadP0(IntTestEvent event) {
+            handleEvent(0, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.MainThread, priority = 1)
+        public void onEventMainThreadP1(IntTestEvent event) {
+            handleEvent(1, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = 1)
+        public void onEventBackgroundThreadP1(Integer event) {
+            handleEvent(1, event);
         }
 
         @Subscribe(threadMode = ThreadMode.BackgroundThread)
-        public void onEventBackgroundThread(Integer event) {
-            handleEvent(event);
+        public void onEventBackgroundThreadP0(Integer event) {
+            handleEvent(0, event);
         }
 
-        protected void handleEvent(Object event) {
+        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = -1)
+        public void onEventBackgroundThreadM1(Integer event) {
+            handleEvent(-1, event);
+        }
+
+        protected void handleEvent(int prio, Object event) {
+            if (prio > lastPrio) {
+                fail = "Called prio " + prio + " after " + lastPrio;
+            }
+            lastPrio = prio;
+
+            Log.d(EventBus.TAG, "Subscriber " + prio + " got: " + event);
+            trackEvent(event);
+        }
+
+    }
+
+    public final class PrioSubscriberSticky {
+        @Subscribe(priority = 1, sticky = true)
+        public void onEventP1(String event) {
+            handleEvent(1, event);
+        }
+
+
+        @Subscribe(priority = -1, sticky = true)
+        public void onEventM1(String event) {
+            handleEvent(-1, event);
+        }
+
+        @Subscribe(priority = 0, sticky = true)
+        public void onEventP0(String event) {
+            handleEvent(0, event);
+        }
+
+        @Subscribe(priority = 10, sticky = true)
+        public void onEventP10(String event) {
+            handleEvent(10, event);
+        }
+
+        @Subscribe(priority = -100, sticky = true)
+        public void onEventM100(String event) {
+            handleEvent(-100, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.MainThread, priority = -1, sticky = true)
+        public void onEventMainThreadM1(IntTestEvent event) {
+            handleEvent(-1, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.MainThread, sticky = true)
+        public void onEventMainThreadP0(IntTestEvent event) {
+            handleEvent(0, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.MainThread, priority = 1, sticky = true)
+        public void onEventMainThreadP1(IntTestEvent event) {
+            handleEvent(1, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = 1, sticky = true)
+        public void onEventBackgroundThreadP1(Integer event) {
+            handleEvent(1, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.BackgroundThread, sticky = true)
+        public void onEventBackgroundThreadP0(Integer event) {
+            handleEvent(0, event);
+        }
+
+        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = -1, sticky = true)
+        public void onEventBackgroundThreadM1(Integer event) {
+            handleEvent(-1, event);
+        }
+
+        protected void handleEvent(int prio, Object event) {
             if (prio > lastPrio) {
                 fail = "Called prio " + prio + " after " + lastPrio;
             }

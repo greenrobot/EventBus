@@ -255,7 +255,8 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             writeLine(writer, 4, "createSubscriberMethod(" + subscriberClassString + ",",
                     "\"" + methodName + "\",",
                     paramType.toString() + ".class,",
-                    "ThreadMode." + subscribe.threadMode().name() + "),");
+                    "ThreadMode." + subscribe.threadMode().name() + ", " +
+                            subscribe.priority() + ", " + subscribe.sticky(), "),");
 
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
                     method.getEnclosingElement().getSimpleName() + "." + methodName +

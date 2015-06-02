@@ -60,7 +60,7 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.postSticky("Hello");
         eventBus.postSticky(new MyEvent());
         eventBus.postSticky(new MyEventExtended());
-        eventBus.registerSticky(this);
+        eventBus.register(new StickySubscriber());
         assertEquals(1, countMyEventExtended);
         assertEquals(2, countMyEvent);
         assertEquals(3, countObjectEvent);
@@ -169,6 +169,33 @@ public class EventBusInheritanceTest extends TestCase {
     }
 
     static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
+    }
+
+    public class StickySubscriber {
+        @Subscribe(sticky = true)
+        public void onEvent(Object event) {
+            countObjectEvent++;
+        }
+
+        @Subscribe(sticky = true)
+        public void onEvent(MyEvent event) {
+            countMyEvent++;
+        }
+
+        @Subscribe(sticky = true)
+        public void onEvent(MyEventExtended event) {
+            countMyEventExtended++;
+        }
+
+        @Subscribe(sticky = true)
+        public void onEvent(MyEventInterface event) {
+            countMyEventInterface++;
+        }
+
+        @Subscribe(sticky = true)
+        public void onEvent(MyEventInterfaceExtended event) {
+            countMyEventInterfaceExtended++;
+        }
     }
 
 }

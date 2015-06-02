@@ -22,10 +22,10 @@ abstract class SubscriberIndex {
     abstract SubscriberMethod[] createSubscribersFor(Class<?> subscriberClass);
 
     SubscriberMethod createSubscriberMethod(Class<?> subscriberClass, String methodName, Class<?> eventType,
-                                            ThreadMode threadMode) {
+                                            ThreadMode threadMode, int priority, boolean sticky) {
         try {
             Method method = subscriberClass.getDeclaredMethod(methodName, eventType);
-            return new SubscriberMethod(method, threadMode, eventType);
+            return new SubscriberMethod(method, eventType, threadMode, priority, sticky);
         } catch (NoSuchMethodException e) {
             throw new EventBusException("Could not find subscriber method in " + subscriberClass +
                     ". Maybe a missing ProGuard rule?", e);

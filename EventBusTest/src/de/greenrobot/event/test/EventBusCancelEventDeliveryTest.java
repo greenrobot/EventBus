@@ -30,10 +30,10 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     private Throwable failed;
 
     public void testCancel() {
-        Subscriber canceler = new Subscriber(true);
-        eventBus.register(new Subscriber(false));
-        eventBus.register(canceler, 1);
-        eventBus.register(new Subscriber(false));
+        Subscriber canceler = new Subscriber(1, true);
+        eventBus.register(new Subscriber(0, false));
+        eventBus.register(canceler);
+        eventBus.register(new Subscriber(0, false));
         eventBus.post("42");
         assertEquals(1, eventCount.intValue());
 
@@ -43,10 +43,9 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     public void testCancelInBetween() {
-        Subscriber canceler = new Subscriber(true);
-        eventBus.register(canceler, 2);
-        eventBus.register(new Subscriber(false), 1);
-        eventBus.register(new Subscriber(false), 3);
+        eventBus.register(new Subscriber(2, true));
+        eventBus.register(new Subscriber(1, false));
+        eventBus.register(new Subscriber(3, false));
         eventBus.post("42");
         assertEquals(2, eventCount.intValue());
     }
@@ -78,17 +77,40 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     public class Subscriber {
+        private final int prio;
         private final boolean cancel;
 
-        public Subscriber(boolean cancel) {
+        public Subscriber(int prio, boolean cancel) {
+            this.prio = prio;
             this.cancel = cancel;
         }
 
         @Subscribe
         public void onEvent(String event) {
-            trackEvent(event);
-            if (cancel) {
-                eventBus.cancelEventDelivery(event);
+            handleEvent(event, 0);
+        }
+
+        @Subscribe(priority = 1)
+        public void onEvent1(String event) {
+            handleEvent(event, 1);
+        }
+
+        @Subscribe(priority = 2)
+        public void onEvent2(String event) {
+            handleEvent(event, 2);
+        }
+
+        @Subscribe(priority = 3)
+        public void onEvent3(String event) {
+            handleEvent(event, 3);
+        }
+
+        private void handleEvent(String event, int prio) {
+            if(this.prio == prio) {
+                trackEvent(event);
+                if (cancel) {
+                    eventBus.cancelEventDelivery(event);
+                }
             }
         }
     }

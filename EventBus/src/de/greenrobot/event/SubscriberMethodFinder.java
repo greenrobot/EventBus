@@ -142,7 +142,8 @@ class SubscriberMethodFinder {
                             if (eventTypesFound.add(methodKey)) {
                                 // Only add if not already found in a sub class
                                 ThreadMode threadMode = subscribeAnnotation.threadMode();
-                                subscriberMethods.add(new SubscriberMethod(method, threadMode, eventType));
+                                subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
+                                        subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
                             }
                         }
                     } else if (strictMethodVerification) {
