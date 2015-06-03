@@ -22,7 +22,8 @@ public abstract class PerfTestEventBus extends Test {
 
     public PerfTestEventBus(Context context, TestParams params) {
         super(context, params);
-        eventBus = EventBus.builder().eventInheritance(params.isEventInheritance()).build();
+        eventBus = EventBus.builder().eventInheritance(params.isEventInheritance())
+                .ignoreGeneratedIndex(params.isIgnoreGeneratedIndex()).build();
         subscribers = new ArrayList<Object>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
@@ -56,6 +57,13 @@ public abstract class PerfTestEventBus extends Test {
                 throw new RuntimeException("Unknown: " + params.getThreadMode());
         }
     }
+
+    private static String getDisplayModifier(TestParams params) {
+        String inheritance = params.isEventInheritance() ? "" : ", no event inheritance";
+        String ignoreIndex = params.isIgnoreGeneratedIndex() ? ", ignore index" : "";
+        return inheritance + ignoreIndex;
+    }
+
 
     public static class Post extends PerfTestEventBus {
         public Post(Context context, TestParams params) {
@@ -91,9 +99,9 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            String inheritance = params.isEventInheritance() ? ", event inheritance" : ", no event inheritance";
-            return "EventBus Post Events, " + params.getThreadMode() + inheritance;
+            return "EventBus Post Events, " + params.getThreadMode() + getDisplayModifier(params);
         }
+
     }
 
     public static class RegisterAll extends PerfTestEventBus {
@@ -110,7 +118,7 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register, no unregister";
+            return "EventBus Register, no unregister" + getDisplayModifier(params);
         }
     }
 
@@ -151,7 +159,7 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register";
+            return "EventBus Register" + getDisplayModifier(params);
         }
     }
 
@@ -170,7 +178,7 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register, first time";
+            return "EventBus Register, first time"+ getDisplayModifier(params);
         }
 
     }

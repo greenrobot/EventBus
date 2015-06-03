@@ -33,6 +33,7 @@ public class EventBusBuilder {
     boolean sendNoSubscriberEvent = true;
     boolean throwSubscriberException;
     boolean eventInheritance = true;
+    boolean ignoreGeneratedIndex;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
 
@@ -108,6 +109,12 @@ public class EventBusBuilder {
             skipMethodVerificationForClasses = new ArrayList<Class<?>>();
         }
         skipMethodVerificationForClasses.add(clazz);
+        return this;
+    }
+
+    /** Forces the use of reflection even if there's a generated index (default: false). */
+    public EventBusBuilder ignoreGeneratedIndex(boolean ignoreGeneratedIndex) {
+        this.ignoreGeneratedIndex = ignoreGeneratedIndex;
         return this;
     }
 

@@ -61,6 +61,7 @@ public class TestSetupActivity extends Activity {
         params.setThreadMode(threadMode);
 
         params.setEventInheritance(((CheckBox) findViewById(R.id.checkBoxEventBusEventHierarchy)).isChecked());
+        params.setIgnoreGeneratedIndex(((CheckBox) findViewById(R.id.checkBoxEventBusIgnoreGeneratedIndex)).isChecked());
 
         EditText editTextEvent = (EditText) findViewById(R.id.editTextEvent);
         params.setEventCount(Integer.parseInt(editTextEvent.getText().toString()));

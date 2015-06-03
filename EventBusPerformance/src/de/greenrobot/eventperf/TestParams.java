@@ -13,6 +13,7 @@ public class TestParams implements Serializable {
     private int publisherCount;
     private ThreadMode threadMode;
     private boolean eventInheritance;
+    private boolean ignoreGeneratedIndex;
     private int testNumber;
     private ArrayList<Class<? extends Test>> testClasses;
 
@@ -54,6 +55,14 @@ public class TestParams implements Serializable {
 
     public void setEventInheritance(boolean eventInheritance) {
         this.eventInheritance = eventInheritance;
+    }
+
+    public boolean isIgnoreGeneratedIndex() {
+        return ignoreGeneratedIndex;
+    }
+
+    public void setIgnoreGeneratedIndex(boolean ignoreGeneratedIndex) {
+        this.ignoreGeneratedIndex = ignoreGeneratedIndex;
     }
 
     public ArrayList<Class<? extends Test>> getTestClasses() {

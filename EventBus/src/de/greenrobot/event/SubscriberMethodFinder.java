@@ -56,9 +56,11 @@ class SubscriberMethodFinder {
     }
 
     private final boolean strictMethodVerification;
+    private final boolean ignoreGeneratedIndex;
 
-    SubscriberMethodFinder(boolean strictMethodVerification) {
+    SubscriberMethodFinder(boolean strictMethodVerification, boolean ignoreGeneratedIndex) {
         this.strictMethodVerification = strictMethodVerification;
+        this.ignoreGeneratedIndex = ignoreGeneratedIndex;
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, boolean forceReflection) {
@@ -70,7 +72,7 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        if (INDEX != null && !forceReflection) {
+        if (!ignoreGeneratedIndex && INDEX != null && !forceReflection) {
             subscriberMethods = findSubscriberMethodsWithIndex(subscriberClass);
             if (subscriberMethods.isEmpty()) {
                 subscriberMethods = findSubscriberMethodsWithReflection(subscriberClass);

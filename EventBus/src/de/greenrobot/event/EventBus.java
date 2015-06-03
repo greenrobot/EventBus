@@ -109,7 +109,7 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
-        subscriberMethodFinder = new SubscriberMethodFinder(/* TODO */ false);
+        subscriberMethodFinder = new SubscriberMethodFinder(/* TODO */ false, builder.ignoreGeneratedIndex);
         logSubscriberExceptions = builder.logSubscriberExceptions;
         logNoSubscriberMessages = builder.logNoSubscriberMessages;
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
@@ -130,8 +130,14 @@ public class EventBus {
      */
     public void register(Object subscriber) {
         Class<?> subscriberClass = subscriber.getClass();
+
         // @Subscribe in anonymous classes is invisible to annotation processing, always fall back to reflection
-        boolean forceReflection = subscriberClass.isAnonymousClass();
+        // Note: Avoid Class.isAnonymousClass() because it is super slow (getSimpleName() is super slow, too)
+        String name = subscriberClass.getName();
+        int dollarIndex = name.lastIndexOf('$');
+        boolean forceReflection = dollarIndex != -1 && dollarIndex < name.length() - 1 &&
+                Character.isDigit(name.charAt(dollarIndex + 1));
+
         List<SubscriberMethod> subscriberMethods =
                 subscriberMethodFinder.findSubscriberMethods(subscriberClass, forceReflection);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
