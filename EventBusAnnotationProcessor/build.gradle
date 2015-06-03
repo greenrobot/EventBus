@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'de.greenrobot'
-version = '3.0.0-SNAPSHOT'
+version = '3.0.0-beta1'
 
 sourceCompatibility = 1.6
 
@@ -43,6 +43,17 @@ sourceSets {
     }
 }
 
+javadoc {
+    classpath += configurations.provided
+    title = "EventBus Annotation Processor ${version} API"
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
@@ -50,6 +61,7 @@ task sourcesJar(type: Jar) {
 
 artifacts {
     archives jar
+    archives javadocJar
     archives sourcesJar
 }
 
