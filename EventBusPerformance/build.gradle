@@ -17,7 +17,7 @@ repositories {
 dependencies {
     compile project(':EventBus')
     provided project(':EventBusAnnotationProcessor')
-    compile 'com.squareup:otto:1.3.6'
+    compile 'com.squareup:otto:1.3.7'
 }
 
 android {
@@ -30,7 +30,6 @@ android {
             java.srcDirs = ['src']
             res.srcDirs = ['res']
         }
-
     }
 
 }
