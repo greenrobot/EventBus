@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+group = 'de.greenrobot'
+version = '3.0.0-beta1'
+sourceCompatibility = 1.6
+
+dependencies {
+    compile project(':EventBus')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}

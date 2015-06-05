@@ -19,6 +19,7 @@ repositories {
 dependencies {
     androidTestApt project(':EventBusAnnotationProcessor')
     androidTestCompile project(':EventBus')
+    compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 android {
