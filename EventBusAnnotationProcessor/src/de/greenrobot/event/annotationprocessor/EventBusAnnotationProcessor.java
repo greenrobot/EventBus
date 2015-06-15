@@ -219,7 +219,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 }
                 writer.write("            };\n");
             }
-            if (!methodsByClass.isEmpty()) {
+            if (!first) {
                 writer.write("        }\n");
             }
             writer.write("        return null;\n");
@@ -227,10 +227,12 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         } catch (IOException e) {
             throw new RuntimeException("Could not write source for " + className, e);
         } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                //Silent
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    //Silent
+                }
             }
         }
     }
