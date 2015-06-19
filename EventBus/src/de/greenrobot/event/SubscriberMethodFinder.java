@@ -39,13 +39,13 @@ class SubscriberMethodFinder {
     private static final Map<String, List<SubscriberMethod>> METHOD_CACHE = new HashMap<String, List<SubscriberMethod>>();
 
     /** Optional generated index without entries from subscribers super classes */
-    private static final SubscriberIndex INDEX;
+    private static final SubscriberInfo INDEX;
 
     static {
-        SubscriberIndex newIndex = null;
+        SubscriberInfo newIndex = null;
         try {
             Class<?> clazz = Class.forName("de.greenrobot.event.GeneratedSubscriberIndex");
-            newIndex = (SubscriberIndex) clazz.newInstance();
+            newIndex = (SubscriberInfo) clazz.newInstance();
         } catch (ClassNotFoundException e) {
             Log.d(EventBus.TAG, "No subscriber index available, reverting to dynamic look-up");
             // Fine
@@ -94,7 +94,7 @@ class SubscriberMethodFinder {
     private List<SubscriberMethod> findSubscriberMethodsWithIndex(Class<?> subscriberClass) {
         Class<?> clazz = subscriberClass;
         while (clazz != null) {
-            SubscriberMethod[] array = INDEX.getSubscribersFor(clazz);
+            SubscriberMethod[] array = null; //TODO INDEX.getSubscriberData(clazz);
             if (array != null && array.length > 0) {
                 List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
                 for (SubscriberMethod subscriberMethod : array) {

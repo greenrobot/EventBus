@@ -1,11 +1,12 @@
 apply plugin: 'java'
 
 group = 'de.greenrobot'
-version = '3.0.0-beta1'
+version = '3.0.0-beta2'
 sourceCompatibility = 1.6
 
 dependencies {
     compile project(':EventBus')
+    compile project(':EventBusAnnotationProcessor')
 }
 
 sourceSets {
