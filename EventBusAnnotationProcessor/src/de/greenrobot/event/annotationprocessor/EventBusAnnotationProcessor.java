@@ -268,8 +268,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 return null;
             } else {
                 Map.Entry<TypeElement, List<ExecutableElement>> candidate = entries.get(i);
-                System.out.println();
-                return candidate.getKey();
+                if(!classesToSkip.contains(candidate.getKey())) {
+                    return candidate.getKey();
+                }
             }
         }
     }

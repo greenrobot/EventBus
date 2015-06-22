@@ -6,6 +6,7 @@ import java.util.Map;
 
 /** Preprocessed index: base class for generated "MyGeneratedSubscriberIndex" class by annotation processing. */
 public abstract class SubscriberInfo {
+    // TODO move class fields into SubscriberInfo
     public static class Data {
         public final Class<?> subscriberClass;
         public final SubscriberMethod[] subscriberMethods;
@@ -18,15 +19,11 @@ public abstract class SubscriberInfo {
         }
     }
 
-    private Map<Class<?>, Data> map = new HashMap<Class<?>, Data>();
+    private volatile Data data;
 
-    Data getSubscriberData(Class<?> subscriberClass) {
-        Data data = map.get(subscriberClass);
+    Data getSubscriberData() {
         if (data == null) {
             data = createSubscriberData();
-            if (data != null) {
-                map.put(subscriberClass, data);
-            }
         }
         return data;
     }
