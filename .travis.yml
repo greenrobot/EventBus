@@ -6,7 +6,7 @@ jdk:
 # http://docs.travis-ci.com/user/languages/android/
 android:
   components:
-    - build-tools-21.1.2
+    - build-tools-22.0.1
     - android-10
 
 before_script:
