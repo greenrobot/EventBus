@@ -65,6 +65,7 @@ In EventBus, you may define the thread that will call the event handling method 
 Example:
 ```java
     // Called in the same thread (default)
+    @Subscribe(threadmode = ThreadMode.PostThread) // ThreadMode is optional here 
     public void onEvent(MessageEvent event) {
         log(event.message);
     }
@@ -73,6 +74,7 @@ Example:
 Example:
 ```java
     // Called in Android UI's main thread
+    @Subscribe(threadMode = ThreadMode.MainThread)
     public void onEventMainThread(MessageEvent event) {
         textField.setText(event.message);
     }
@@ -80,6 +82,7 @@ Example:
 * **BackgroundThread:** Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single background thread that will deliver all its events sequentially. Event handlers using this mode should try to return quickly to avoid blocking the background thread.
 ```java
     // Called in the background thread
+    @Subscribe(threadMode = ThreadMode.BackgroundThread)
     public void onEventBackgroundThread(MessageEvent event){
         saveToDisk(event.message);
     }
@@ -87,20 +90,23 @@ Example:
 * **Async:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
 ```java
     // Called in a separate thread
+    @Subscribe(threadmode = ThreadMode.Async)
     public void onEventAsync(MessageEvent event){
         backend.send(event.message);
     }
 ```
 
-*Note:* EventBus takes care of calling the `onEvent` method in the proper thread depending on its name (onEvent, onEventAsync, etc.).
+*Note:* EventBus takes care of calling the `onEvent` method in the proper thread depending on its annotation.
 
 Subscriber priorities and ordered event delivery
 ------------------------------------------------
 You may change the order of event delivery by providing a priority to the subscriber during registration.
 
 ```java
-    int priority = 1;
-    EventBus.getDefault().register(this, priority);
+    @Subscribe(priority = 1);
+    public void onEvent(MessageEvent event) {
+    	...
+    }
 ```
 
 Within the same delivery thread (ThreadMode), higher priority subscribers will receive events before others with a lower priority. The default priority is 0. 
@@ -140,6 +146,7 @@ You may cancel the event delivery process by calling `cancelEventDelivery(Object
 Any further event delivery will be cancelled: subsequent subscribers won't receive the event.
 ```java
     // Called in the same thread (default)
+    @Subscribe
     public void onEvent(MessageEvent event){
     	// Process the event 
     	...
@@ -159,15 +166,17 @@ Let's say, an sticky event was posted some time ago:
     EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"));
 ```
 
-After that, a new Activity gets started. During registration using registerSticky, it will immediately get the previously posted sticky event:
+After that, a new Activity gets started. During registration, and sticky Subscriber methods will immediately get the previously posted sticky event:
 ```java
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().registerSticky(this);
+        EventBus.getDefault().register(this);
     }
 
-    public void onEventMainThread(MessageEvent event) {
+    @Subscribe(sticky = true, threadmode = ThreadMode.MainThread)
+    public void onEvent(MessageEvent event) {
+    	// UI updates must run on MainThread
         textField.setText(event.message);
     }
 
@@ -185,11 +194,12 @@ You may also get the last sticky event of a certain type with:
 
 ProGuard configuration
 ----------------------
-ProGuard obfuscates method names. However, the onEvent methods must not renamed because they are accessed using reflection. Use the following snip in your ProGuard configuration file (proguard.cfg):
+ProGuard obfuscates method names and may remove "unused" methods, including Subscriber methods. Use the following snip in your ProGuard configuration file (proguard.cfg) to prevent Subscribers from being removed:
 
 ```
+-keepattributes *Annotation*
 -keepclassmembers class ** {
-    public void onEvent*(**);
+    @de.greenrobot.event.Subscribe public *;
 }
 
 # Only required if you use AsyncExecutor
@@ -210,7 +220,7 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
     </tr>
     <tr>
         <th>Declare event handling methods</th>
-        <td>Name conventions</td>
+        <td>Annotations</td>
         <td>Annotations</td>
     </tr>	
     <tr>
