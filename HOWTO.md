@@ -65,7 +65,7 @@ In EventBus, you may define the thread that will call the event handling method 
 Example:
 ```java
     // Called in the same thread (default)
-    @Subscribe(threadmode = ThreadMode.PostThread) // ThreadMode is optional here 
+    @Subscribe(threadMode = ThreadMode.PostThread) // ThreadMode is optional here 
     public void onEvent(MessageEvent event) {
         log(event.message);
     }
@@ -90,7 +90,7 @@ Example:
 * **Async:** Event handler methods are called in a separate thread. This is always independent from the posting thread and the main thread. Posting events never wait for event handler methods using this mode. Event handler methods should use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
 ```java
     // Called in a separate thread
-    @Subscribe(threadmode = ThreadMode.Async)
+    @Subscribe(threadMode = ThreadMode.Async)
     public void onEventAsync(MessageEvent event){
         backend.send(event.message);
     }
@@ -174,7 +174,7 @@ After that, a new Activity gets started. During registration, and sticky Subscri
         EventBus.getDefault().register(this);
     }
 
-    @Subscribe(sticky = true, threadmode = ThreadMode.MainThread)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MainThread)
     public void onEvent(MessageEvent event) {
     	// UI updates must run on MainThread
         textField.setText(event.message);
