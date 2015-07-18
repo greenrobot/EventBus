@@ -19,9 +19,8 @@ import java.lang.reflect.Constructor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import android.app.Activity;
-import android.util.Log;
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.log.EBLog;
 
 /**
  * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events of any
@@ -58,7 +57,7 @@ public class AsyncExecutor {
             return buildForScope(null);
         }
 
-        public AsyncExecutor buildForActivityScope(Activity activity) {
+        public AsyncExecutor buildForActivityScope(Object activity) {
             return buildForScope(activity.getClass());
         }
         
@@ -118,7 +117,7 @@ public class AsyncExecutor {
                     try {
                         event = failureEventConstructor.newInstance(e);
                     } catch (Exception e1) {
-                        Log.e(EventBus.TAG, "Original exception:", e);
+                        EBLog.e("Original exception:", e);
                         throw new RuntimeException("Could not create failure event", e1);
                     }
                     if (event instanceof HasExecutionScope) {

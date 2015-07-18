@@ -15,7 +15,7 @@
  */
 package de.greenrobot.event;
 
-import android.util.Log;
+import de.greenrobot.event.log.EBLog;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -108,8 +108,7 @@ class SubscriberMethodFinder {
                             }
                         }
                     } else if (!skipMethodVerificationForClasses.containsKey(clazz)) {
-                        Log.d(EventBus.TAG, "Skipping method (not public, static or abstract): " + clazz + "."
-                                + methodName);
+                        EBLog.d("Skipping method (not public, static or abstract): " + clazz + "." + methodName);
                     }
                 }
             }

@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event;
 
+import de.greenrobot.event.log.GenericLog;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +37,8 @@ public class EventBusBuilder {
     boolean eventInheritance = true;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
+    GenericLog logTarget;
+    boolean nonAndroidEnvironment;
 
     EventBusBuilder() {
     }
@@ -108,6 +112,22 @@ public class EventBusBuilder {
             skipMethodVerificationForClasses = new ArrayList<Class<?>>();
         }
         skipMethodVerificationForClasses.add(clazz);
+        return this;
+    }
+
+    /**
+     * Set a specific log handler for all EventBus logging.
+     *
+     * By default all logging is via {@link android.util.Log} but if you want to use EventBus
+     * outside the Android environment then you will need to provide another log target.
+     */
+    public EventBusBuilder logger(GenericLog logTarget) {
+        this.logTarget = logTarget;
+        return this;
+    }
+
+    public EventBusBuilder nonAndroidEnvironment(boolean nonAndroidEnvironment) {
+        this.nonAndroidEnvironment = nonAndroidEnvironment;
         return this;
     }
 
