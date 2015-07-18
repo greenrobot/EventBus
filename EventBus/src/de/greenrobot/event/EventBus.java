@@ -27,18 +27,23 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import de.greenrobot.event.models.AbstractEvent;
 
 /**
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
  * bus, which delivers it to subscribers that have a matching handler method for the event type. To receive events,
- * subscribers must register themselves to the bus using {@link #register(Object)}. Once registered,
- * subscribers receive events until {@link #unregister(Object)} is called. By convention, event handling methods must
- * be named "onEvent", be public, return nothing (void), and have exactly one parameter (the event).
+ * subscribers must register themselves to the bus using {@link #register(Object)}. Once registered, subscribers receive
+ * events until {@link #unregister(Object)} is called. By convention, event handling methods must be named "onEvent", be
+ * public, return nothing (void), and have exactly one parameter (the event).
  *
  * @author Markus Junginger, greenrobot
  */
 public class EventBus {
-
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
 
@@ -58,12 +63,13 @@ public class EventBus {
         }
     };
 
-
     private final HandlerPoster mainThreadPoster;
     private final BackgroundPoster backgroundPoster;
     private final AsyncPoster asyncPoster;
+    private final AsyncTrackedPoster asyncTrackedPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
-    private final ExecutorService executorService;
+    private static Integer asyncMaxThreads = Integer.MAX_VALUE;
+    private ExecutorService executorService;
 
     private final boolean throwSubscriberException;
     private final boolean logSubscriberExceptions;
@@ -100,6 +106,8 @@ public class EventBus {
      */
     public EventBus() {
         this(DEFAULT_BUILDER);
+        executorService = new ThreadPoolExecutor(0, asyncMaxThreads, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>());
     }
 
     EventBus(EventBusBuilder builder) {
@@ -109,6 +117,7 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
+        asyncTrackedPoster = new AsyncTrackedPoster(this);
         subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
         logSubscriberExceptions = builder.logSubscriberExceptions;
         logNoSubscriberMessages = builder.logNoSubscriberMessages;
@@ -119,10 +128,9 @@ public class EventBus {
         executorService = builder.executorService;
     }
 
-
     /**
-     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they
-     * are no longer interested in receiving events.
+     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they are
+     * no longer interested in receiving events.
      * <p/>
      * Subscribers have event handling methods that are identified by their name, typically called "onEvent". Event
      * handling methods must have exactly one parameter, the event. If the event handling method is to be called in a
@@ -146,7 +154,7 @@ public class EventBus {
 
     /**
      * Like {@link #register(Object)}, but also triggers delivery of the most recent sticky event (posted with
-     * {@link #postSticky(Object)}) to the given subscriber.
+     * {@link #registerSticky(Object)}) to the given subscriber.
      */
     public void registerSticky(Object subscriber) {
         register(subscriber, true, 0);
@@ -177,7 +185,9 @@ public class EventBus {
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             if (subscriptions.contains(newSubscription)) {
-                throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
+                throw new EventBusException("Subscriber "
+                        + subscriber.getClass()
+                        + " already registered to event "
                         + eventType);
             }
         }
@@ -287,8 +297,7 @@ public class EventBus {
     }
 
     /**
-     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent
-     * subscribers
+     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent subscribers
      * won't receive the event. Events are usually canceled by higher priority subscribers (see
      * {@link #register(Object, int)}). Canceling is restricted to event handling methods running in posting thread
      * {@link ThreadMode#PostThread}.
@@ -307,6 +316,15 @@ public class EventBus {
         }
 
         postingState.canceled = true;
+    }
+
+    /**
+     * Attempts to cancel a future of a event run on AsyncTracked. It will do nothing to events on other modes.
+     *
+     * @return the number of single events cancelled (a single event is a combination of event + subscriber)
+     */
+    public int cancelEvent(AbstractEvent event) {
+        return asyncTrackedPoster.cancel(event);
     }
 
     /**
@@ -406,8 +424,9 @@ public class EventBus {
             if (logNoSubscriberMessages) {
                 Log.d(TAG, "No subscribers registered for event " + eventClass);
             }
-            if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
-                    eventClass != SubscriberExceptionEvent.class) {
+            if (sendNoSubscriberEvent
+                    && eventClass != NoSubscriberEvent.class
+                    && eventClass != SubscriberExceptionEvent.class) {
                 post(new NoSubscriberEvent(this, event));
             }
         }
@@ -440,31 +459,37 @@ public class EventBus {
         return false;
     }
 
-    private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
+    private Future postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
+        Future future = null;
         switch (subscription.subscriberMethod.threadMode) {
-            case PostThread:
+        case PostThread:
+            invokeSubscriber(subscription, event);
+            break;
+        case MainThread:
+            if (isMainThread) {
                 invokeSubscriber(subscription, event);
-                break;
-            case MainThread:
-                if (isMainThread) {
-                    invokeSubscriber(subscription, event);
-                } else {
-                    mainThreadPoster.enqueue(subscription, event);
-                }
-                break;
-            case BackgroundThread:
-                if (isMainThread) {
-                    backgroundPoster.enqueue(subscription, event);
-                } else {
-                    invokeSubscriber(subscription, event);
-                }
-                break;
-            case Async:
-                asyncPoster.enqueue(subscription, event);
-                break;
-            default:
-                throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
+            } else {
+                mainThreadPoster.enqueue(subscription, event);
+            }
+            break;
+        case BackgroundThread:
+            if (isMainThread) {
+                backgroundPoster.enqueue(subscription, event);
+            } else {
+                invokeSubscriber(subscription, event);
+            }
+            break;
+        case Async:
+            asyncPoster.enqueue(subscription, event);
+            break;
+        case AsyncTracked:
+            asyncTrackedPoster.enqueue(subscription, event);
+            break;
+        default:
+            throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }
+
+        return future;
     }
 
     /** Looks up all Class objects including super classes and interfaces. Should also work for interfaces. */
@@ -524,10 +549,13 @@ public class EventBus {
         if (event instanceof SubscriberExceptionEvent) {
             if (logSubscriberExceptions) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
-                Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                Log.e(TAG, "SubscriberExceptionEvent subscriber "
+                        + subscription.subscriber.getClass()
                         + " threw an exception", cause);
                 SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
-                Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
+                Log.e(TAG, "Initial event "
+                        + exEvent.causingEvent
+                        + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
             }
         } else {
@@ -535,7 +563,9 @@ public class EventBus {
                 throw new EventBusException("Invoking subscriber failed", cause);
             }
             if (logSubscriberExceptions) {
-                Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                Log.e(TAG, "Could not dispatch event: "
+                        + event.getClass()
+                        + " to subscribing class "
                         + subscription.subscriber.getClass(), cause);
             }
             if (sendSubscriberExceptionEvent) {
@@ -565,4 +595,17 @@ public class EventBus {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
 
+    public static Integer getThreadPoolConfiguration() {
+        return asyncMaxThreads;
+    }
+
+    /**
+     * Max number of threads of Async mode. This MUST be set BEFORE initializing the EventBus or else it will not have
+     * any influence
+     * 
+     * @param asyncMaxThreads Number of threads
+     */
+    public static void setThreadPoolConfiguration(/* String threadPoolName, */Integer asyncMaxThreads) {
+        EventBus.asyncMaxThreads = asyncMaxThreads;
+    }
 }

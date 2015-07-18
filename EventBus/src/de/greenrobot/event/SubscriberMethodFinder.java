@@ -90,6 +90,8 @@ class SubscriberMethodFinder {
                                 threadMode = ThreadMode.BackgroundThread;
                             } else if (modifierString.equals("Async")) {
                                 threadMode = ThreadMode.Async;
+                            } else if (modifierString.equals("AsyncTracked")) {
+                                threadMode = ThreadMode.AsyncTracked;
                             } else {
                                 if (skipMethodVerificationForClasses.containsKey(clazz)) {
                                     continue;
