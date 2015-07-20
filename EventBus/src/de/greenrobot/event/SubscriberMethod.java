@@ -32,7 +32,9 @@ final class SubscriberMethod {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof SubscriberMethod) {
+        if (other == this) {
+            return true;
+        } else if (other instanceof SubscriberMethod) {
             checkMethodString();
             SubscriberMethod otherSubscriberMethod = (SubscriberMethod)other;
             otherSubscriberMethod.checkMethodString();

@@ -40,7 +40,7 @@ import java.util.concurrent.ExecutorService;
 public class EventBus {
 
     /** Log tag, apps may override it. */
-    public static String TAG = "Event";
+    public static String TAG = "EventBus";
 
     static volatile EventBus defaultInstance;
 
@@ -161,7 +161,12 @@ public class EventBus {
     }
 
     private synchronized void register(Object subscriber, boolean sticky, int priority) {
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass());
+        Class<?> subscriberClass = subscriber.getClass();
+        if(subscriberClass.isAnonymousClass()) {
+            // We cannot get @Subscribe annotations from anonymous classes, so fail fast
+            throw new EventBusException("Anonymous class cannot be registered: "+ subscriberClass);
+        }
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass,subscriber);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod, sticky, priority);
         }
@@ -564,5 +569,4 @@ public class EventBus {
     /* public */interface PostCallback {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
-
 }
