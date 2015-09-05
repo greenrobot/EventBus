@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 @SupportedAnnotationTypes("de.greenrobot.event.Subscribe")
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String CLASS_POSTFIX = "_EventBusInfo";
     private final Map<TypeElement, List<ExecutableElement>> methodsByClass =
@@ -37,6 +36,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
 
     private boolean writerRoundDone;
     private int round;
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.latest();
+    }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
