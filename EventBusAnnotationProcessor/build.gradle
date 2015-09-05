@@ -45,7 +45,6 @@ sourceSets {
 }
 
 javadoc {
-    options.
     classpath += configurations.provided
     title = "EventBus Annotation Processor ${version} API"
 	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
