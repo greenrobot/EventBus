@@ -15,13 +15,13 @@
  */
 package de.greenrobot.event.util;
 
+import android.app.Activity;
+import de.greenrobot.event.CustomLogger;
+import de.greenrobot.event.EventBus;
+
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import android.app.Activity;
-import android.util.Log;
-import de.greenrobot.event.EventBus;
 
 /**
  * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events of any
@@ -35,6 +35,7 @@ public class AsyncExecutor {
         private Executor threadPool;
         private Class<?> failureEventType;
         private EventBus eventBus;
+        private CustomLogger logger;
 
         private Builder() {
         }
@@ -51,6 +52,11 @@ public class AsyncExecutor {
 
         public Builder eventBus(EventBus eventBus) {
             this.eventBus = eventBus;
+            return this;
+        }
+
+        public  Builder logger(CustomLogger logger) {
+            this.logger = logger;
             return this;
         }
 
@@ -72,7 +78,10 @@ public class AsyncExecutor {
             if (failureEventType == null) {
                 failureEventType = ThrowableFailureEvent.class;
             }
-            return new AsyncExecutor(threadPool, eventBus, failureEventType, executionContext);
+            if (logger == null) {
+                logger = eventBus.getLogger();
+            }
+            return new AsyncExecutor(threadPool, eventBus, failureEventType, executionContext, logger);
         }
     }
 
@@ -93,8 +102,9 @@ public class AsyncExecutor {
     private final Constructor<?> failureEventConstructor;
     private final EventBus eventBus;
     private final Object scope;
+    private final CustomLogger logger;
 
-    private AsyncExecutor(Executor threadPool, EventBus eventBus, Class<?> failureEventType, Object scope) {
+    private AsyncExecutor(Executor threadPool, EventBus eventBus, Class<?> failureEventType, Object scope, CustomLogger logger) {
         this.threadPool = threadPool;
         this.eventBus = eventBus;
         this.scope = scope;
@@ -104,6 +114,7 @@ public class AsyncExecutor {
             throw new RuntimeException(
                     "Failure event class must have a constructor with one parameter of type Throwable", e);
         }
+        this.logger = logger;
     }
 
     /** Posts an failure event if the given {@link RunnableEx} throws an Exception. */
@@ -118,7 +129,7 @@ public class AsyncExecutor {
                     try {
                         event = failureEventConstructor.newInstance(e);
                     } catch (Exception e1) {
-                        Log.e(EventBus.TAG, "Original exception:", e);
+                        logger.e(EventBus.TAG, "Original exception:", e);
                         throw new RuntimeException("Could not create failure event", e1);
                     }
                     if (event instanceof HasExecutionScope) {

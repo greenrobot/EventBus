@@ -15,6 +15,8 @@
  */
 package de.greenrobot.event;
 
+import de.greenrobot.event.util.SimpleLogger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -26,7 +28,9 @@ import java.util.concurrent.Executors;
  */
 public class EventBusBuilder {
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
+    private final static CustomLogger DEFAULT_CUSTOM_LOGGER = new SimpleLogger();
 
+    CustomLogger customLogger = DEFAULT_CUSTOM_LOGGER;
     boolean logSubscriberExceptions = true;
     boolean logNoSubscriberMessages = true;
     boolean sendSubscriberExceptionEvent = true;
@@ -37,6 +41,11 @@ public class EventBusBuilder {
     List<Class<?>> skipMethodVerificationForClasses;
 
     EventBusBuilder() {
+    }
+
+    public EventBusBuilder customLogger(CustomLogger customLogger) {
+        this.customLogger = customLogger;
+        return this;
     }
 
     /** Default: true */

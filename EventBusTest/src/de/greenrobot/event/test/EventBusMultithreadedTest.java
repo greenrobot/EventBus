@@ -93,7 +93,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         List<PosterThread> threads = startThreads(latch, threadCount, iterations, "Hello");
         long time = triggerAndWaitForThreads(threads, latch);
 
-        Log.d(EventBus.TAG, threadCount + " threads posted " + iterations + " events each in " + time + "ms");
+        eventBus.getLogger().d(EventBus.TAG, threadCount + " threads posted " + iterations + " events each in " + time + "ms", null);
 
         waitForEventCount(COUNT * 2, 5000);
 
@@ -123,8 +123,8 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         threads.addAll(threadsIntTestEvent);
         long time = triggerAndWaitForThreads(threads, latch);
 
-        Log.d(EventBus.TAG, threadCount * eventTypeCount + " mixed threads posted " + iterations + " events each in "
-                + time + "ms");
+        eventBus.getLogger().d(EventBus.TAG, threadCount * eventTypeCount + " mixed threads posted " + iterations + " events each in "
+                + time + "ms", null);
 
         int expectedCountEach = threadCount * iterations;
         int expectedCountTotal = expectedCountEach * eventTypeCount * 2;
@@ -205,7 +205,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
             try {
                 startLatch.await();
             } catch (InterruptedException e) {
-                Log.w(EventBus.TAG, "Unexpeced interrupt", e);
+                eventBus.getLogger().w(EventBus.TAG, "Unexpeced interrupt", e);
             }
 
             for (int i = 0; i < iterations; i++) {

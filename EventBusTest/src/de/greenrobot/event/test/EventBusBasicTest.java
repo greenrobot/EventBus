@@ -48,7 +48,7 @@ public class EventBusBasicTest extends TestCase {
         long start = System.currentTimeMillis();
         eventBus.register(testActivity);
         long time = System.currentTimeMillis() - start;
-        Log.d(EventBus.TAG, "Registered in " + time + "ms");
+        eventBus.getLogger().d(EventBus.TAG, "Registered in " + time + "ms", null);
 
         eventBus.post(event);
 
@@ -125,7 +125,7 @@ public class EventBusBasicTest extends TestCase {
         }
         // Debug.stopMethodTracing();
         long time = System.currentTimeMillis() - start;
-        Log.d(EventBus.TAG, "Posted " + count + " events in " + time + "ms");
+        eventBus.getLogger().d(EventBus.TAG, "Posted " + count + " events in " + time + "ms", null);
         assertEquals(count, countMyEvent);
     }
 

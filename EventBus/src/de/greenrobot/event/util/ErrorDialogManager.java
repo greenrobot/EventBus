@@ -9,7 +9,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import de.greenrobot.event.EventBus;
 
 /**
@@ -227,7 +226,7 @@ public class ErrorDialogManager {
             if (tag == null) {
                 tag = EventBus.TAG;
             }
-            Log.i(tag, "Error dialog manager received exception", event.throwable);
+            factory.config.eventBus.getLogger().i(tag, "Error dialog manager received exception", event.throwable);
         }
     }
 
