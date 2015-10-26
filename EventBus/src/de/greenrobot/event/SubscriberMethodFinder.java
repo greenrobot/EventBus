@@ -15,8 +15,6 @@
  */
 package de.greenrobot.event;
 
-import android.util.Log;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -41,9 +39,11 @@ class SubscriberMethodFinder {
     private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
 
     private final Map<Class<?>, Class<?>> skipMethodVerificationForClasses;
+    private final CustomLogger logger;
 
-    SubscriberMethodFinder(List<Class<?>> skipMethodVerificationForClassesList) {
+    SubscriberMethodFinder(List<Class<?>> skipMethodVerificationForClassesList, CustomLogger logger) {
         skipMethodVerificationForClasses = new ConcurrentHashMap<Class<?>, Class<?>>();
+        this.logger = logger;
         if (skipMethodVerificationForClassesList != null) {
             for (Class<?> clazz : skipMethodVerificationForClassesList) {
                 skipMethodVerificationForClasses.put(clazz, clazz);
@@ -108,8 +108,8 @@ class SubscriberMethodFinder {
                             }
                         }
                     } else if (!skipMethodVerificationForClasses.containsKey(clazz)) {
-                        Log.d(EventBus.TAG, "Skipping method (not public, static or abstract): " + clazz + "."
-                                + methodName);
+                        logger.d(EventBus.TAG, "Skipping method (not public, static or abstract): " + clazz + "."
+                                + methodName, null);
                     }
                 }
             }

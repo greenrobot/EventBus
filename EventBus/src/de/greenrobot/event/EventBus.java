@@ -16,7 +16,6 @@
 package de.greenrobot.event;
 
 import android.os.Looper;
-import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ public class EventBus {
 
     /** Log tag, apps may override it. */
     public static String TAG = "Event";
+    private final CustomLogger logger;
 
     static volatile EventBus defaultInstance;
 
@@ -109,7 +109,8 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
-        subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses);
+        logger = builder.customLogger;
+        subscriberMethodFinder = new SubscriberMethodFinder(builder.skipMethodVerificationForClasses, logger);
         logSubscriberExceptions = builder.logSubscriberExceptions;
         logNoSubscriberMessages = builder.logNoSubscriberMessages;
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
@@ -259,7 +260,7 @@ public class EventBus {
             }
             typesBySubscriber.remove(subscriber);
         } else {
-            Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
+            logger.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass(), null);
         }
     }
 
@@ -404,7 +405,7 @@ public class EventBus {
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
-                Log.d(TAG, "No subscribers registered for event " + eventClass);
+                logger.d(TAG, "No subscribers registered for event " + eventClass, null);
             }
             if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
                     eventClass != SubscriberExceptionEvent.class) {
@@ -524,10 +525,10 @@ public class EventBus {
         if (event instanceof SubscriberExceptionEvent) {
             if (logSubscriberExceptions) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
-                Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                logger.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
                         + " threw an exception", cause);
                 SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
-                Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
+                logger.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
             }
         } else {
@@ -535,7 +536,7 @@ public class EventBus {
                 throw new EventBusException("Invoking subscriber failed", cause);
             }
             if (logSubscriberExceptions) {
-                Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                logger.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
                         + subscription.subscriber.getClass(), cause);
             }
             if (sendSubscriberExceptionEvent) {
@@ -565,4 +566,7 @@ public class EventBus {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
 
+    public CustomLogger getLogger() {
+        return logger;
+    }
 }

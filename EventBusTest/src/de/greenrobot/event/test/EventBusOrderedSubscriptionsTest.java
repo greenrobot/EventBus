@@ -114,7 +114,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
             }
             lastPrio = prio;
 
-            Log.d(EventBus.TAG, "Subscriber " + prio + " got: " + event);
+            eventBus.getLogger().d(EventBus.TAG, "Subscriber " + prio + " got: " + event, null);
             trackEvent(event);
         }
 
