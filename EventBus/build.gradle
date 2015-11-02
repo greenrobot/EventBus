@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 group = 'de.greenrobot'
 version = '2.4.1-SNAPSHOT'
-sourceCompatibility = 1.6
+sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
 def sonatypeRepositoryUrl
