@@ -1,6 +1,6 @@
+sudo: false
 language: android
 jdk:
-  - openjdk6
   - oraclejdk7
 
 # http://docs.travis-ci.com/user/languages/android/
