@@ -189,7 +189,7 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
 
 ```
 -keepclassmembers class ** {
-    public void onEvent*(**);
+    public void onEvent*(***);
 }
 
 # Only required if you use AsyncExecutor
