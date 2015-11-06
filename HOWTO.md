@@ -192,6 +192,12 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
     public void onEvent*(**);
 }
 
+# EventBus 3.0 annotation
+-keepclassmembers class * {
+    @de.greenrobot.event.Subscribe <methods>;
+}
+-keep enum de.greenrobot.event.ThreadMode { *; }
+
 # Only required if you use AsyncExecutor
 -keepclassmembers class * extends de.greenrobot.event.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
