@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+archivesBaseName = 'eventbus'
 group = 'de.greenrobot'
 version = '3.0.0-beta2'
 sourceCompatibility = 1.6
@@ -45,6 +46,7 @@ sourceSets {
 }
 
 javadoc {
+    failOnError = false
     classpath += configurations.provided
     title = "EventBus ${version} API"
 	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2014 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
@@ -92,8 +94,6 @@ uploadArchives {
             } else {
                 println "Settings sonatypeUsername/sonatypePassword missing/incomplete for ${project.name}"
             }
-
-            pom.artifactId = 'eventbus'
             pom.project {
                name 'EventBus'
                packaging 'jar'
