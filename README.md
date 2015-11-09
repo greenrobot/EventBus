@@ -1,4 +1,4 @@
-**Please help us with this short survey: http://bit.ly/eventbus-survey Thank for your support!**
+**Please help us with this short survey: http://bit.ly/eventbus-survey Thanks for your support!**
 
 EventBus
 ========
