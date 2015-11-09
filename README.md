@@ -1,3 +1,5 @@
+**Please help us with this short survey: http://bit.ly/eventbus-survey Thank for your support! **
+
 EventBus
 ========
 EventBus is publish/subscribe event bus optimized for Android.<br/>
