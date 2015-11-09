@@ -1,4 +1,4 @@
-**Please help us with this short survey: http://bit.ly/eventbus-survey Thank for your support! **
+**Please help us with this short survey: http://bit.ly/eventbus-survey Thank for your support!**
 
 EventBus
 ========
@@ -69,8 +69,8 @@ FAQ
 **Q:** How is EventBus different to Android's BroadcastReceiver/Intent system?<br/>
 **A:** Unlike Android's BroadcastReceiver/Intent system, EventBus uses standard Java classes as events and offers a more convenient API. EventBus is intended for a lot more uses cases where you wouldn't want to go through the hassle of setting up Intents, preparing Intent extras, implementing broadcast receivers, and extracting Intent extras again. Also, EventBus comes with a much lower overhead.
 
- **Q:** How to do pull requests?<br/>
- **A:** Ensure good code quality and consistent formatting. EventBus has a good test coverage: if you propose a new feature or fix a bug, please add a unit test.
+**Q:** How to do pull requests?<br/>
+**A:** Ensure good code quality and consistent formatting. EventBus has a good test coverage: if you propose a new feature or fix a bug, please add a unit test.
 
 Release History, License
 ------------------------
