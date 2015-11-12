@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'de.greenrobot'
-version = '2.4.1-SNAPSHOT'
+version = '2.4.1'
 sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
@@ -45,9 +45,10 @@ sourceSets {
 }
 
 javadoc {
+    failOnError = false
     classpath += configurations.provided
     title = "EventBus ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2014 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2015 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
