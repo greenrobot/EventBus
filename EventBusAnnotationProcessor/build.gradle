@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
+archivesBaseName = 'eventbus-annotation-processor'
 group = 'de.greenrobot'
 version = '3.0.0-beta2'
 
@@ -92,7 +93,6 @@ uploadArchives {
                 println "Settings sonatypeUsername/sonatypePassword missing/incomplete for ${project.name}"
             }
 
-            pom.artifactId = 'eventbus-annotation-processor'
             pom.project {
                 name 'EventBus Annotation Processor'
                 packaging 'jar'
