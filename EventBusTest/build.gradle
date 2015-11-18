@@ -1,10 +1,10 @@
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:1.3.1'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
     }
 }
@@ -13,7 +13,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -23,7 +23,7 @@ dependencies {
 }
 
 android {
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '23.0.1'
     compileSdkVersion 19
 
     sourceSets {

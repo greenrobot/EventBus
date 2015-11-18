@@ -1,5 +1,6 @@
-### V2.x.x (2015-0x-xx) Future release
+### V2.4.1 (2015-11-12) Bug fix release
 * Registering for sticky events now considers sticky events of subclasses, not just the exact same event type. This makes the semantic consistent to posting events. Note, that this may lead to subscribers being called more than once if matching sticky events of event type subclasses are available.
+* Workaround for an Android bug causing NoClassDefFoundError on some devices
 
 ### V2.4.0 (2014-11-11) Clean up release
 * Removed deprecated APIs: A year ago in Version 2.2.0, a couple of EventBus methods were deprecated and flagged to be removed in a future release. Well, version 2.4.0 is that release. Clean ups like this one keep the API concise and simple.

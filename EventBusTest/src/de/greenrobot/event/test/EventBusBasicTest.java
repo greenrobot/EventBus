@@ -21,8 +21,6 @@ import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import junit.framework.TestCase;
 
-import java.lang.ref.WeakReference;
-
 /**
  * @author Markus Junginger, greenrobot
  */
@@ -67,25 +65,14 @@ public class EventBusBasicTest extends TestCase {
     }
 
     public void testUnregisterNotLeaking() {
-        EventBusBasicTest subscriber = new EventBusBasicTest();
-        eventBus.register(subscriber);
-        eventBus.unregister(subscriber);
-
-        WeakReference<EventBusBasicTest> ref = new WeakReference<EventBusBasicTest>(subscriber);
-        subscriber = null;
-        assertSubscriberNotReferenced(ref);
-    }
-
-    private void assertSubscriberNotReferenced(WeakReference<EventBusBasicTest> ref) {
-        EventBusBasicTest subscriberTest = new EventBusBasicTest();
-        WeakReference<EventBusBasicTest> refTest = new WeakReference<EventBusBasicTest>(subscriberTest);
-        subscriberTest = null;
-
-        // Yeah, in theory is is questionable (in practice just fine so far...)
-        System.gc();
-
-        assertNull(refTest.get());
-        assertNull(ref.get());
+        // This will throw "out of memory" if subscribers are leaked
+        for (int i = 0; i < 300; i++) {
+            EventBusBasicTest subscriber = new EventBusBasicTest() {
+                byte[] expensiveObject = new byte[1024 * 1024];
+            };
+            eventBus.register(subscriber);
+            eventBus.unregister(subscriber);
+        }
     }
 
     public void testRegisterTwice() {

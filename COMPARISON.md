@@ -51,7 +51,7 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
         <td>No</td>
     </tr>	
     <tr>
-        <th>Aynchronous event delivery</th>
+        <th>Asynchronous event delivery</th>
         <td>Yes</td>
         <td>No</td>
     </tr>

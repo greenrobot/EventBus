@@ -115,7 +115,7 @@ EventBus 2.3 added EventBusBuilder to configure various aspects of EventBus. For
     EventBus eventBus = EventBus.builder().logNoSubscriberMessages(false).sendNoSubscriberEvent(false).build();
 ```
 
-Another example is to fail when a subscriber throws an exception. Note: by default, EventBus catches exceptions thrown from onEvent methods and sends an SubscriberExceptionEvent that may but do not have to be handled.
+Another example is to fail when a subscriber throws an exception. Note: by default, EventBus catches exceptions thrown from onEvent methods and sends a SubscriberExceptionEvent that may but do not have to be handled.
 
 ```java
     EventBus eventBus = EventBus.builder().throwSubscriberException(true).build();
@@ -124,7 +124,7 @@ Another example is to fail when a subscriber throws an exception. Note: by defau
 Check the EventBusBuilder class and its JavaDoc for all possible configuration possibilities.
 
 ### Configure the default EventBus instance ###
-Using EventBus.getDefault() is a simple way to get an shared EventBus instance. EventBusBuilder also allows to configure this default instance using the method <code>installDefaultEventBus()</code>.
+Using EventBus.getDefault() is a simple way to get a shared EventBus instance. EventBusBuilder also allows to configure this default instance using the method <code>installDefaultEventBus()</code>.
 
 For example, it's possible to configure the default EventBus instance to rethrow exceptions, which occurred in onEvent methods. But let's to this only for DEBUG builds, because this will likely crash the app on exceptions:
 
@@ -132,7 +132,7 @@ For example, it's possible to configure the default EventBus instance to rethrow
 EventBus.builder().throwSubscriberException(BuildConfig.DEBUG).installDefaultEventBus();
 ```
 
-Note: this can be done only once before the the default EventBus instance is used the first time. This ensures consistent behavior in your app. Your Application class is a good place to configure the default EventBus instance before its used.
+Note: this can be done only once before the default EventBus instance is used the first time. This ensures consistent behavior in your app. Your Application class is a good place to configure the default EventBus instance before its used.
 
 Cancelling event delivery
 -------------------------
@@ -154,7 +154,7 @@ Sticky Events
 -------------
 Some events carry information that is of interest after the event is posted. For example, this could be an event signalizing that some initialization is complete. Or if you have some sensor or location data and you want to hold on the most recent values. Instead of implementing your own caching, you can use sticky events. EventBus keeps the last sticky event of a certain type in memory. The sticky event can be delivered to subscribers or queried explicitly. Thus, you don't need any special logic to consider already available data.
 
-Let's say, an sticky event was posted some time ago:
+Let's say, a sticky event was posted some time ago:
 ```java
     EventBus.getDefault().postSticky(new MessageEvent("Hello everyone!"));
 ```
@@ -189,7 +189,7 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
 
 ```
 -keepclassmembers class ** {
-    public void onEvent*(**);
+    public void onEvent*(***);
 }
 
 # Only required if you use AsyncExecutor
@@ -199,98 +199,49 @@ ProGuard obfuscates method names. However, the onEvent methods must not renamed 
 ```
 
 
+AsyncExecutor
+-------------
+_Disclaimer:_ AsyncExecutor is a non-core utility class. It might save you some code with error handling in background threads, but it's not a core EventBus class.
+
+AsyncExecutor is like a thread pool, but with failure handling. Failures are thrown exceptions, which get are wrapped inside an event, which is posted automatically by AsyncExecutor.
+
+Usually, you call AsyncExecutor.create() to create an instance and keep it in Application scope. To execute something, implement the RunnableEx interface and pass it to the execute method of the AsyncExecutor. Unlike Runnable, RunnableEx may throw an Exception.
+
+If the RunnableEx implementation throws an exception, it will be catched and wrapped into a ThrowableFailureEvent, which will be posted.
+
+Code example for execution:
+
+```java
+AsyncExecutor.create().execute(
+  new RunnableEx {
+    public void run throws LoginException {
+      remote.login();
+      EventBus.getDefault().postSticky(new LoggedInEvent());
+      // No need to catch Exception
+    }
+  }
+}
+```
+
+Code example for the receiving part:
+
+```java
+public void onEventMainThread(LoggedInEvent event) {
+  // Change some UI
+}
+
+public void onEventMainThread(ThrowableFailureEvent event) {
+  // Show error in UI
+}
+```
+
+AsyncExecutor Builder
+---------------------
+If you want to customize your AsyncExecutor instance, call the static method AsyncExecutor.builder(). It will return a builder which lets you customize the EventBus instance, the thread pool, and the class of the failure event.
+
+Another customization options is the execution scope, which gives failure events context information. For example, a failure event may be relevant only to a specific Activity instance or class. If your custom failure event class implements the HasExecutionScope interface, AsyncExecutor will set the execution scope automatically. Like this, your subscriber can query the failure event for its execution scope and react depending on it.
+
+
 Comparison with Square's Otto
 -----------------------------
-Otto is another event bus library for Android; actually it's a fork of Guava's EventBus. greenrobot's EventBus and Otto share some basic semantics (register, post, unregister, ...), but there are differences which the following table summarizes:
-<table>
-    <tr>
-        <th></th>
-        <th>EventBus</th>
-        <th>Otto</th>
-    </tr>
-    <tr>
-        <th>Declare event handling methods</th>
-        <td>Name conventions</td>
-        <td>Annotations</td>
-    </tr>	
-    <tr>
-        <th>Event inheritance</th>
-        <td>Yes</td>
-        <td>Yes</td>
-    </tr>	
-    <tr>
-        <th>Subscriber inheritance</th>
-        <td>Yes</td>
-        <td>No</td>
-    </tr>
-    <tr>
-        <th>Cache most recent events</th>
-        <td>Yes, sticky events</td>
-        <td>No</td>
-    </tr>
-    <tr>
-        <th>Event producers (e.g. for coding cached events)</th>
-        <td>No</td>
-        <td>Yes</td>
-    </tr>
-    <tr>
-        <th>Event delivery in posting thread</th>
-        <td>Yes (Default)</td>
-        <td>Yes</td>
-    </tr>	
-    <tr>
-        <th>Event delivery in main thread</th>
-        <td>Yes</td>
-        <td>No</td>
-    </tr>	
-    <tr>
-        <th>Event delivery in background thread</th>
-        <td>Yes</td>
-        <td>No</td>
-    </tr>	
-    <tr>
-        <th>Aynchronous event delivery</th>
-        <td>Yes</td>
-        <td>No</td>
-    </tr>
-</table>
-
-Besides features, performance is another differentiator. To compare performance, we created an Android application, which is also part of this repository (EventBusPerformance). You can also run the app on your phone to benchmark different scenarios.
-
-Benchmark results indicate that EventBus is significantly faster in almost every scenario:
-<table>
-    <tr>
-        <th></th>
-        <th>EventBus</th>
-        <th>Otto</th>
-    </tr>
-    <tr>
-        <th>Posting 1000 events, Android 2.3 emulator</th>
-        <td>~70% faster</td>
-        <td></td>
-    </tr>
-	<tr>
-        <th>Posting 1000 events, S3 Android 4.0</th>
-        <td>~110% faster</td>
-        <td></td>
-    </tr>
-    <tr>
-        <th>Register 1000 subscribers, Android 2.3 emulator</th>
-        <td>~10% faster</td>
-        <td></td>
-    </tr>
-    <tr>
-        <th>Register 1000 subscribers, S3 Android 4.0</th>
-        <td>~70% faster</td>
-        <td></td>
-    </tr>
-    <tr>
-        <th>Register subscribers cold start, Android 2.3 emulator</th>
-        <td>~350% faster</td>
-        <td></td>
-    </tr>	
-    <tr>
-        <th>Register subscribers cold start, S3 Android 4.0</th>
-        <td colspan="2">About the same</td>
-    </tr>	
-</table>
+Check the [COMPARISON.md](COMPARISON.md)

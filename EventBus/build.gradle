@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 group = 'de.greenrobot'
 version = '3.0.0-beta2'
-sourceCompatibility = 1.6
+sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
 def sonatypeRepositoryUrl
@@ -45,9 +45,10 @@ sourceSets {
 }
 
 javadoc {
+    failOnError = false
     classpath += configurations.provided
     title = "EventBus ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2014 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2015 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
