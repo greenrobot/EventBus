@@ -129,7 +129,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     public class SubscriberMainThread {
         final CountDownLatch done = new CountDownLatch(1);
 
-        @Subscribe(threadMode = ThreadMode.MainThread)
+        @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThread(String event) {
             try {
                 eventBus.cancelEventDelivery(event);

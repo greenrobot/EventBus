@@ -275,7 +275,7 @@ public class EventBus {
      * subscribers
      * won't receive the event. Events are usually canceled by higher priority subscribers (see
      * {@link Subscribe#priority()}). Canceling is restricted to event handling methods running in posting thread
-     * {@link ThreadMode#PostThread}.
+     * {@link ThreadMode#POSTING}.
      */
     public void cancelEventDelivery(Object event) {
         PostingThreadState postingState = currentPostingThreadState.get();
@@ -286,7 +286,7 @@ public class EventBus {
             throw new EventBusException("Event may not be null");
         } else if (postingState.event != event) {
             throw new EventBusException("Only the currently handled event may be aborted");
-        } else if (postingState.subscription.subscriberMethod.threadMode != ThreadMode.PostThread) {
+        } else if (postingState.subscription.subscriberMethod.threadMode != ThreadMode.POSTING) {
             throw new EventBusException(" event handlers may only abort the incoming event");
         }
 
@@ -425,24 +425,24 @@ public class EventBus {
 
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
         switch (subscription.subscriberMethod.threadMode) {
-            case PostThread:
+            case POSTING:
                 invokeSubscriber(subscription, event);
                 break;
-            case MainThread:
+            case MAIN:
                 if (isMainThread) {
                     invokeSubscriber(subscription, event);
                 } else {
                     mainThreadPoster.enqueue(subscription, event);
                 }
                 break;
-            case BackgroundThread:
+            case BACKGROUND:
                 if (isMainThread) {
                     backgroundPoster.enqueue(subscription, event);
                 } else {
                     invokeSubscriber(subscription, event);
                 }
                 break;
-            case Async:
+            case ASYNC:
                 asyncPoster.enqueue(subscription, event);
                 break;
             default:

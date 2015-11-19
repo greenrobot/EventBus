@@ -94,32 +94,32 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
         }
 
 
-        @Subscribe(threadMode = ThreadMode.MainThread, priority = -1)
+        @Subscribe(threadMode = ThreadMode.MAIN, priority = -1)
         public void onEventMainThreadM1(IntTestEvent event) {
             handleEvent(-1, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.MainThread)
+        @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThreadP0(IntTestEvent event) {
             handleEvent(0, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.MainThread, priority = 1)
+        @Subscribe(threadMode = ThreadMode.MAIN, priority = 1)
         public void onEventMainThreadP1(IntTestEvent event) {
             handleEvent(1, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = 1)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND, priority = 1)
         public void onEventBackgroundThreadP1(Integer event) {
             handleEvent(1, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND)
         public void onEventBackgroundThreadP0(Integer event) {
             handleEvent(0, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = -1)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND, priority = -1)
         public void onEventBackgroundThreadM1(Integer event) {
             handleEvent(-1, event);
         }
@@ -163,32 +163,32 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
             handleEvent(-100, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.MainThread, priority = -1, sticky = true)
+        @Subscribe(threadMode = ThreadMode.MAIN, priority = -1, sticky = true)
         public void onEventMainThreadM1(IntTestEvent event) {
             handleEvent(-1, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.MainThread, sticky = true)
+        @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
         public void onEventMainThreadP0(IntTestEvent event) {
             handleEvent(0, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.MainThread, priority = 1, sticky = true)
+        @Subscribe(threadMode = ThreadMode.MAIN, priority = 1, sticky = true)
         public void onEventMainThreadP1(IntTestEvent event) {
             handleEvent(1, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = 1, sticky = true)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND, priority = 1, sticky = true)
         public void onEventBackgroundThreadP1(Integer event) {
             handleEvent(1, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread, sticky = true)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND, sticky = true)
         public void onEventBackgroundThreadP0(Integer event) {
             handleEvent(0, event);
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread, priority = -1, sticky = true)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND, priority = -1, sticky = true)
         public void onEventBackgroundThreadM1(Integer event) {
             handleEvent(-1, event);
         }

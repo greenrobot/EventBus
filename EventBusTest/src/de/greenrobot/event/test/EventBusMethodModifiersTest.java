@@ -39,19 +39,19 @@ public class EventBusMethodModifiersTest extends AbstractEventBusTest {
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
-    @Subscribe(threadMode = ThreadMode.MainThread)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(String event) {
         trackEvent(event);
         assertSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
-    @Subscribe(threadMode = ThreadMode.BackgroundThread)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(String event) {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
-    @Subscribe(threadMode = ThreadMode.Async)
+    @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onEventAsync(String event) {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());

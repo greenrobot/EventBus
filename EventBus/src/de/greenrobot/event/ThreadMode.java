@@ -29,14 +29,14 @@ public enum ThreadMode {
      * simple tasks that are known to complete is a very short time without requiring the main thread. Event handlers
      * using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
      */
-    PostThread,
+    POSTING,
 
     /**
      * Subscriber will be called in Android's main thread (sometimes referred to as UI thread). If the posting thread is
      * the main thread, event handler methods will be called directly. Event handlers using this mode must return
      * quickly to avoid blocking the main thread.
      */
-    MainThread,
+    MAIN,
 
     /**
      * Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods
@@ -44,7 +44,7 @@ public enum ThreadMode {
      * background thread, that will deliver all its events sequentially. Event handlers using this mode should try to
      * return quickly to avoid blocking the background thread.
      */
-    BackgroundThread,
+    BACKGROUND,
 
     /**
      * Event handler methods are called in a separate thread. This is always independent from the posting thread and the
@@ -53,5 +53,5 @@ public enum ThreadMode {
      * of long running asynchronous handler methods at the same time to limit the number of concurrent threads. EventBus
      * uses a thread pool to efficiently reuse threads from completed asynchronous event handler notifications.
      */
-    Async
+    ASYNC
 }

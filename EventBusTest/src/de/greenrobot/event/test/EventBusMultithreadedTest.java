@@ -166,21 +166,21 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         return threads;
     }
 
-    @Subscribe(threadMode = ThreadMode.BackgroundThread)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(String event) {
         lastStringEvent = event;
         countStringEvent.incrementAndGet();
         trackEvent(event);
     }
 
-    @Subscribe(threadMode = ThreadMode.MainThread)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(Integer event) {
         lastIntegerEvent = event;
         countIntegerEvent.incrementAndGet();
         trackEvent(event);
     }
 
-    @Subscribe(threadMode = ThreadMode.Async)
+    @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onEventAsync(IntTestEvent event) {
         countIntTestEvent.incrementAndGet();
         lastIntTestEvent = event;
@@ -245,12 +245,12 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
             }
         }
 
-        @Subscribe(threadMode = ThreadMode.MainThread)
+        @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThread(String event) {
             assertSame(Looper.getMainLooper(), Looper.myLooper());
         }
 
-        @Subscribe(threadMode = ThreadMode.BackgroundThread)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND)
         public void onEventBackgroundThread(Integer event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }
@@ -260,7 +260,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }
 
-        @Subscribe(threadMode = ThreadMode.Async)
+        @Subscribe(threadMode = ThreadMode.ASYNC)
         public void onEventAsync(Object event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }

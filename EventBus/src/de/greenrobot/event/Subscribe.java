@@ -7,13 +7,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import de.greenrobot.event.ThreadMode;
-
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Subscribe {
-    ThreadMode threadMode() default ThreadMode.PostThread;
+    ThreadMode threadMode() default ThreadMode.POSTING;
 
     /**
      * If true, delivers the most recent sticky event (posted with

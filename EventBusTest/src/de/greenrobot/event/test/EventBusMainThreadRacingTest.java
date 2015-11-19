@@ -86,7 +86,7 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
         awaitLatch(doneLatch, 10);
     }
 
-    @Subscribe(threadMode = ThreadMode.MainThread)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(String event) {
         trackEvent(event);
         if (unregistered) {

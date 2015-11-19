@@ -59,7 +59,7 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
         assertEquals(Looper.getMainLooper().getThread(), lastThread);
     }
 
-    @Subscribe(threadMode = ThreadMode.MainThread)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(String event) {
         trackEvent(event);
     }

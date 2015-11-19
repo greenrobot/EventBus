@@ -42,7 +42,7 @@ public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
         assertFalse(lastThread.equals(Looper.getMainLooper().getThread()));
     }
 
-    @Subscribe(threadMode = ThreadMode.BackgroundThread)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(String event) {
         trackEvent(event);
     }
