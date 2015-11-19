@@ -30,7 +30,7 @@ public abstract class SubscriberInfo {
 
     abstract protected Data createSubscriberData();
 
-    protected SubscriberMethod createSubscriberMethod(Class<?> subscriberClass, String methodName, Class<?> eventType,
+    protected static SubscriberMethod createSubscriberMethod(Class<?> subscriberClass, String methodName, Class<?> eventType,
                                             ThreadMode threadMode, int priority, boolean sticky) {
         try {
             Method method = subscriberClass.getDeclaredMethod(methodName, eventType);

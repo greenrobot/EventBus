@@ -236,6 +236,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private void writeNextEntry(BufferedWriter writer, String myPackage, TypeElement nextEntry) throws IOException {
+        String nextValue;
         if (nextEntry != null) {
             PackageElement nextPackageElement = getPackageElement(nextEntry);
             String nextPackage = nextPackageElement.getQualifiedName().toString();
@@ -244,10 +245,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             if (!myPackage.equals(nextPackage)) {
                 nextInfoClassName = nextPackage + "." + nextInfoClassName;
             }
-            writer.write("        Class<?> next = " + nextInfoClassName + ".class" + ";\n");
+            nextValue = nextInfoClassName + ".class";
         } else {
-            writer.write("        Class<?> next = null;\n");
+            nextValue = "null";
         }
+        writer.write("        Class<?> next = " + nextValue + ";\n");
     }
 
     private String getClassString(TypeElement subscriberClass, String subscriberPackage) {
