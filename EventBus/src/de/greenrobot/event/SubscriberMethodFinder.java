@@ -72,7 +72,7 @@ class SubscriberMethodFinder {
         FindState findState = new FindState();
         findState.initForSubscriber(subscriberClass);
         while (findState.clazz != null) {
-            SubscriberInfo info = getSubscriberInfo(subscriberClass);
+            SubscriberInfo info = getSubscriberInfo(findState.clazz);
             if (info != null) {
                 SubscriberInfo.Data subscriberData = info.getSubscriberData();
                 SubscriberMethod[] array = subscriberData.subscriberMethods;
@@ -84,7 +84,7 @@ class SubscriberMethodFinder {
             } else {
                 findUsingReflectionInSingleClass(findState);
             }
-            findState.nextClass();
+            findState.moveToSuperclass();
         }
         return findState.subscriberMethods;
     }
@@ -111,7 +111,7 @@ class SubscriberMethodFinder {
         findState.initForSubscriber(subscriberClass);
         while (findState.clazz != null) {
             findUsingReflectionInSingleClass(findState);
-            findState.nextClass();
+            findState.moveToSuperclass();
         }
         return findState.subscriberMethods;
     }
@@ -182,7 +182,7 @@ class SubscriberMethodFinder {
             return eventTypesFound.add(methodKey);
         }
 
-        void nextClass() {
+        void moveToSuperclass() {
             clazz = clazz.getSuperclass();
             clazzName = clazz.getName();
             /** Skip system classes, this just degrades performance. */
