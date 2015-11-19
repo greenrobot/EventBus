@@ -19,7 +19,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +116,15 @@ class SubscriberMethodFinder {
     }
 
     private void findUsingReflectionInSingleClass(FindState findState) {
-        Method[] methods = findState.clazz.getDeclaredMethods();
+        Method[] methods;
+        try {
+            // This is faster than getMethods, especially when subscribers a fat classes like Activities
+            methods = findState.clazz.getDeclaredMethods();
+        } catch (Throwable th) {
+            // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
+            methods = findState.clazz.getMethods();
+            findState.skipSuperClasses = true;
+        }
         for (Method method : methods) {
             int modifiers = method.getModifiers();
             if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
@@ -134,14 +141,14 @@ class SubscriberMethodFinder {
                     }
                 } else if (strictMethodVerification) {
                     if (method.isAnnotationPresent(Subscribe.class)) {
-                        String methodName = findState.clazzName + "." + method.getName();
+                        String methodName = method.getDeclaringClass().getName() + "." + method.getName();
                         throw new EventBusException("@Subscribe method " + methodName +
                                 "must have exactly 1 parameter but has " + parameterTypes.length);
                     }
                 }
             } else if (strictMethodVerification) {
                 if (method.isAnnotationPresent(Subscribe.class)) {
-                    String methodName = findState.clazzName + "." + method.getName();
+                    String methodName = method.getDeclaringClass().getName() + "." + method.getName();
                     throw new EventBusException(methodName +
                             " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
                 }
@@ -157,11 +164,12 @@ class SubscriberMethodFinder {
 
     class FindState {
         final List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
-        final HashSet<String> eventTypesFound = new HashSet<String>();
+        final Map<String, Class> eventTypesFound = new HashMap<String, Class>();
         final StringBuilder methodKeyBuilder = new StringBuilder();
         Class<?> subscriberClass;
         Class<?> clazz;
         String clazzName;
+        boolean skipSuperClasses;
 
         void initForSubscriber(Class<?> subscriberClass) {
             this.subscriberClass = clazz = subscriberClass;
@@ -179,16 +187,30 @@ class SubscriberMethodFinder {
             methodKeyBuilder.append('>').append(eventType.getName());
 
             String methodKey = methodKeyBuilder.toString();
-            return eventTypesFound.add(methodKey);
+            Class<?> methodClass = method.getDeclaringClass();
+            Class methodClassOld = eventTypesFound.put(methodKey, methodClass);
+            if (methodClassOld == null || methodClassOld.isAssignableFrom(methodClass)) {
+                // Only add if not already found in a sub class
+                return true;
+            } else {
+                // Revert the put, old class is further down the class hierarchy
+                eventTypesFound.put(methodKey, methodClassOld);
+                return false;
+            }
         }
 
         void moveToSuperclass() {
-            clazz = clazz.getSuperclass();
-            clazzName = clazz.getName();
-            /** Skip system classes, this just degrades performance. */
-            if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
+            if (skipSuperClasses) {
                 clazz = null;
                 clazzName = null;
+            } else {
+                clazz = clazz.getSuperclass();
+                clazzName = clazz.getName();
+                /** Skip system classes, this just degrades performance. */
+                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
+                    clazz = null;
+                    clazzName = null;
+                }
             }
         }
     }
