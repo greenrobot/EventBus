@@ -64,14 +64,16 @@ public class EventBusBasicTest extends TestCase {
         eventBus.unregister(this);
     }
 
+    // This will throw "out of memory" if subscribers are leaked
     public void testUnregisterNotLeaking() {
-        // This will throw "out of memory" if subscribers are leaked
-        for (int i = 0; i < 300; i++) {
+        int heapMBytes = (int) (Runtime.getRuntime().maxMemory() / (1024L * 1024L));
+        for (int i = 0; i < heapMBytes * 2; i++) {
             EventBusBasicTest subscriber = new EventBusBasicTest() {
                 byte[] expensiveObject = new byte[1024 * 1024];
             };
             eventBus.register(subscriber);
             eventBus.unregister(subscriber);
+            Log.d("Test", "Iteration " + i + " / max heap: " + heapMBytes);
         }
     }
 
