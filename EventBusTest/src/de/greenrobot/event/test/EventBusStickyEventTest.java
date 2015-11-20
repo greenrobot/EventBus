@@ -34,6 +34,21 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         assertEquals(2, eventCount.intValue());
     }
 
+    public void testPostStickyTwoSubscribers() throws InterruptedException {
+        eventBus.postSticky("Sticky");
+        eventBus.postSticky(new IntTestEvent(7));
+        eventBus.registerSticky(this);
+        StickyIntTestSubscriber subscriber2 = new StickyIntTestSubscriber();
+        eventBus.registerSticky(subscriber2);
+        assertEquals(3, eventCount.intValue());
+
+        eventBus.postSticky("Sticky");
+        assertEquals(4, eventCount.intValue());
+
+        eventBus.postSticky(new IntTestEvent(8));
+        assertEquals(6, eventCount.intValue());
+    }
+
     public void testPostStickyRegisterNonSticky() throws InterruptedException {
         eventBus.postSticky("Sticky");
         eventBus.register(this);
@@ -136,6 +151,12 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
 
     public void onEvent(IntTestEvent event) {
         trackEvent(event);
+    }
+
+    public class StickyIntTestSubscriber {
+        public void onEvent(IntTestEvent event) {
+            trackEvent(event);
+        }
     }
 
 }
