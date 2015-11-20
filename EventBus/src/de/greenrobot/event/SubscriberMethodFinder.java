@@ -76,7 +76,6 @@ class SubscriberMethodFinder {
                 Method[] methods = clazz.getDeclaredMethods();
                 filterSubscriberMethods(subscriberMethods, eventTypesFound, methodKeyBuilder, methods);
             } catch (Throwable th) {
-                th.printStackTrace();
                 // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
                 Method[] methods = subscriberClass.getMethods();
                 subscriberMethods.clear();
