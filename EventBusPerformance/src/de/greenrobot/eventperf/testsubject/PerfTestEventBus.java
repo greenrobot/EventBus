@@ -45,13 +45,13 @@ public abstract class PerfTestEventBus extends Test {
 
     private Class<?> getSubscriberClassForThreadMode() {
         switch (params.getThreadMode()) {
-            case MainThread:
+            case MAIN:
                 return SubscribeClassEventBusMain.class;
-            case BackgroundThread:
+            case BACKGROUND:
                 return SubscribeClassEventBusBackground.class;
-            case Async:
+            case ASYNC:
                 return SubscriberClassEventBusAsync.class;
-            case PostThread:
+            case POSTING:
                 return SubscribeClassEventBusDefault.class;
             default:
                 throw new RuntimeException("Unknown: " + params.getThreadMode());
@@ -206,7 +206,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscribeClassEventBusMain {
-        @Subscribe(threadMode = ThreadMode.MainThread)
+        @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThread(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
@@ -228,7 +228,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscribeClassEventBusBackground {
-        @Subscribe(threadMode = ThreadMode.BackgroundThread)
+        @Subscribe(threadMode = ThreadMode.BACKGROUND)
         public void onEventBackgroundThread(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }
@@ -250,7 +250,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public class SubscriberClassEventBusAsync {
-        @Subscribe(threadMode = ThreadMode.Async)
+        @Subscribe(threadMode = ThreadMode.ASYNC)
         public void onEventAsync(TestEvent event) {
             eventsReceivedCount.incrementAndGet();
         }

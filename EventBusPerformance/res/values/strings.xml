@@ -19,10 +19,10 @@
         <item>Register Subscribers, 1. time</item>
     </string-array>
     <string-array name="spinnerThreadModes">
-        <item>PostThread</item>
-        <item>MainThread</item>
-        <item>BackgroundThread</item>
-        <item>Async</item>
+        <item>POSTING</item>
+        <item>MAIN</item>
+        <item>BACKGROUND</item>
+        <item>ASYNC</item>
     </string-array>
 
     <string name="testIsRunning">Test Is \nRunning!</string>

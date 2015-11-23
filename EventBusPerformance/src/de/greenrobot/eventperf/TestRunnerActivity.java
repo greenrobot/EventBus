@@ -46,7 +46,7 @@ public class TestRunnerActivity extends Activity {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MainThread)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(TestFinishedEvent event) {
         Test test = event.test;
         String text = "<b>" + test.getDisplayName() + "</b><br/>" + //
