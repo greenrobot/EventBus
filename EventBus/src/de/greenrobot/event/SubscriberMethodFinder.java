@@ -73,8 +73,7 @@ class SubscriberMethodFinder {
         while (findState.clazz != null) {
             SubscriberInfo info = getSubscriberInfo(findState.clazz);
             if (info != null) {
-                SubscriberInfo.Data subscriberData = info.getSubscriberData();
-                SubscriberMethod[] array = subscriberData.subscriberMethods;
+                SubscriberMethod[] array = info.createSubscriberMethods();
                 for (SubscriberMethod subscriberMethod : array) {
                     if (findState.checkAdd(subscriberMethod.method, subscriberMethod.eventType)) {
                         findState.subscriberMethods.add(subscriberMethod);

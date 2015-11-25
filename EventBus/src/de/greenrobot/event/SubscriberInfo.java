@@ -1,34 +1,22 @@
 package de.greenrobot.event;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 /** Preprocessed index: base class for generated "MyGeneratedSubscriberIndex" class by annotation processing. */
 public abstract class SubscriberInfo {
-    // TODO move class fields into SubscriberInfo
-    public static class Data {
-        public final Class<?> subscriberClass;
-        public final SubscriberMethod[] subscriberMethods;
-        public final Class<?> nextInfo;
+    final Class subscriberClass;
+    final Class superSubscriberInfoClass;
+    final Class nextSubscriberInfoClass;
 
-        public Data(Class<?> subscriberClass, SubscriberMethod[] subscriberMethods, Class<?> nextInfo) {
-            this.subscriberClass = subscriberClass;
-            this.subscriberMethods = subscriberMethods;
-            this.nextInfo = nextInfo;
-        }
+    protected SubscriberMethod[] subscriberMethods;
+
+    protected SubscriberInfo(Class subscriberClass, Class superSubscriberInfoClass, Class nextSubscriberInfoClass) {
+        this.subscriberClass = subscriberClass;
+        this.superSubscriberInfoClass = superSubscriberInfoClass;
+        this.nextSubscriberInfoClass = nextSubscriberInfoClass;
     }
 
-    private volatile Data data;
-
-    Data getSubscriberData() {
-        if (data == null) {
-            data = createSubscriberData();
-        }
-        return data;
-    }
-
-    abstract protected Data createSubscriberData();
+    abstract protected  SubscriberMethod[] createSubscriberMethods();
 
     protected static SubscriberMethod createSubscriberMethod(Class<?> subscriberClass, String methodName, Class<?> eventType,
                                             ThreadMode threadMode, int priority, boolean sticky) {
