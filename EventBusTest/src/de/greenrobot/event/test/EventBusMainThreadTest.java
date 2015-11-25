@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
+ * Copyright (C) 2012-2015 Markus Junginger, greenrobot (http://greenrobot.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
                 eventQ.notifyAll();
             }
             synchronized (eventsDone) {
-                while (eventsDone.remove(event)) {
+                while (!eventsDone.remove(event)) {
                     try {
                         eventsDone.wait();
                     } catch (InterruptedException e) {
