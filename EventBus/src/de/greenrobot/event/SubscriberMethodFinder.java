@@ -37,6 +37,9 @@ class SubscriberMethodFinder {
     private final boolean strictMethodVerification;
     private final boolean ignoreGeneratedIndex;
 
+    private static final int POOL_SIZE = 4;
+    private static final FindState[] FIND_STATE_POOL = new FindState[POOL_SIZE];
+
     SubscriberMethodFinder(boolean strictMethodVerification, boolean ignoreGeneratedIndex) {
         this.strictMethodVerification = strictMethodVerification;
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
@@ -68,7 +71,7 @@ class SubscriberMethodFinder {
     }
 
     private List<SubscriberMethod> findUsingInfo(Class<?> subscriberClass) {
-        FindState findState = new FindState();
+        FindState findState = prepareFindState();
         findState.initForSubscriber(subscriberClass);
         while (findState.clazz != null) {
             findState.subscriberInfo = getSubscriberInfo(findState);
@@ -84,7 +87,34 @@ class SubscriberMethodFinder {
             }
             findState.moveToSuperclass();
         }
-        return findState.subscriberMethods;
+        return getMethodsAndRelease(findState);
+    }
+
+    private List<SubscriberMethod> getMethodsAndRelease(FindState findState) {
+        ArrayList<SubscriberMethod> subscriberMethods = new ArrayList<>(findState.subscriberMethods);
+        findState.recycle();
+        synchronized (FIND_STATE_POOL) {
+            for (int i = 0; i < POOL_SIZE; i++) {
+                if (FIND_STATE_POOL[i] == null) {
+                    FIND_STATE_POOL[i] = findState;
+                    break;
+                }
+            }
+        }
+        return subscriberMethods;
+    }
+
+    private FindState prepareFindState() {
+        synchronized (FIND_STATE_POOL) {
+            for (int i = 0; i < POOL_SIZE; i++) {
+                FindState state = FIND_STATE_POOL[i];
+                if (state != null) {
+                    FIND_STATE_POOL[i] = null;
+                    return state;
+                }
+            }
+        }
+        return new FindState();
     }
 
     private SubscriberInfo getSubscriberInfo(FindState findState) {
@@ -115,13 +145,13 @@ class SubscriberMethodFinder {
     }
 
     private List<SubscriberMethod> findUsingReflection(Class<?> subscriberClass) {
-        FindState findState = new FindState();
+        FindState findState = prepareFindState();
         findState.initForSubscriber(subscriberClass);
         while (findState.clazz != null) {
             findUsingReflectionInSingleClass(findState);
             findState.moveToSuperclass();
         }
-        return findState.subscriberMethods;
+        return getMethodsAndRelease(findState);
     }
 
     private void findUsingReflectionInSingleClass(FindState findState) {
@@ -171,15 +201,16 @@ class SubscriberMethodFinder {
         }
     }
 
-    class FindState {
+    static class FindState {
         final List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
         final Map<String, Class> eventTypesFound = new HashMap<String, Class>();
         final StringBuilder methodKeyBuilder = new StringBuilder();
+
         Class<?> subscriberClass;
         Class<?> clazz;
         String clazzName;
         boolean skipSuperClasses;
-        public SubscriberInfo subscriberInfo;
+        SubscriberInfo subscriberInfo;
 
         void initForSubscriber(Class<?> subscriberClass) {
             this.subscriberClass = clazz = subscriberClass;
@@ -187,8 +218,12 @@ class SubscriberMethodFinder {
 
         void recycle() {
             subscriberMethods.clear();
-            methodKeyBuilder.setLength(0);
             eventTypesFound.clear();
+            methodKeyBuilder.setLength(0);
+            subscriberClass = null;
+            clazz = null;
+            skipSuperClasses = false;
+            subscriberInfo = null;
         }
 
         boolean checkAdd(Method method, Class<?> eventType) {
