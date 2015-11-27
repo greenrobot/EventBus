@@ -215,14 +215,13 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 TypeElement nextEntry = nextEntry(entries, entry, i);
                 String next = getNextValue(myPackage, nextEntry);
                 String infoSuperClass = getSuperclassInfoClass(subscriberClass, myPackage);
-                writer.write("        super(" + subscriberClassName + ".class, " + infoSuperClass + ", " + next + ");\n");
+                writeLine(writer, 2, "super(" + subscriberClassName + ".class,", infoSuperClass + ",", next + ");");
                 writer.write("    }\n\n");
                 writer.write("    protected SubscriberMethod[] createSubscriberMethods() {\n");
-                writer.write("        SubscriberMethod[] subscriberMethods = new SubscriberMethod[] {\n");
+                writer.write("        return new SubscriberMethod[] {\n");
                 Set<String> methodSignatures = new HashSet<String>();
                 writeMethods(writer, entry.getValue(), methodSignatures);
                 writer.write("        };\n");
-                writer.write("        return subscriberMethods;\n");
                 writer.write("    }\n}\n");
             } catch (IOException e) {
                 throw new RuntimeException("Could not write source for " + subscriberClass.getQualifiedName(), e);
