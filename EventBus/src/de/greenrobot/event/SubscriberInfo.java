@@ -16,10 +16,19 @@ public abstract class SubscriberInfo {
         this.nextSubscriberInfoClass = nextSubscriberInfoClass;
     }
 
-    abstract protected  SubscriberMethod[] createSubscriberMethods();
+    abstract protected SubscriberMethod[] createSubscriberMethods();
 
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType,
-                                            ThreadMode threadMode, int priority, boolean sticky) {
+    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType) {
+        return createSubscriberMethod(methodName, eventType, ThreadMode.POSTING, 0, false);
+
+    }
+
+    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode) {
+        return createSubscriberMethod(methodName, eventType, threadMode, 0, false);
+    }
+
+    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode,
+                                                      int priority, boolean sticky) {
         try {
             Method method = subscriberClass.getDeclaredMethod(methodName, eventType);
             return new SubscriberMethod(method, eventType, threadMode, priority, sticky);

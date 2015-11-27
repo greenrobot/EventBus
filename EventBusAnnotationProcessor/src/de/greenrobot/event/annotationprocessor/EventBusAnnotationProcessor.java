@@ -26,6 +26,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 
 @SupportedAnnotationTypes("de.greenrobot.event.Subscribe")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
@@ -317,10 +318,23 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             String methodName = method.getSimpleName().toString();
 
             Subscribe subscribe = method.getAnnotation(Subscribe.class);
-            writeLine(writer, 3, "createSubscriberMethod(\"" + methodName + "\",",
-                    paramType.toString() + ".class,",
-                    "ThreadMode." + subscribe.threadMode().name() + ", " +
-                            subscribe.priority() + ", " + subscribe.sticky(), "),");
+            List<String> parts = new ArrayList<String>();
+            parts.add("createSubscriberMethod(\"" + methodName + "\",");
+            String lineEnd = "),";
+            if (subscribe.priority() == 0 && !subscribe.sticky()) {
+                if (subscribe.threadMode() == ThreadMode.POSTING) {
+                    parts.add(paramType.toString() + ".class" + lineEnd);
+                } else {
+                    parts.add(paramType.toString() + ".class,");
+                    parts.add("ThreadMode." + subscribe.threadMode().name() + lineEnd);
+                }
+            } else {
+                parts.add(paramType.toString() + ".class,");
+                parts.add("ThreadMode." + subscribe.threadMode().name() + ",");
+                parts.add(subscribe.priority() + ",");
+                parts.add(subscribe.sticky() + lineEnd);
+            }
+            writeLine(writer, 3, parts.toArray(new String[parts.size()]));
 
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
                     method.getEnclosingElement().getSimpleName() + "." + methodName +
