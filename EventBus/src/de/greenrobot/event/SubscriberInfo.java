@@ -18,7 +18,7 @@ public abstract class SubscriberInfo {
 
     abstract protected  SubscriberMethod[] createSubscriberMethods();
 
-    protected static SubscriberMethod createSubscriberMethod(Class<?> subscriberClass, String methodName, Class<?> eventType,
+    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType,
                                             ThreadMode threadMode, int priority, boolean sticky) {
         try {
             Method method = subscriberClass.getDeclaredMethod(methodName, eventType);

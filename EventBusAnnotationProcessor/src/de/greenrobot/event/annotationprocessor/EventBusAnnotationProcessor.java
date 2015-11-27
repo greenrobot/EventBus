@@ -217,10 +217,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 writer.write("        super(" + subscriberClassName + ".class, " + infoSuperClass + ", " + next + ");\n");
                 writer.write("    }\n\n");
                 writer.write("    protected SubscriberMethod[] createSubscriberMethods() {\n");
-                writer.write("        Class<?> subscriberClass = " + subscriberClassName + ".class;\n");
                 writer.write("        SubscriberMethod[] subscriberMethods = new SubscriberMethod[] {\n");
                 Set<String> methodSignatures = new HashSet<String>();
-                writeMethods(writer, null, entry.getValue(), methodSignatures);
+                writeMethods(writer, entry.getValue(), methodSignatures);
                 writer.write("        };\n");
                 writer.write("        return subscriberMethods;\n");
                 writer.write("    }\n}\n");
@@ -303,7 +302,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private void writeMethods(BufferedWriter writer, TypeElement subscriberClass, List<ExecutableElement> methods, Set<String> methodSignatures) throws IOException {
+    private void writeMethods(BufferedWriter writer, List<ExecutableElement> methods, Set<String> methodSignatures) throws IOException {
         for (ExecutableElement method : methods) {
 
             List<? extends VariableElement> parameters = method.getParameters();
@@ -316,12 +315,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             }
 
             String methodName = method.getSimpleName().toString();
-            String subscriberClassString = subscriberClass == null ? "subscriberClass" :
-                    subscriberClass.asType().toString() + ".class";
 
             Subscribe subscribe = method.getAnnotation(Subscribe.class);
-            writeLine(writer, 3, "createSubscriberMethod(" + subscriberClassString + ",",
-                    "\"" + methodName + "\",",
+            writeLine(writer, 3, "createSubscriberMethod(\"" + methodName + "\",",
                     paramType.toString() + ".class,",
                     "ThreadMode." + subscribe.threadMode().name() + ", " +
                             subscribe.priority() + ", " + subscribe.sticky(), "),");
