@@ -2,13 +2,11 @@ package de.greenrobot.event;
 
 import java.lang.reflect.Method;
 
-/** Preprocessed index: base class for generated "MyGeneratedSubscriberIndex" class by annotation processing. */
+/** Base class for generated index classes created by annotation processing. */
 public abstract class SubscriberInfo {
     final Class subscriberClass;
     final Class superSubscriberInfoClass;
     final Class nextSubscriberInfoClass;
-
-    protected SubscriberMethod[] subscriberMethods;
 
     protected SubscriberInfo(Class subscriberClass, Class superSubscriberInfoClass, Class nextSubscriberInfoClass) {
         this.subscriberClass = subscriberClass;
