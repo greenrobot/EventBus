@@ -71,9 +71,9 @@ class SubscriberMethodFinder {
         FindState findState = new FindState();
         findState.initForSubscriber(subscriberClass);
         while (findState.clazz != null) {
-            SubscriberInfo info = getSubscriberInfo(findState.clazz);
-            if (info != null) {
-                SubscriberMethod[] array = info.createSubscriberMethods();
+            findState.subscriberInfo = getSubscriberInfo(findState);
+            if (findState.subscriberInfo != null) {
+                SubscriberMethod[] array = findState.subscriberInfo.createSubscriberMethods();
                 for (SubscriberMethod subscriberMethod : array) {
                     if (findState.checkAdd(subscriberMethod.method, subscriberMethod.eventType)) {
                         findState.subscriberMethods.add(subscriberMethod);
@@ -87,9 +87,19 @@ class SubscriberMethodFinder {
         return findState.subscriberMethods;
     }
 
-    private SubscriberInfo getSubscriberInfo(Class<?> subscriberClass) {
+    private SubscriberInfo getSubscriberInfo(FindState findState) {
         SubscriberInfo info = null;
-        String infoClass = subscriberClass.getName().replace('$', '_') + "_EventBusInfo";
+        if (findState.subscriberInfo != null && findState.subscriberInfo.superSubscriberInfoClass != null) {
+            try {
+                SubscriberInfo superclassInfo = (SubscriberInfo) findState.subscriberInfo.superSubscriberInfoClass.newInstance();
+                if (findState.clazz == superclassInfo.subscriberClass) {
+                    return superclassInfo;
+                }
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw new EventBusException(e);
+            }
+        }
+        String infoClass = findState.clazz.getName().replace('$', '_') + "_EventBusInfo";
         try {
             Class<?> aClass = Class.forName(infoClass);
             Object object = aClass.newInstance();
@@ -99,7 +109,7 @@ class SubscriberMethodFinder {
         } catch (ClassNotFoundException e) {
             // TODO don't try again
         } catch (Exception e) {
-            throw new EventBusException("Could not get infos for " + subscriberClass, e);
+            throw new EventBusException("Could not get infos for " + findState.clazz, e);
         }
         return info;
     }
@@ -169,6 +179,7 @@ class SubscriberMethodFinder {
         Class<?> clazz;
         String clazzName;
         boolean skipSuperClasses;
+        public SubscriberInfo subscriberInfo;
 
         void initForSubscriber(Class<?> subscriberClass) {
             this.subscriberClass = clazz = subscriberClass;

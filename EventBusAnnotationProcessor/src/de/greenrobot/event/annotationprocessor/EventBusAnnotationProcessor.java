@@ -1,6 +1,13 @@
 package de.greenrobot.event.annotationprocessor;
 
-import de.greenrobot.event.Subscribe;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
@@ -17,14 +24,8 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import de.greenrobot.event.Subscribe;
 
 @SupportedAnnotationTypes("de.greenrobot.event.Subscribe")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
@@ -199,7 +200,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 PackageElement packageElement = getPackageElement(subscriberClass);
                 String myPackage = packageElement.getQualifiedName().toString();
                 String subscriberClassName = getClassString(subscriberClass, myPackage);
-                String infoClassName = subscriberClassName.replace('.', '_') + CLASS_POSTFIX;
+                String infoClassName = getInfoClass(subscriberClass, myPackage);
 
                 JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(myPackage + '.' + infoClassName);
                 writer = new BufferedWriter(sourceFile.openWriter());
@@ -212,7 +213,8 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 writer.write("    public " + infoClassName + "() {\n");
                 TypeElement nextEntry = nextEntry(entries, entry, i);
                 String next = getNextValue(myPackage, nextEntry);
-                writer.write("        super(" + subscriberClassName + ".class, null, " + next + ");\n");
+                String infoSuperClass = getSuperclassInfoClass(subscriberClass, myPackage);
+                writer.write("        super(" + subscriberClassName + ".class, " + infoSuperClass + ", " + next + ");\n");
                 writer.write("    }\n\n");
                 writer.write("    protected SubscriberMethod[] createSubscriberMethods() {\n");
                 writer.write("        Class<?> subscriberClass = " + subscriberClassName + ".class;\n");
@@ -236,13 +238,28 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    private String getSuperclassInfoClass(TypeElement subscriberClass, String myPackage) {
+        DeclaredType superclassType = (DeclaredType) subscriberClass.getSuperclass();
+        if (superclassType != null) {
+            TypeElement superclass = (TypeElement) superclassType.asElement();
+            if (methodsByClass.containsKey(superclass) && !classesToSkip.contains(superclass)) {
+                return getInfoClass(superclass, myPackage) + ".class";
+            }
+        }
+        return "null";
+    }
+
+    private String getInfoClass(TypeElement subscriberClass, String myPackage) {
+        String subscriberClassName = getClassString(subscriberClass, myPackage);
+        return subscriberClassName.replace('.', '_') + CLASS_POSTFIX;
+    }
+
     private String getNextValue(String myPackage, TypeElement nextEntry) throws IOException {
         String nextValue;
         if (nextEntry != null) {
             PackageElement nextPackageElement = getPackageElement(nextEntry);
             String nextPackage = nextPackageElement.getQualifiedName().toString();
-            String nextSubscriberClassName = getClassString(nextEntry, nextPackage);
-            String nextInfoClassName = nextSubscriberClassName.replace('.', '_') + CLASS_POSTFIX;
+            String nextInfoClassName = getInfoClass(nextEntry, nextPackage);
             if (!myPackage.equals(nextPackage)) {
                 nextInfoClassName = nextPackage + "." + nextInfoClassName;
             }
@@ -254,8 +271,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private String getClassString(TypeElement subscriberClass, String subscriberPackage) {
-        int beginIndex = subscriberPackage.length() == 0 ? 0 : subscriberPackage.length() + 1;
-        return subscriberClass.getQualifiedName().toString().substring(beginIndex);
+        String className = subscriberClass.getQualifiedName().toString();
+        if (!subscriberPackage.isEmpty() && className.startsWith(subscriberPackage)) {
+            className = className.substring(subscriberPackage.length() + 1);
+        }
+        return className;
     }
 
     private PackageElement getPackageElement(TypeElement subscriberClass) {
