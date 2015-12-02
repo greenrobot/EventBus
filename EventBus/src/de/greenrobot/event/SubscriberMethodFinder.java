@@ -204,7 +204,7 @@ class SubscriberMethodFinder {
     static class FindState {
         final List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
         final Map<String, Class> eventTypesFound = new HashMap<String, Class>();
-        final StringBuilder methodKeyBuilder = new StringBuilder();
+        final StringBuilder methodKeyBuilder = new StringBuilder(128);
 
         Class<?> subscriberClass;
         Class<?> clazz;
