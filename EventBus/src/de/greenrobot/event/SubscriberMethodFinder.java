@@ -32,7 +32,7 @@ class SubscriberMethodFinder {
     private static final int SYNTHETIC = 0x1000;
 
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
-    private static final Map<String, List<SubscriberMethod>> METHOD_CACHE = new HashMap<String, List<SubscriberMethod>>();
+    private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new HashMap<Class<?>, List<SubscriberMethod>>();
 
     private final boolean strictMethodVerification;
     private final boolean ignoreGeneratedIndex;
@@ -46,10 +46,9 @@ class SubscriberMethodFinder {
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, boolean forceReflection) {
-        String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
         synchronized (METHOD_CACHE) {
-            subscriberMethods = METHOD_CACHE.get(key);
+            subscriberMethods = METHOD_CACHE.get(subscriberClass);
         }
         if (subscriberMethods != null) {
             return subscriberMethods;
@@ -64,7 +63,7 @@ class SubscriberMethodFinder {
                     + " and its super classes have no public methods with the @Subscribe annotation");
         } else {
             synchronized (METHOD_CACHE) {
-                METHOD_CACHE.put(key, subscriberMethods);
+                METHOD_CACHE.put(subscriberClass, subscriberMethods);
             }
             return subscriberMethods;
         }
