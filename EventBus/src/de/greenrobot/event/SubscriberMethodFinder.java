@@ -37,7 +37,7 @@ class SubscriberMethodFinder {
     private static final int SYNTHETIC = 0x1000;
 
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
-    private static final Map<String, List<SubscriberMethod>> methodCache = new HashMap<String, List<SubscriberMethod>>();
+    private static final Map<Class<?>, List<SubscriberMethod>> methodCache = new HashMap<Class<?>, List<SubscriberMethod>>();
 
     private final Map<Class<?>, Class<?>> skipMethodVerificationForClasses;
 
@@ -51,10 +51,9 @@ class SubscriberMethodFinder {
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
-        String key = subscriberClass.getName();
         List<SubscriberMethod> subscriberMethods;
         synchronized (methodCache) {
-            subscriberMethods = methodCache.get(key);
+            subscriberMethods = methodCache.get(subscriberClass);
         }
         if (subscriberMethods != null) {
             return subscriberMethods;
@@ -90,7 +89,7 @@ class SubscriberMethodFinder {
                     + ON_EVENT_METHOD_NAME);
         } else {
             synchronized (methodCache) {
-                methodCache.put(key, subscriberMethods);
+                methodCache.put(subscriberClass, subscriberMethods);
             }
             return subscriberMethods;
         }
