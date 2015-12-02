@@ -124,7 +124,11 @@ public abstract class PerfTestOtto extends Test {
                 }
                 long beforeRegister = System.nanoTime();
                 super.eventBus.register(subscriber);
-                long timeRegister = System.nanoTime() - beforeRegister;
+
+                long afterRegister = System.nanoTime();
+                long end = System.nanoTime();
+                long timeMeasureOverhead = (end - afterRegister) * 2;
+                long timeRegister = end - beforeRegister - timeMeasureOverhead;
                 time += timeRegister;
                 super.eventBus.unregister(subscriber);
                 if (canceled) {
