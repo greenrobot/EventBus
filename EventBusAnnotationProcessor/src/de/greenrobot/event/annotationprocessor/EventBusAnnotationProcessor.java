@@ -22,6 +22,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -31,6 +32,8 @@ import de.greenrobot.event.ThreadMode;
 @SupportedAnnotationTypes("de.greenrobot.event.Subscribe")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String CLASS_POSTFIX = "_EventBusInfo";
+    public static final String JAVA_LANG_PREFIX = "java.lang.";
+    public static final int JAVA_LANG_PREFIX_LENGTH = JAVA_LANG_PREFIX.length();
 
     /** Found subscriber methods for a class (without superclasses). */
     private final Map<TypeElement, List<ExecutableElement>> methodsByClass =
@@ -220,7 +223,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 writer.write("    protected SubscriberMethod[] createSubscriberMethods() {\n");
                 writer.write("        return new SubscriberMethod[] {\n");
                 Set<String> methodSignatures = new HashSet<String>();
-                writeMethods(writer, entry.getValue(), methodSignatures);
+                writeMethods(writer, entry.getValue(), methodSignatures, myPackage);
                 writer.write("        };\n");
                 writer.write("    }\n}\n");
             } catch (IOException e) {
@@ -269,10 +272,15 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return nextValue;
     }
 
-    private String getClassString(TypeElement subscriberClass, String subscriberPackage) {
-        String className = subscriberClass.getQualifiedName().toString();
-        if (!subscriberPackage.isEmpty() && className.startsWith(subscriberPackage)) {
-            className = className.substring(subscriberPackage.length() + 1);
+    private String getClassString(TypeElement typeElement, String myPackage) {
+        String className = typeElement.getQualifiedName().toString();
+        int lastPeriod = className.lastIndexOf('.');
+        if (!myPackage.isEmpty() && className.startsWith(myPackage) && lastPeriod == myPackage.length()) {
+            // TODO detect nested types also
+
+            className = className.substring(myPackage.length() + 1);
+        } else if (className.startsWith(JAVA_LANG_PREFIX) && lastPeriod == JAVA_LANG_PREFIX_LENGTH - 1) {
+            className = className.substring(JAVA_LANG_PREFIX_LENGTH);
         }
         return className;
     }
@@ -302,14 +310,16 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private void writeMethods(BufferedWriter writer, List<ExecutableElement> methods, Set<String> methodSignatures) throws IOException {
+    private void writeMethods(BufferedWriter writer, List<ExecutableElement> methods, Set<String> methodSignatures,
+                              String myPackage) throws IOException {
         for (ExecutableElement method : methods) {
 
             List<? extends VariableElement> parameters = method.getParameters();
-            VariableElement param = parameters.get(0);
-            DeclaredType paramType = (DeclaredType) param.asType();
+            TypeMirror paramType = parameters.get(0).asType();
+            TypeElement paramElement = (TypeElement) processingEnv.getTypeUtils().asElement(paramType);
+            String eventClass = getClassString(paramElement, myPackage) + ".class";
 
-            String methodSignature = method + ">" + paramType;
+            String methodSignature = method + ">" + paramElement.getQualifiedName();
             if (!methodSignatures.add(methodSignature)) {
                 continue;
             }
@@ -322,13 +332,13 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             String lineEnd = "),";
             if (subscribe.priority() == 0 && !subscribe.sticky()) {
                 if (subscribe.threadMode() == ThreadMode.POSTING) {
-                    parts.add(paramType.toString() + ".class" + lineEnd);
+                    parts.add(eventClass + lineEnd);
                 } else {
-                    parts.add(paramType.toString() + ".class,");
+                    parts.add(eventClass + ",");
                     parts.add("ThreadMode." + subscribe.threadMode().name() + lineEnd);
                 }
             } else {
-                parts.add(paramType.toString() + ".class,");
+                parts.add(eventClass + ",");
                 parts.add("ThreadMode." + subscribe.threadMode().name() + ",");
                 parts.add(subscribe.priority() + ",");
                 parts.add(subscribe.sticky() + lineEnd);
@@ -337,7 +347,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
 
             processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
                     method.getEnclosingElement().getSimpleName() + "." + methodName +
-                    "(" + paramType.asElement().getSimpleName() + ")");
+                    "(" + paramElement.getSimpleName() + ")");
 
         }
     }
