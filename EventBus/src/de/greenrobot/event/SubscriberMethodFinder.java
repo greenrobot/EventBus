@@ -201,8 +201,9 @@ class SubscriberMethodFinder {
     }
 
     static class FindState {
-        final List<SubscriberMethod> subscriberMethods = new ArrayList<SubscriberMethod>();
-        final Map<String, Class> eventTypesFound = new HashMap<String, Class>();
+        final List<SubscriberMethod> subscriberMethods = new ArrayList<>();
+        final Map<Class, Object> anyMethodByEventType = new HashMap<>();
+        final Map<String, Class> subscriberClassByMethodKey = new HashMap<>();
         final StringBuilder methodKeyBuilder = new StringBuilder(128);
 
         Class<?> subscriberClass;
@@ -217,7 +218,8 @@ class SubscriberMethodFinder {
 
         void recycle() {
             subscriberMethods.clear();
-            eventTypesFound.clear();
+            anyMethodByEventType.clear();
+            subscriberClassByMethodKey.clear();
             methodKeyBuilder.setLength(0);
             subscriberClass = null;
             clazz = null;
@@ -226,19 +228,38 @@ class SubscriberMethodFinder {
         }
 
         boolean checkAdd(Method method, Class<?> eventType) {
+            // 2 level check: 1st level with event type only (fast), 2nd level with complete signature when required.
+            // Usually a subscriber doesn't have methods listening to the same event type.
+            Object existing = anyMethodByEventType.put(eventType, method);
+            if (existing == null) {
+                return true;
+            } else {
+                if(existing instanceof Method) {
+                    if(!checkAddWithMethodSignature((Method) existing, eventType)) {
+                        // Paranoia check
+                        throw new IllegalStateException();
+                    }
+                    // Put any non-Method object to "consume" the existing Method
+                    anyMethodByEventType.put(eventType, this);
+                }
+                return checkAddWithMethodSignature(method, eventType);
+            }
+        }
+
+        private boolean checkAddWithMethodSignature(Method method, Class<?> eventType) {
             methodKeyBuilder.setLength(0);
             methodKeyBuilder.append(method.getName());
             methodKeyBuilder.append('>').append(eventType.getName());
 
             String methodKey = methodKeyBuilder.toString();
             Class<?> methodClass = method.getDeclaringClass();
-            Class methodClassOld = eventTypesFound.put(methodKey, methodClass);
+            Class methodClassOld = subscriberClassByMethodKey.put(methodKey, methodClass);
             if (methodClassOld == null || methodClassOld.isAssignableFrom(methodClass)) {
                 // Only add if not already found in a sub class
                 return true;
             } else {
                 // Revert the put, old class is further down the class hierarchy
-                eventTypesFound.put(methodKey, methodClassOld);
+                subscriberClassByMethodKey.put(methodKey, methodClassOld);
                 return false;
             }
         }
