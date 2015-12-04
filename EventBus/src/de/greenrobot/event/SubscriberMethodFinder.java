@@ -140,7 +140,7 @@ class SubscriberMethodFinder {
         return info;
     }
 
-    // A simple replace(char, char) is surprisingly slow
+    // A simple replace(char, char) is surprisingly slow, so we try to avoid it
     private String getInfoClassName(FindState findState) {
         String className = findState.clazz.getName();
         for (int i = className.length() - 1; i >= 0; i--) {
@@ -152,8 +152,7 @@ class SubscriberMethodFinder {
                 break;
             }
         }
-        return className + "_EventBusInfo";
-//        return className.replace('$', '_')+ "_EventBusInfo";
+        return className.concat("_EventBusInfo");
     }
 
     private List<SubscriberMethod> findUsingReflection(Class<?> subscriberClass) {
@@ -219,12 +218,13 @@ class SubscriberMethodFinder {
 
         Class<?> subscriberClass;
         Class<?> clazz;
-        String clazzName;
         boolean skipSuperClasses;
         SubscriberInfo subscriberInfo;
 
         void initForSubscriber(Class<?> subscriberClass) {
             this.subscriberClass = clazz = subscriberClass;
+            skipSuperClasses = false;
+            subscriberInfo = null;
         }
 
         void recycle() {
@@ -278,14 +278,12 @@ class SubscriberMethodFinder {
         void moveToSuperclass() {
             if (skipSuperClasses) {
                 clazz = null;
-                clazzName = null;
             } else {
                 clazz = clazz.getSuperclass();
-                clazzName = clazz.getName();
+                String clazzName = clazz.getName();
                 /** Skip system classes, this just degrades performance. */
                 if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
                     clazz = null;
-                    clazzName = null;
                 }
             }
         }
