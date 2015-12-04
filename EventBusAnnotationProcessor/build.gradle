@@ -6,7 +6,7 @@ archivesBaseName = 'eventbus-annotation-processor'
 group = 'de.greenrobot'
 version = '3.0.0-beta2'
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
 def sonatypeRepositoryUrl
