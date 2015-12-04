@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
+ * Copyright (C) 2012-2015 Markus Junginger, greenrobot (http://greenrobot.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import de.greenrobot.event.EventBus;
  * @author Markus Junginger, greenrobot
  */
 public class AbstractEventBusTest extends TestCase {
-    /** Activates long(er) running tests e.g. testing multi-threading more throughly.  */
+    /** Activates long(er) running tests e.g. testing multi-threading more thoroughly.  */
     protected static final boolean LONG_TESTS = false;
 
     protected EventBus eventBus;
