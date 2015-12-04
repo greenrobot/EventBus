@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
+ * Copyright (C) 2012-2015 Markus Junginger, greenrobot (http://greenrobot.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,7 @@ class SubscriberMethodFinder {
             return subscriberMethods;
         }
 
-        boolean forceReflection = isAnonymousClass(subscriberClass);
-        if (ignoreGeneratedIndex || forceReflection) {
+        if (ignoreGeneratedIndex) {
             subscriberMethods = findUsingReflection(subscriberClass);
         } else {
             subscriberMethods = findUsingInfo(subscriberClass);
@@ -65,15 +64,6 @@ class SubscriberMethodFinder {
             METHOD_CACHE.put(subscriberClass, subscriberMethods);
             return subscriberMethods;
         }
-    }
-
-    private boolean isAnonymousClass(Class<?> subscriberClass) {
-        // @Subscribe in anonymous classes is invisible to annotation processing, always fall back to reflection
-        // Note: Avoid Class.isAnonymousClass() because it is super slow (getSimpleName() is super slow, too)
-        String name = subscriberClass.getName();
-        int dollarIndex = name.lastIndexOf('$');
-        return dollarIndex != -1 && dollarIndex < name.length() - 1 &&
-                Character.isDigit(name.charAt(dollarIndex + 1));
     }
 
     private List<SubscriberMethod> findUsingInfo(Class<?> subscriberClass) {
