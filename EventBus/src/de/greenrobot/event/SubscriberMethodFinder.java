@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 class SubscriberMethodFinder {
     /*
@@ -32,7 +33,7 @@ class SubscriberMethodFinder {
     private static final int SYNTHETIC = 0x1000;
 
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
-    private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new HashMap<Class<?>, List<SubscriberMethod>>();
+    private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
     private final boolean strictMethodVerification;
     private final boolean ignoreGeneratedIndex;
@@ -46,10 +47,7 @@ class SubscriberMethodFinder {
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
-        List<SubscriberMethod> subscriberMethods;
-        synchronized (METHOD_CACHE) {
-            subscriberMethods = METHOD_CACHE.get(subscriberClass);
-        }
+        List<SubscriberMethod> subscriberMethods = METHOD_CACHE.get(subscriberClass);
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
@@ -64,9 +62,7 @@ class SubscriberMethodFinder {
             throw new EventBusException("Subscriber " + subscriberClass
                     + " and its super classes have no public methods with the @Subscribe annotation");
         } else {
-            synchronized (METHOD_CACHE) {
-                METHOD_CACHE.put(subscriberClass, subscriberMethods);
-            }
+            METHOD_CACHE.put(subscriberClass, subscriberMethods);
             return subscriberMethods;
         }
     }
@@ -222,9 +218,7 @@ class SubscriberMethodFinder {
     }
 
     static void clearCaches() {
-        synchronized (METHOD_CACHE) {
-            METHOD_CACHE.clear();
-        }
+        METHOD_CACHE.clear();
     }
 
     static class FindState {
