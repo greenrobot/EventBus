@@ -1,39 +1,27 @@
+/*
+ * Copyright (C) 2012-2015 Markus Junginger, greenrobot (http://greenrobot.de)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.greenrobot.event;
 
-import java.lang.reflect.Method;
-
 /** Base class for generated index classes created by annotation processing. */
-public abstract class SubscriberInfo {
-    final Class subscriberClass;
-    final Class superSubscriberInfoClass;
-    final Class nextSubscriberInfoClass;
+public interface SubscriberInfo {
+    Class<?> getSubscriberClass();
 
-    protected SubscriberInfo(Class subscriberClass, Class superSubscriberInfoClass, Class nextSubscriberInfoClass) {
-        this.subscriberClass = subscriberClass;
-        this.superSubscriberInfoClass = superSubscriberInfoClass;
-        this.nextSubscriberInfoClass = nextSubscriberInfoClass;
-    }
+    SubscriberMethod[] getSubscriberMethods();
 
-    abstract protected SubscriberMethod[] createSubscriberMethods();
+    Class<? extends SubscriberInfo> getSuperSubscriberInfoClass();
 
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType) {
-        return createSubscriberMethod(methodName, eventType, ThreadMode.POSTING, 0, false);
-
-    }
-
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode) {
-        return createSubscriberMethod(methodName, eventType, threadMode, 0, false);
-    }
-
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode,
-                                                      int priority, boolean sticky) {
-        try {
-            Method method = subscriberClass.getDeclaredMethod(methodName, eventType);
-            return new SubscriberMethod(method, eventType, threadMode, priority, sticky);
-        } catch (NoSuchMethodException e) {
-            throw new EventBusException("Could not find subscriber method in " + subscriberClass +
-                    ". Maybe a missing ProGuard rule?", e);
-        }
-    }
-
+    boolean shouldCheckSuperclass();
 }

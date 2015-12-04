@@ -75,7 +75,7 @@ class SubscriberMethodFinder {
         while (findState.clazz != null) {
             findState.subscriberInfo = getSubscriberInfo(findState);
             if (findState.subscriberInfo != null) {
-                SubscriberMethod[] array = findState.subscriberInfo.createSubscriberMethods();
+                SubscriberMethod[] array = findState.subscriberInfo.getSubscriberMethods();
                 for (SubscriberMethod subscriberMethod : array) {
                     if (findState.checkAdd(subscriberMethod.method, subscriberMethod.eventType)) {
                         findState.subscriberMethods.add(subscriberMethod);
@@ -117,10 +117,10 @@ class SubscriberMethodFinder {
     }
 
     private SubscriberInfo getSubscriberInfo(FindState findState) {
-        if (findState.subscriberInfo != null && findState.subscriberInfo.superSubscriberInfoClass != null) {
+        if (findState.subscriberInfo != null && findState.subscriberInfo.getSuperSubscriberInfoClass() != null) {
             try {
-                SubscriberInfo superclassInfo = (SubscriberInfo) findState.subscriberInfo.superSubscriberInfoClass.newInstance();
-                if (findState.clazz == superclassInfo.subscriberClass) {
+                SubscriberInfo superclassInfo = findState.subscriberInfo.getSuperSubscriberInfoClass().newInstance();
+                if (findState.clazz == superclassInfo.getSubscriberClass()) {
                     return superclassInfo;
                 }
             } catch (IllegalAccessException | InstantiationException e) {
