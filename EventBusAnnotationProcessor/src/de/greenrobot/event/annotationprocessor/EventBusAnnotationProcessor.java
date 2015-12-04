@@ -32,8 +32,6 @@ import de.greenrobot.event.ThreadMode;
 @SupportedAnnotationTypes("de.greenrobot.event.Subscribe")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String CLASS_POSTFIX = "_EventBusInfo";
-    public static final String JAVA_LANG_PREFIX = "java.lang.";
-    public static final int JAVA_LANG_PREFIX_LENGTH = JAVA_LANG_PREFIX.length();
 
     /** Found subscriber methods for a class (without superclasses). */
     private final Map<TypeElement, List<ExecutableElement>> methodsByClass =
@@ -273,16 +271,27 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private String getClassString(TypeElement typeElement, String myPackage) {
+        PackageElement packageElement = getPackageElement(typeElement);
+        String packageString = packageElement.getQualifiedName().toString();
         String className = typeElement.getQualifiedName().toString();
-        int lastPeriod = className.lastIndexOf('.');
-        if (!myPackage.isEmpty() && className.startsWith(myPackage) && lastPeriod == myPackage.length()) {
-            // TODO detect nested types also
-
-            className = className.substring(myPackage.length() + 1);
-        } else if (className.startsWith(JAVA_LANG_PREFIX) && lastPeriod == JAVA_LANG_PREFIX_LENGTH - 1) {
-            className = className.substring(JAVA_LANG_PREFIX_LENGTH);
+        if (packageString != null && !packageString.isEmpty()) {
+            if (packageString.equals(myPackage)) {
+                className = cutPackage(myPackage, className);
+            } else if (packageString.equals("java.lang")) {
+                className = typeElement.getSimpleName().toString();
+            }
         }
         return className;
+    }
+
+    private String cutPackage(String paket, String className) {
+        if (className.startsWith(paket + '.')) {
+            // Don't use TypeElement.getSimpleName, it doesn't work for us with inner classes
+            return className.substring(paket.length() + 1);
+        } else {
+            // Paranoia
+            throw new IllegalStateException("Mismatching " + paket + " vs. " + className);
+        }
     }
 
     private PackageElement getPackageElement(TypeElement subscriberClass) {
