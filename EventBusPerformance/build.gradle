@@ -17,7 +17,7 @@ repositories {
 dependencies {
     compile project(':EventBus')
     provided project(':EventBusAnnotationProcessor')
-    compile 'com.squareup:otto:1.3.7'
+    compile 'com.squareup:otto:1.3.8'
 }
 
 android {

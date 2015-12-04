@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.Activity;
 import android.content.Context;
@@ -117,7 +118,7 @@ public abstract class PerfTestOtto extends Test {
             for (Object subscriber : super.subscribers) {
                 if (cacheField != null) {
                     try {
-                        cacheField.set(null, new HashMap());
+                        cacheField.set(null, new ConcurrentHashMap());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
