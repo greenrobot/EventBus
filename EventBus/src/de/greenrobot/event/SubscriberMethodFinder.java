@@ -87,7 +87,7 @@ class SubscriberMethodFinder {
     }
 
     private List<SubscriberMethod> getMethodsAndRelease(FindState findState) {
-        ArrayList<SubscriberMethod> subscriberMethods = new ArrayList<>(findState.subscriberMethods);
+        List<SubscriberMethod> subscriberMethods = new ArrayList<>(findState.subscriberMethods);
         findState.recycle();
         synchronized (FIND_STATE_POOL) {
             for (int i = 0; i < POOL_SIZE; i++) {
@@ -168,7 +168,7 @@ class SubscriberMethodFinder {
     private void findUsingReflectionInSingleClass(FindState findState) {
         Method[] methods;
         try {
-            // This is faster than getMethods, especially when subscribers a fat classes like Activities
+            // This is faster than getMethods, especially when subscribers are fat classes like Activities
             methods = findState.clazz.getDeclaredMethods();
         } catch (Throwable th) {
             // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
