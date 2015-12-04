@@ -27,7 +27,7 @@ public class SubscriberMethod {
     /** Used for efficient comparison */
     String methodString;
 
-    SubscriberMethod(Method method, Class<?> eventType, ThreadMode threadMode, int priority, boolean sticky) {
+    public SubscriberMethod(Method method, Class<?> eventType, ThreadMode threadMode, int priority, boolean sticky) {
         this.method = method;
         this.threadMode = threadMode;
         this.eventType = eventType;

@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.greenrobot.event.meta.SubscriberInfo;
+import de.greenrobot.event.meta.SubscriberInfoIndex;
+
 class SubscriberMethodFinder {
     /*
      * In newer class files, compilers may add methods. Those are called bridge or synthetic methods.

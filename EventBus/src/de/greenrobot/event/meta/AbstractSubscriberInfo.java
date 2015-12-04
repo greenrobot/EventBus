@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.greenrobot.event;
+package de.greenrobot.event.meta;
 
 import java.lang.reflect.Method;
+
+import de.greenrobot.event.EventBusException;
+import de.greenrobot.event.SubscriberMethod;
+import de.greenrobot.event.ThreadMode;
 
 /** Base class for generated subscriber meta info classes created by annotation processing. */
 public abstract class AbstractSubscriberInfo implements SubscriberInfo {

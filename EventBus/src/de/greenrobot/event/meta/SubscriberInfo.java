@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.greenrobot.event;
+package de.greenrobot.event.meta;
+
+import de.greenrobot.event.SubscriberMethod;
 
 /** Base class for generated index classes created by annotation processing. */
 public interface SubscriberInfo {
