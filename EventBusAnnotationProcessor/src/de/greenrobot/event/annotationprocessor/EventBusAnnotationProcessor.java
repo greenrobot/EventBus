@@ -407,7 +407,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 }
                 String subscriberClass = getClassString(subscriberTypeElement, myPackage);
                 if (isVisible(myPackage, subscriberTypeElement)) {
-                    writeLine(writer, 2, "SUBSCRIBER_INDEX.put(", subscriberClass + ".class,", infoClass + ".class);\n");
+                    writeLine(writer, 2, "SUBSCRIBER_INDEX.put(" + subscriberClass + ".class,", infoClass + ".class);");
                 } else {
                     writer.write("        // Subscriber not visible to index: " + subscriberClass + "\n");
                 }
@@ -438,15 +438,17 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         int len = indentLevel * 4;
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-            if (len + part.length() > 118) {
-                writer.write("\n");
-                if (indentLevel < 12) {
-                    indentLevel += 2;
+            if (i != 0) {
+                if (len + part.length() > 118) {
+                    writer.write("\n");
+                    if (indentLevel < 12) {
+                        indentLevel += 2;
+                    }
+                    writeIndent(writer, indentLevel);
+                    len = indentLevel * 4;
+                } else {
+                    writer.write(" ");
                 }
-                writeIndent(writer, indentLevel);
-                len = indentLevel * 4;
-            } else if (i != 0) {
-                writer.write(" ");
             }
             writer.write(part);
             len += part.length();
