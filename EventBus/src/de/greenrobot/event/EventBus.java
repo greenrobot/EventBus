@@ -130,10 +130,11 @@ public class EventBus {
      */
     public void register(Object subscriber) {
         Class<?> subscriberClass = subscriber.getClass();
-        List<SubscriberMethod> subscriberMethods =
-                subscriberMethodFinder.findSubscriberMethods(subscriberClass);
-        for (SubscriberMethod subscriberMethod : subscriberMethods) {
-            subscribe(subscriber, subscriberMethod);
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
+        synchronized (this) {
+            for (SubscriberMethod subscriberMethod : subscriberMethods) {
+                subscribe(subscriber, subscriberMethod);
+            }
         }
     }
 
@@ -143,7 +144,7 @@ public class EventBus {
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions == null) {
-            subscriptions = new CopyOnWriteArrayList<Subscription>();
+            subscriptions = new CopyOnWriteArrayList<>();
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             if (subscriptions.contains(newSubscription)) {
@@ -152,23 +153,17 @@ public class EventBus {
             }
         }
 
-        // Starting with EventBus 2.2 we enforced methods to be public (might change with annotations again)
-        // subscriberMethod.method.setAccessible(true);
-
-        // Got to synchronize to avoid shifted positions when adding/removing concurrently
-        synchronized (subscriptions) {
-            int size = subscriptions.size();
-            for (int i = 0; i <= size; i++) {
-                if (i == size || subscriberMethod.priority > subscriptions.get(i).subscriberMethod.priority) {
-                    subscriptions.add(i, newSubscription);
-                    break;
-                }
+        int size = subscriptions.size();
+        for (int i = 0; i <= size; i++) {
+            if (i == size || subscriberMethod.priority > subscriptions.get(i).subscriberMethod.priority) {
+                subscriptions.add(i, newSubscription);
+                break;
             }
         }
 
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
         if (subscribedEvents == null) {
-            subscribedEvents = new ArrayList<Class<?>>();
+            subscribedEvents = new ArrayList<>();
             typesBySubscriber.put(subscriber, subscribedEvents);
         }
         subscribedEvents.add(eventType);
@@ -210,17 +205,14 @@ public class EventBus {
     private void unsubscribeByEventType(Object subscriber, Class<?> eventType) {
         List<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions != null) {
-            // Got to synchronize to avoid shifted positions when adding/removing concurrently
-            synchronized (subscriptions) {
-                int size = subscriptions.size();
-                for (int i = 0; i < size; i++) {
-                    Subscription subscription = subscriptions.get(i);
-                    if (subscription.subscriber == subscriber) {
-                        subscription.active = false;
-                        subscriptions.remove(i);
-                        i--;
-                        size--;
-                    }
+            int size = subscriptions.size();
+            for (int i = 0; i < size; i++) {
+                Subscription subscription = subscriptions.get(i);
+                if (subscription.subscriber == subscriber) {
+                    subscription.active = false;
+                    subscriptions.remove(i);
+                    i--;
+                    size--;
                 }
             }
         }
@@ -443,11 +435,11 @@ public class EventBus {
     }
 
     /** Looks up all Class objects including super classes and interfaces. Should also work for interfaces. */
-    private List<Class<?>> lookupAllEventTypes(Class<?> eventClass) {
+    private static List<Class<?>> lookupAllEventTypes(Class<?> eventClass) {
         synchronized (eventTypesCache) {
             List<Class<?>> eventTypes = eventTypesCache.get(eventClass);
             if (eventTypes == null) {
-                eventTypes = new ArrayList<Class<?>>();
+                eventTypes = new ArrayList<>();
                 Class<?> clazz = eventClass;
                 while (clazz != null) {
                     eventTypes.add(clazz);
