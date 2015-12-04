@@ -109,7 +109,8 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
-        subscriberMethodFinder = new SubscriberMethodFinder(/* TODO */ false, builder.ignoreGeneratedIndex);
+        subscriberMethodFinder = new SubscriberMethodFinder(builder.subscriberInfoIndexes,
+                builder.strictMethodVerification, builder.ignoreGeneratedIndex);
         logSubscriberExceptions = builder.logSubscriberExceptions;
         logNoSubscriberMessages = builder.logNoSubscriberMessages;
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
@@ -118,7 +119,6 @@ public class EventBus {
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
     }
-
 
     /**
      * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they

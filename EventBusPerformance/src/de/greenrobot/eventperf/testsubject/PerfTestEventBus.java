@@ -8,6 +8,7 @@ import android.content.Context;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.ThreadMode;
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.eventperf.MyEventBusIndex;
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
 import de.greenrobot.eventperf.TestParams;
@@ -22,7 +23,7 @@ public abstract class PerfTestEventBus extends Test {
 
     public PerfTestEventBus(Context context, TestParams params) {
         super(context, params);
-        eventBus = EventBus.builder().eventInheritance(params.isEventInheritance())
+        eventBus = EventBus.builder().eventInheritance(params.isEventInheritance()).addIndex(new MyEventBusIndex())
                 .ignoreGeneratedIndex(params.isIgnoreGeneratedIndex()).build();
         subscribers = new ArrayList<Object>();
         eventCount = params.getEventCount();

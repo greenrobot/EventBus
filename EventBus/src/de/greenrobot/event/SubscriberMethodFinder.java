@@ -35,13 +35,16 @@ class SubscriberMethodFinder {
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
     private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
+    private List<SubscriberInfoIndex> subscriberInfoIndexes;
     private final boolean strictMethodVerification;
     private final boolean ignoreGeneratedIndex;
 
     private static final int POOL_SIZE = 4;
     private static final FindState[] FIND_STATE_POOL = new FindState[POOL_SIZE];
 
-    SubscriberMethodFinder(boolean strictMethodVerification, boolean ignoreGeneratedIndex) {
+    SubscriberMethodFinder(List<SubscriberInfoIndex> subscriberInfoIndexes, boolean strictMethodVerification,
+                           boolean ignoreGeneratedIndex) {
+        this.subscriberInfoIndexes = subscriberInfoIndexes;
         this.strictMethodVerification = strictMethodVerification;
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
     }
@@ -114,7 +117,6 @@ class SubscriberMethodFinder {
     }
 
     private SubscriberInfo getSubscriberInfo(FindState findState) {
-        SubscriberInfo info = null;
         if (findState.subscriberInfo != null && findState.subscriberInfo.superSubscriberInfoClass != null) {
             try {
                 SubscriberInfo superclassInfo = (SubscriberInfo) findState.subscriberInfo.superSubscriberInfoClass.newInstance();
@@ -125,19 +127,27 @@ class SubscriberMethodFinder {
                 throw new EventBusException(e);
             }
         }
+        if (subscriberInfoIndexes != null) {
+            for (SubscriberInfoIndex index : subscriberInfoIndexes) {
+                SubscriberInfo info = index.getSubscriberInfo(findState.clazz);
+                if (info != null) {
+                    return info;
+                }
+            }
+        }
         String infoClass = getInfoClassName(findState);
         try {
             Class<?> aClass = Class.forName(infoClass);
             Object object = aClass.newInstance();
             if (object instanceof SubscriberInfo) {
-                info = (SubscriberInfo) object;
+                return (SubscriberInfo) object;
             }
         } catch (ClassNotFoundException e) {
             // TODO don't try again
         } catch (Exception e) {
             throw new EventBusException("Could not get infos for " + findState.clazz, e);
         }
-        return info;
+        return null;
     }
 
     // A simple replace(char, char) is surprisingly slow, so we try to avoid it
