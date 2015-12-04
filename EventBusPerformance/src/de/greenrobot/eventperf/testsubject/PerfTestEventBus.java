@@ -186,28 +186,6 @@ public abstract class PerfTestEventBus extends Test {
 
     }
 
-    public class SubscribeClassEventBusDefault {
-        @Subscribe
-        public void onEvent(TestEvent event) {
-            eventsReceivedCount.incrementAndGet();
-        }
-
-        public void dummy() {
-        }
-
-        public void dummy2() {
-        }
-
-        public void dummy3() {
-        }
-
-        public void dummy4() {
-        }
-
-        public void dummy5() {
-        }
-    }
-
     public class SubscribeClassEventBusMain {
         @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThread(TestEvent event) {

@@ -7,7 +7,7 @@ import android.content.Context;
 public abstract class Test {
     protected final Context context;
     protected final TestParams params;
-    protected AtomicLong eventsReceivedCount = new AtomicLong();
+    public final AtomicLong eventsReceivedCount = new AtomicLong();
     protected long primaryResultMicros;
     protected int primaryResultCount;
     protected String otherTestResults;

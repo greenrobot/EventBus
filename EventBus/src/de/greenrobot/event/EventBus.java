@@ -130,16 +130,8 @@ public class EventBus {
      */
     public void register(Object subscriber) {
         Class<?> subscriberClass = subscriber.getClass();
-
-        // @Subscribe in anonymous classes is invisible to annotation processing, always fall back to reflection
-        // Note: Avoid Class.isAnonymousClass() because it is super slow (getSimpleName() is super slow, too)
-        String name = subscriberClass.getName();
-        int dollarIndex = name.lastIndexOf('$');
-        boolean forceReflection = dollarIndex != -1 && dollarIndex < name.length() - 1 &&
-                Character.isDigit(name.charAt(dollarIndex + 1));
-
         List<SubscriberMethod> subscriberMethods =
-                subscriberMethodFinder.findSubscriberMethods(subscriberClass, forceReflection);
+                subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
             subscribe(subscriber, subscriberMethod);
         }

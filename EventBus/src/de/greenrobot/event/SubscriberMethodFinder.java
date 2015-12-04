@@ -45,7 +45,7 @@ class SubscriberMethodFinder {
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
     }
 
-    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass, boolean forceReflection) {
+    List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
         List<SubscriberMethod> subscriberMethods;
         synchronized (METHOD_CACHE) {
             subscriberMethods = METHOD_CACHE.get(subscriberClass);
@@ -53,10 +53,12 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-        if (!ignoreGeneratedIndex && !forceReflection) {
-            subscriberMethods = findUsingInfo(subscriberClass);
-        } else {
+
+        boolean forceReflection = isAnonymousClass(subscriberClass);
+        if (ignoreGeneratedIndex || forceReflection) {
             subscriberMethods = findUsingReflection(subscriberClass);
+        } else {
+            subscriberMethods = findUsingInfo(subscriberClass);
         }
         if (subscriberMethods.isEmpty()) {
             throw new EventBusException("Subscriber " + subscriberClass
@@ -67,6 +69,15 @@ class SubscriberMethodFinder {
             }
             return subscriberMethods;
         }
+    }
+
+    private boolean isAnonymousClass(Class<?> subscriberClass) {
+        // @Subscribe in anonymous classes is invisible to annotation processing, always fall back to reflection
+        // Note: Avoid Class.isAnonymousClass() because it is super slow (getSimpleName() is super slow, too)
+        String name = subscriberClass.getName();
+        int dollarIndex = name.lastIndexOf('$');
+        return dollarIndex != -1 && dollarIndex < name.length() - 1 &&
+                Character.isDigit(name.charAt(dollarIndex + 1));
     }
 
     private List<SubscriberMethod> findUsingInfo(Class<?> subscriberClass) {
@@ -128,7 +139,7 @@ class SubscriberMethodFinder {
                 throw new EventBusException(e);
             }
         }
-        String infoClass = findState.clazz.getName().replace('$', '_') + "_EventBusInfo";
+        String infoClass = getInfoClassName(findState);
         try {
             Class<?> aClass = Class.forName(infoClass);
             Object object = aClass.newInstance();
@@ -141,6 +152,22 @@ class SubscriberMethodFinder {
             throw new EventBusException("Could not get infos for " + findState.clazz, e);
         }
         return info;
+    }
+
+    // A simple replace(char, char) is surprisingly slow
+    private String getInfoClassName(FindState findState) {
+        String className = findState.clazz.getName();
+        for (int i = className.length() - 1; i >= 0; i--) {
+            char c = className.charAt(i);
+            if (c == '.') {
+                break;
+            } else if (c == '$') {
+                className = className.replace('$', '_');
+                break;
+            }
+        }
+        return className + "_EventBusInfo";
+//        return className.replace('$', '_')+ "_EventBusInfo";
     }
 
     private List<SubscriberMethod> findUsingReflection(Class<?> subscriberClass) {
@@ -234,8 +261,8 @@ class SubscriberMethodFinder {
             if (existing == null) {
                 return true;
             } else {
-                if(existing instanceof Method) {
-                    if(!checkAddWithMethodSignature((Method) existing, eventType)) {
+                if (existing instanceof Method) {
+                    if (!checkAddWithMethodSignature((Method) existing, eventType)) {
                         // Paranoia check
                         throw new IllegalStateException();
                     }
