@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
+ * Copyright (C) 2012-2015 Markus Junginger, greenrobot (http://greenrobot.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class EventBus {
     static volatile EventBus defaultInstance;
 
     private static final EventBusBuilder DEFAULT_BUILDER = new EventBusBuilder();
-    private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<Class<?>, List<Class<?>>>();
+    private static final Map<Class<?>, List<Class<?>>> eventTypesCache = new HashMap<>();
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
@@ -103,9 +103,9 @@ public class EventBus {
     }
 
     EventBus(EventBusBuilder builder) {
-        subscriptionsByEventType = new HashMap<Class<?>, CopyOnWriteArrayList<Subscription>>();
-        typesBySubscriber = new HashMap<Object, List<Class<?>>>();
-        stickyEvents = new ConcurrentHashMap<Class<?>, Object>();
+        subscriptionsByEventType = new HashMap<>();
+        typesBySubscriber = new HashMap<>();
+        stickyEvents = new ConcurrentHashMap<>();
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
@@ -140,8 +140,8 @@ public class EventBus {
     // Must be called in synchronized block
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
         Class<?> eventType = subscriberMethod.eventType;
-        CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
+        CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions == null) {
             subscriptions = new CopyOnWriteArrayList<Subscription>();
             subscriptionsByEventType.put(eventType, subscriptions);
