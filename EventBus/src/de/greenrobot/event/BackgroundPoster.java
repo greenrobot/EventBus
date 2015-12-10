@@ -19,7 +19,7 @@ import android.util.Log;
 
 /**
  * Posts events in background.
- * 
+ *
  * @author Markus
  */
 final class BackgroundPoster implements Runnable {
@@ -48,26 +48,28 @@ final class BackgroundPoster implements Runnable {
     @Override
     public void run() {
         try {
-            try {
-                while (true) {
-                    PendingPost pendingPost = queue.poll(1000);
-                    if (pendingPost == null) {
-                        synchronized (this) {
-                            // Check again, this time in synchronized
-                            pendingPost = queue.poll();
-                            if (pendingPost == null) {
-                                executorRunning = false;
-                                return;
-                            }
+            while (true) {
+                PendingPost pendingPost = queue.poll(1000);
+                if (pendingPost == null) {
+                    synchronized (this) {
+                        // Check again, this time in synchronized
+                        pendingPost = queue.poll();
+                        if (pendingPost == null) {
+                            executorRunning = false;
+                            return;
                         }
                     }
-                    eventBus.invokeSubscriber(pendingPost);
                 }
-            } catch (InterruptedException e) {
-                Log.w("Event", Thread.currentThread().getName() + " was interruppted", e);
+                eventBus.invokeSubscriber(pendingPost);
             }
-        } finally {
-            executorRunning = false;
+        } catch (InterruptedException e) {
+            Log.w("Event", Thread.currentThread().getName() + " was interruppted", e);
+            synchronized (this) {
+                if (queue.hasData()) {
+                    executorRunning = true;
+                    EventBus.executorService.execute(this);
+                }
+            }
         }
     }
 
