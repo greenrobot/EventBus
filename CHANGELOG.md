@@ -1,3 +1,11 @@
+### V3.0.0 (201?-??-??) Annotations
+* Breaking change: switch subscriber methods to annotations
+* Using annotations, each subscriber method can set sticky behavior and priority individually
+* Annotation processor indexes annotation information for efficient subscriber registration on Android
+* TODO: Renamed package and artifact id to allow co-existence with libs using EventBus 2 internally
+
+**Note:** This is a breaking change release: there is no inter-op between EventBus versions 2 and 3; they can run in parallel though.
+
 ### V2.4.1 (2015-11-12) Bug fix release
 * Registering for sticky events now considers sticky events of subclasses, not just the exact same event type. This makes the semantic consistent to posting events. Note, that this may lead to subscribers being called more than once if matching sticky events of event type subclasses are available.
 * Workaround for an Android bug causing NoClassDefFoundError on some devices
