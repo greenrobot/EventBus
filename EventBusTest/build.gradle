@@ -21,6 +21,7 @@ dependencies {
     androidTestCompile project(':EventBus')
     compile fileTree(dir: 'libs', include: '*.jar')
     androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
 }
 
 android {

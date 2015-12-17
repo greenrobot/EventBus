@@ -16,12 +16,14 @@
 package de.greenrobot.event.test;
 
 import android.app.Activity;
+import android.support.test.rule.UiThreadTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.UiThreadTest;
+import android.support.test.annotation.UiThreadTest;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -32,6 +34,8 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class EventBusBasicTest {
+    @Rule
+    public final UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
 
     private EventBus eventBus;
     private String lastStringEvent;
