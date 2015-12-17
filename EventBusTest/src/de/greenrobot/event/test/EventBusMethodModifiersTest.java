@@ -16,16 +16,19 @@
 package de.greenrobot.event.test;
 
 import android.os.Looper;
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.EventBusException;
-import de.greenrobot.event.ThreadMode;
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
+import org.junit.Test;
+
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusMethodModifiersTest extends AbstractEventBusTest {
 
+    @Test
     public void testRegisterForEventTypeAndPost() throws InterruptedException {
         eventBus.register(this);
         String event = "Hello";

@@ -16,12 +16,15 @@
 package de.greenrobot.event.test;
 
 import de.greenrobot.event.Subscribe;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -40,6 +43,7 @@ public class EventBusRegistrationRacingTest extends AbstractEventBusTest {
     
     final Executor threadPool = Executors.newCachedThreadPool();
 
+    @Test
     public void testRacingRegistrations() throws InterruptedException {
         for (int i = 0; i < ITERATIONS; i++) {
             startLatch = new CountDownLatch(THREAD_COUNT);

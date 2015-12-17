@@ -19,14 +19,19 @@ import de.greenrobot.event.EventBus;
 import de.greenrobot.event.EventBusBuilder;
 import de.greenrobot.event.EventBusException;
 import de.greenrobot.event.NoSubscriberEvent;
-import de.greenrobot.event.SubscriberExceptionEvent;
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.SubscriberExceptionEvent;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusBuilderTest extends AbstractEventBusTest {
 
+    @Test
     public void testThrowSubscriberException() {
         eventBus = EventBus.builder().throwSubscriberException(true).build();
         eventBus.register(new SubscriberExceptionEventTracker());
@@ -39,6 +44,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         }
     }
 
+    @Test
     public void testDoNotSendSubscriberExceptionEvent() {
         eventBus = EventBus.builder().logSubscriberExceptions(false).sendSubscriberExceptionEvent(false).build();
         eventBus.register(new SubscriberExceptionEventTracker());
@@ -47,6 +53,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         assertEventCount(0);
     }
 
+    @Test
     public void testDoNotSendNoSubscriberEvent() {
         eventBus = EventBus.builder().logNoSubscriberMessages(false).sendNoSubscriberEvent(false).build();
         eventBus.register(new NoSubscriberEventTracker());
@@ -54,6 +61,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         assertEventCount(0);
     }
 
+    @Test
     public void testInstallDefaultEventBus() {
         EventBusBuilder builder = EventBus.builder();
         try {
@@ -69,6 +77,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         }
     }
 
+    @Test
     public void testEventInheritance() {
         eventBus = EventBus.builder().eventInheritance(false).build();
         eventBus.register(new ThrowingSubscriber());

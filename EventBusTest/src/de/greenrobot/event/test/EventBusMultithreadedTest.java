@@ -15,16 +15,19 @@
  */
 package de.greenrobot.event.test;
 
+import android.os.Looper;
+import android.util.Log;
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.os.Looper;
-import android.util.Log;
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.Subscribe;
+import static org.junit.Assert.*;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -43,30 +46,37 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
 
     private IntTestEvent lastIntTestEvent;
 
+    @Test
     public void testPost01Thread() throws InterruptedException {
         runThreadsSingleEventType(1);
     }
 
+    @Test
     public void testPost04Threads() throws InterruptedException {
         runThreadsSingleEventType(4);
     }
 
+    @Test
     public void testPost40Threads() throws InterruptedException {
         runThreadsSingleEventType(40);
     }
 
+    @Test
     public void testPostMixedEventType01Thread() throws InterruptedException {
         runThreadsMixedEventType(1);
     }
 
+    @Test
     public void testPostMixedEventType04Threads() throws InterruptedException {
         runThreadsMixedEventType(4);
     }
 
+    @Test
     public void testPostMixedEventType40Threads() throws InterruptedException {
         runThreadsMixedEventType(40);
     }
 
+    @Test
     public void testSubscribeUnSubscribeAndPostMixedEventType() throws InterruptedException {
         List<SubscribeUnsubscribeThread> threads = new ArrayList<SubscribeUnsubscribeThread>();
 

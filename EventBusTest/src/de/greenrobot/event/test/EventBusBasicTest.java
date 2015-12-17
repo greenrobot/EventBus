@@ -16,15 +16,22 @@
 package de.greenrobot.event.test;
 
 import android.app.Activity;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.UiThreadTest;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusBasicTest extends TestCase {
+@RunWith(AndroidJUnit4.class)
+public class EventBusBasicTest {
 
     private EventBus eventBus;
     private String lastStringEvent;
@@ -35,11 +42,13 @@ public class EventBusBasicTest extends TestCase {
     private int countMyEvent;
     private int countMyEvent2;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         eventBus = new EventBus();
     }
 
+    @Test
+    @UiThreadTest
     public void testRegisterAndPost() {
         // Use an activity to test real life performance
         TestActivity testActivity = new TestActivity();
@@ -55,16 +64,19 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(event, testActivity.lastStringEvent);
     }
 
+    @Test
     public void testPostWithoutSubscriber() {
         eventBus.post("Hello");
     }
 
+    @Test
     public void testUnregisterWithoutRegister() {
         // Results in a warning without throwing
         eventBus.unregister(this);
     }
 
     // This will throw "out of memory" if subscribers are leaked
+    @Test
     public void testUnregisterNotLeaking() {
         int heapMBytes = (int) (Runtime.getRuntime().maxMemory() / (1024L * 1024L));
         for (int i = 0; i < heapMBytes * 2; i++) {
@@ -77,6 +89,7 @@ public class EventBusBasicTest extends TestCase {
         }
     }
 
+    @Test
     public void testRegisterTwice() {
         eventBus.register(this);
         try {
@@ -87,6 +100,7 @@ public class EventBusBasicTest extends TestCase {
         }
     }
 
+    @Test
     public void testIsRegistered() {
         assertFalse(eventBus.isRegistered(this));
         eventBus.register(this);
@@ -95,6 +109,7 @@ public class EventBusBasicTest extends TestCase {
         assertFalse(eventBus.isRegistered(this));
     }
 
+    @Test
     public void testPostWithTwoSubscriber() {
         EventBusBasicTest test2 = new EventBusBasicTest();
         eventBus.register(this);
@@ -105,6 +120,7 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(event, test2.lastStringEvent);
     }
 
+    @Test
     public void testPostMultipleTimes() {
         eventBus.register(this);
         MyEvent event = new MyEvent();
@@ -120,6 +136,7 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(count, countMyEvent);
     }
 
+    @Test
     public void testMultipleSubscribeMethodsForEvent() {
         eventBus.register(this);
         MyEvent event = new MyEvent();
@@ -128,6 +145,7 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(1, countMyEvent2);
     }
 
+    @Test
     public void testPostAfterUnregister() {
         eventBus.register(this);
         eventBus.unregister(this);
@@ -135,6 +153,7 @@ public class EventBusBasicTest extends TestCase {
         assertNull(lastStringEvent);
     }
 
+    @Test
     public void testRegisterAndPostTwoTypes() {
         eventBus.register(this);
         eventBus.post(42);
@@ -145,6 +164,7 @@ public class EventBusBasicTest extends TestCase {
         assertEquals("Hello", lastStringEvent);
     }
 
+    @Test
     public void testRegisterUnregisterAndPostTwoTypes() {
         eventBus.register(this);
         eventBus.unregister(this);
@@ -155,12 +175,14 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(0, countStringEvent);
     }
 
+    @Test
     public void testPostOnDifferentEventBus() {
         eventBus.register(this);
         new EventBus().post("Hello");
         assertEquals(0, countStringEvent);
     }
 
+    @Test
     public void testPostInEventHandler() {
         RepostInteger reposter = new RepostInteger();
         eventBus.register(reposter);
@@ -172,6 +194,7 @@ public class EventBusBasicTest extends TestCase {
         assertEquals(10, reposter.lastEvent);
     }
 
+    @Test
     public void testHasSubscriberForEvent() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 
@@ -182,6 +205,7 @@ public class EventBusBasicTest extends TestCase {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
 
+    @Test
     public void testHasSubscriberForEventSuperclass() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 
@@ -193,6 +217,7 @@ public class EventBusBasicTest extends TestCase {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
 
+    @Test
     public void testHasSubscriberForEventImplementedInterface() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
 

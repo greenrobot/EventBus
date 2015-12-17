@@ -1,7 +1,5 @@
 package de.greenrobot.event.test;
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;

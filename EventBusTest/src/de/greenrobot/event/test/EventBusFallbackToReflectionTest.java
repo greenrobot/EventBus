@@ -1,6 +1,9 @@
 package de.greenrobot.event.test;
 
 import de.greenrobot.event.Subscribe;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /** TODO */
 public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
@@ -46,6 +49,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         super(true);
     }
 
+    @Test
     public void testAnonymousSubscriberClass() {
         Object subscriber = new Object() {
             @Subscribe
@@ -60,6 +64,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         assertEquals(1, eventsReceived.size());
     }
 
+    @Test
     public void testAnonymousSubscriberClassWithPublicSuperclass() {
         Object subscriber = new PublicClass() {
             @Subscribe
@@ -74,6 +79,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         assertEquals(2, eventsReceived.size());
     }
 
+    @Test
     public void testAnonymousSubscriberClassWithPrivateSuperclass() {
         eventBus.register(new PublicWithPrivateSuperClass());
         eventBus.post("Hello");
@@ -81,6 +87,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         assertEquals(2, eventsReceived.size());
     }
 
+    @Test
     public void testSubscriberClassWithPrivateEvent() {
         eventBus.register(new PublicClassWithPrivateEvent());
         PrivateEvent privateEvent = new PrivateEvent();
@@ -89,6 +96,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         assertEquals(1, eventsReceived.size());
     }
 
+    @Test
     public void testSubscriberExtendingClassWithPrivateEvent() {
         eventBus.register(new PublicWithPrivateEventInSuperclass());
         PrivateEvent privateEvent = new PrivateEvent();

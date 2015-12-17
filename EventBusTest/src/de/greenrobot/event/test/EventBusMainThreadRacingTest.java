@@ -15,13 +15,14 @@
  */
 package de.greenrobot.event.test;
 
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-
 import android.os.Handler;
 import android.os.Looper;
-import de.greenrobot.event.ThreadMode;
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
+import org.junit.Test;
+
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -34,6 +35,7 @@ public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
     private CountDownLatch startLatch;
     private volatile RuntimeException failed;
 
+    @Test
     public void testRacingThreads() throws InterruptedException {
         Runnable register = new Runnable() {
             @Override

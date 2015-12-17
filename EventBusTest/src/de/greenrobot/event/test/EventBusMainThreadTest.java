@@ -15,12 +15,17 @@
  */
 package de.greenrobot.event.test;
 
+import android.os.Looper;
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import android.os.Looper;
-import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.Subscribe;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -29,19 +34,19 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
 
     private BackgroundPoster backgroundPoster;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         backgroundPoster = new BackgroundPoster();
         backgroundPoster.start();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         backgroundPoster.shutdown();
         backgroundPoster.join();
-        super.tearDown();
     }
 
+    @Test
     public void testPost() throws InterruptedException {
         eventBus.register(this);
         eventBus.post("Hello");
@@ -51,6 +56,7 @@ public class EventBusMainThreadTest extends AbstractEventBusTest {
         assertEquals(Looper.getMainLooper().getThread(), lastThread);
     }
 
+    @Test
     public void testPostInBackgroundThread() throws InterruptedException {
         eventBus.register(this);
         backgroundPoster.post("Hello");

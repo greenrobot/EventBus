@@ -17,14 +17,19 @@ package de.greenrobot.event.test;
 
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.NoSubscriberEvent;
-import de.greenrobot.event.SubscriberExceptionEvent;
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.SubscriberExceptionEvent;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
 
+    @Test
     public void testNoSubscriberEvent() {
         eventBus.register(this);
         eventBus.post("Foo");
@@ -35,6 +40,7 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
         assertSame(eventBus, noSub.eventBus);
     }
 
+    @Test
     public void testNoSubscriberEventAfterUnregister() {
         Object subscriber = new DummySubscriber();
         eventBus.register(subscriber);
@@ -42,6 +48,7 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
         testNoSubscriberEvent();
     }
 
+    @Test
     public void testBadNoSubscriberSubscriber() {
         eventBus = EventBus.builder().logNoSubscriberMessages(false).build();
         eventBus.register(this);

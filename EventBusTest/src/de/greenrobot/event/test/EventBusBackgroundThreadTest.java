@@ -16,14 +16,21 @@
 package de.greenrobot.event.test;
 
 import android.os.Looper;
-import de.greenrobot.event.ThreadMode;
+import android.support.test.runner.AndroidJUnit4;
 import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
 
+    @Test
     public void testPostInCurrentThread() throws InterruptedException {
         eventBus.register(this);
         eventBus.post("Hello");
@@ -33,6 +40,7 @@ public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
         assertEquals(Thread.currentThread(), lastThread);
     }
 
+    @Test
     public void testPostFromMain() throws InterruptedException {
         eventBus.register(this);
         postInMainThread("Hello");

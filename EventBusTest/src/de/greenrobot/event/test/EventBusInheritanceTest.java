@@ -15,12 +15,10 @@
  */
 package de.greenrobot.event.test;
 
+import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import junit.framework.TestCase;
-import de.greenrobot.event.EventBus;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.Test;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -40,6 +38,7 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus = new EventBus();
     }
 
+    @Test
     public void testEventClassHierarchy() {
         eventBus.register(this);
 
@@ -56,6 +55,7 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(1, countMyEventExtended);
     }
 
+    @Test
     public void testEventClassHierarchySticky() {
         eventBus.postSticky("Hello");
         eventBus.postSticky(new MyEvent());
@@ -66,6 +66,7 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(3, countObjectEvent);
     }
 
+    @Test
     public void testEventInterfaceHierarchy() {
         eventBus.register(this);
 
@@ -77,6 +78,7 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(1, countMyEventInterfaceExtended);
     }
 
+    @Test
     public void testEventSuperInterfaceHierarchy() {
         eventBus.register(this);
 
@@ -86,6 +88,7 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(1, countMyEventInterfaceExtended);
     }
 
+    @Test
     public void testSubscriberClassHierarchy() {
         SubscriberExtended subscriber = new SubscriberExtended();
         eventBus.register(subscriber);
@@ -105,6 +108,7 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(2, subscriber.countMyEventOverwritten);
     }
 
+    @Test
     public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
         SubscriberExtendedWithoutNewSubscriberMethod subscriber = new SubscriberExtendedWithoutNewSubscriberMethod();
         eventBus.register(subscriber);

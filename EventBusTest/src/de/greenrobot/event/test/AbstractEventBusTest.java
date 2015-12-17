@@ -15,23 +15,30 @@
  */
 package de.greenrobot.event.test;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.test.runner.AndroidJUnit4;
+import de.greenrobot.event.EventBus;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.runner.RunWith;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import de.greenrobot.event.EventBus;
+import static org.junit.Assert.*;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class AbstractEventBusTest extends TestCase {
+@RunWith(AndroidJUnit4.class)
+@Ignore("Base class")
+public class AbstractEventBusTest {
     /** Activates long(er) running tests e.g. testing multi-threading more thoroughly.  */
     protected static final boolean LONG_TESTS = false;
 
@@ -57,8 +64,8 @@ public class AbstractEventBusTest extends TestCase {
         }
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUpBase() throws Exception {
         EventBus.clearCaches();
         eventBus = new EventBus();
         mainPoster = new EventPostHandler(Looper.getMainLooper());

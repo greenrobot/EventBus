@@ -15,14 +15,17 @@
  */
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.EventBusException;
 import de.greenrobot.event.Subscribe;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
 
+    @Test
     public void testSubscriberLegal() {
         eventBus.register(this);
         eventBus.post("42");

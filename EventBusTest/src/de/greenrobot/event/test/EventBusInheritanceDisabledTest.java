@@ -15,14 +15,20 @@
  */
 package de.greenrobot.event.test;
 
+import android.support.test.runner.AndroidJUnit4;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusInheritanceDisabledTest extends TestCase {
+@RunWith(AndroidJUnit4.class)
+public class EventBusInheritanceDisabledTest {
 
     private EventBus eventBus;
 
@@ -32,11 +38,12 @@ public class EventBusInheritanceDisabledTest extends TestCase {
     private int countMyEventInterface;
     private int countMyEventInterfaceExtended;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         eventBus = EventBus.builder().eventInheritance(false).build();
     }
 
+    @Test
     public void testEventClassHierarchy() {
         eventBus.register(this);
 
@@ -53,6 +60,7 @@ public class EventBusInheritanceDisabledTest extends TestCase {
         assertEquals(1, countMyEventExtended);
     }
 
+    @Test
     public void testEventClassHierarchySticky() {
         eventBus.postSticky("Hello");
         eventBus.postSticky(new MyEvent());
@@ -63,6 +71,7 @@ public class EventBusInheritanceDisabledTest extends TestCase {
         assertEquals(0, countObjectEvent);
     }
 
+    @Test
     public void testEventInterfaceHierarchy() {
         eventBus.register(this);
 
@@ -74,6 +83,7 @@ public class EventBusInheritanceDisabledTest extends TestCase {
         assertEquals(0, countMyEventInterfaceExtended);
     }
 
+    @Test
     public void testEventSuperInterfaceHierarchy() {
         eventBus.register(this);
 
@@ -83,6 +93,7 @@ public class EventBusInheritanceDisabledTest extends TestCase {
         assertEquals(0, countMyEventInterfaceExtended);
     }
 
+    @Test
     public void testSubscriberClassHierarchy() {
         SubscriberExtended subscriber = new SubscriberExtended();
         eventBus.register(subscriber);
@@ -102,6 +113,7 @@ public class EventBusInheritanceDisabledTest extends TestCase {
         assertEquals(1, subscriber.countMyEventOverwritten);
     }
 
+    @Test
     public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
         SubscriberExtendedWithoutNewSubscriberMethod subscriber = new SubscriberExtendedWithoutNewSubscriberMethod();
         eventBus.register(subscriber);

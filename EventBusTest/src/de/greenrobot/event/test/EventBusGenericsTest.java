@@ -1,7 +1,7 @@
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
+import org.junit.Test;
 
 public class EventBusGenericsTest extends AbstractEventBusTest {
     public static class GenericEvent<T> {
@@ -15,6 +15,7 @@ public class EventBusGenericsTest extends AbstractEventBusTest {
         }
     }
 
+    @Test
     public void testGenericEventAndSubscriber() {
         GenericSubscriber<IntTestEvent> genericSubscriber = new GenericSubscriber<IntTestEvent>();
         eventBus.register(genericSubscriber);

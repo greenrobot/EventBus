@@ -19,9 +19,12 @@ import android.util.Log;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import de.greenrobot.event.ThreadMode;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
@@ -32,26 +35,32 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
     final List<PrioSubscriber> registered = new ArrayList<PrioSubscriber>();
     private String fail;
 
+    @Test
     public void testOrdered() {
         runTestOrdered("42", false, 5);
     }
 
+    @Test
     public void testOrderedMainThread() {
         runTestOrdered(new IntTestEvent(42), false, 3);
     }
 
+    @Test
     public void testOrderedBackgroundThread() {
         runTestOrdered(Integer.valueOf(42), false, 3);
     }
 
+    @Test
     public void testOrderedSticky() {
         runTestOrdered("42", true, 5);
     }
 
+    @Test
     public void testOrderedMainThreadSticky() {
         runTestOrdered(new IntTestEvent(42), true, 3);
     }
 
+    @Test
     public void testOrderedBackgroundThreadSticky() {
         runTestOrdered(Integer.valueOf(42), true, 3);
     }

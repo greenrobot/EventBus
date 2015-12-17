@@ -3,8 +3,10 @@ package de.greenrobot.event.test;
 import de.greenrobot.event.EventBus;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.junit.Test;
 
 public class EventBusSubscriberInJarTest extends TestCase {
+    @Test
     public void testSubscriberInJar() {
         SubscriberInJar subscriber = new SubscriberInJar();
         EventBus eventBus = EventBus.builder().build();
