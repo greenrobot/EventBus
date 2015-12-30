@@ -19,6 +19,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -161,9 +162,16 @@ public class EventBus {
     }
 
     private synchronized void register(Object subscriber, boolean sticky, int priority) {
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriber.getClass());
+        boolean staticRegister = subscriber.getClass().equals(Class.class);
+        Class clazz = staticRegister ? (Class) subscriber : subscriber.getClass();
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(clazz);
+
         for (SubscriberMethod subscriberMethod : subscriberMethods) {
-            subscribe(subscriber, subscriberMethod, sticky, priority);
+            if (staticRegister && (subscriberMethod.method.getModifiers() & Modifier.STATIC) != 0) {
+                subscribe(subscriber, subscriberMethod, sticky, priority);
+            } else if (!staticRegister) {
+                subscribe(subscriber, subscriberMethod, sticky, priority);
+            }
         }
     }
 
@@ -177,8 +185,9 @@ public class EventBus {
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             if (subscriptions.contains(newSubscription)) {
-                throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
-                        + eventType);
+                Log.i(TAG, "Subscriber " + ((subscriber instanceof Class) ?
+                                subscriber : subscriber.getClass()) +
+                                " already registered to event " + eventType);
             }
         }
 
