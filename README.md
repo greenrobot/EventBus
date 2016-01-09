@@ -23,7 +23,7 @@ EventBus in 3 steps
 <code>public class MessageEvent { /* Additional fields if needed */ }</code><br/><br/>
 2. Prepare subscribers:<br/>
 <code>eventBus.register(this);</code><br/>
-<code>public void onEvent(AnyEventType event) {/* Do something */};</code><br/><br/>
+<code>public void onEvent(AnyEventType event) {/* Do something */}</code><br/><br/>
 3. Post events:<br/>
 <code>eventBus.post(event);</code>
 
