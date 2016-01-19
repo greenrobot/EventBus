@@ -25,7 +25,7 @@ import org.junit.Test;
  */
 public class EventBusInheritanceTest extends TestCase {
 
-    private EventBus eventBus;
+    protected EventBus eventBus;
 
     protected int countMyEventExtended;
     protected int countMyEvent;

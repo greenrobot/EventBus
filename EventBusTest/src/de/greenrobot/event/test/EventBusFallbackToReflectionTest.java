@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/** TODO */
 public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     private class PrivateEvent {
     }

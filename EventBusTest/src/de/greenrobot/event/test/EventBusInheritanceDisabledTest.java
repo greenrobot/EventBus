@@ -30,7 +30,7 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class EventBusInheritanceDisabledTest {
 
-    private EventBus eventBus;
+    protected EventBus eventBus;
 
     protected int countMyEventExtended;
     protected int countMyEvent;

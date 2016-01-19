@@ -34,10 +34,17 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class EventBusBasicTest {
+
+    public static class WithIndex extends EventBusBasicTest {
+        @Test
+        public void dummy() {}
+
+    }
+
     @Rule
     public final UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
 
-    private EventBus eventBus;
+    protected EventBus eventBus;
     private String lastStringEvent;
     private int countStringEvent;
     private int countIntEvent;
