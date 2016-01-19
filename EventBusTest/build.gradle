@@ -12,6 +12,8 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 
+sourceCompatibility = 1.7
+
 repositories {
     jcenter()
 }
@@ -27,6 +29,11 @@ dependencies {
 android {
     buildToolsVersion '23.0.2'
     compileSdkVersion 19
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
 
     sourceSets {
         main {

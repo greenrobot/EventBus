@@ -37,8 +37,7 @@ import static org.junit.Assert.*;
  * @author Markus Junginger, greenrobot
  */
 @RunWith(AndroidJUnit4.class)
-@Ignore("Base class")
-public class AbstractEventBusTest {
+public abstract class AbstractEventBusTest {
     /** Activates long(er) running tests e.g. testing multi-threading more thoroughly.  */
     protected static final boolean LONG_TESTS = false;
 

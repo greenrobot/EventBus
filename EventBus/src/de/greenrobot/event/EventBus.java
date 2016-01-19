@@ -72,6 +72,8 @@ public class EventBus {
     private final boolean sendNoSubscriberEvent;
     private final boolean eventInheritance;
 
+    private final int indexCount;
+
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
         if (defaultInstance == null) {
@@ -109,6 +111,7 @@ public class EventBus {
         mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
+        indexCount = builder.subscriberInfoIndexes != null ? builder.subscriberInfoIndexes.size() : 0;
         subscriberMethodFinder = new SubscriberMethodFinder(builder.subscriberInfoIndexes,
                 builder.strictMethodVerification, builder.ignoreGeneratedIndex);
         logSubscriberExceptions = builder.logSubscriberExceptions;
@@ -532,4 +535,8 @@ public class EventBus {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
     }
 
+    @Override
+    public String toString() {
+        return "EventBus[indexCount=" + indexCount + ", eventInheritance=" + eventInheritance + "]";
+    }
 }
