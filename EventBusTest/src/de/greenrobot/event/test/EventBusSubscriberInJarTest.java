@@ -6,10 +6,11 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 public class EventBusSubscriberInJarTest extends TestCase {
+    protected EventBus eventBus = EventBus.builder().build();
+
     @Test
     public void testSubscriberInJar() {
         SubscriberInJar subscriber = new SubscriberInJar();
-        EventBus eventBus = EventBus.builder().build();
         eventBus.register(subscriber);
         eventBus.post("Hi Jar");
         eventBus.post(42);
