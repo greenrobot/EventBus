@@ -1,4 +1,4 @@
-package de.greenrobot.event.annotationprocessor;
+package org.greenrobot.eventbus.annotationprocessor;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;

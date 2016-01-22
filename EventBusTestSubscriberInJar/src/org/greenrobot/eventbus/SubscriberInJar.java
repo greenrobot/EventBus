@@ -1,6 +1,4 @@
-package de.greenrobot.event.test;
-
-import org.greenrobot.eventbus.Subscribe;
+package org.greenrobot.eventbus;
 
 import java.util.ArrayList;
 import java.util.List;
