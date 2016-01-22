@@ -1,8 +1,8 @@
 package de.greenrobot.eventperf;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import android.content.Context;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Test {
     protected final Context context;

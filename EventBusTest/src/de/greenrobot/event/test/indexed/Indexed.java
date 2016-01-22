@@ -1,6 +1,6 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.EventBus;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.EventBusTestsIndex;
 
 public class Indexed {

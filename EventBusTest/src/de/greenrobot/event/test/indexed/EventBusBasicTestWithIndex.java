@@ -1,8 +1,9 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.test.EventBusBasicTest;
 import org.junit.Before;
 import org.junit.Test;
+
+import de.greenrobot.event.test.EventBusBasicTest;
 
 import static org.junit.Assert.assertTrue;
 

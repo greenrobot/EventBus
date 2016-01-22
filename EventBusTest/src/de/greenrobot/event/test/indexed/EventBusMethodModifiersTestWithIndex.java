@@ -1,7 +1,8 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.test.EventBusMethodModifiersTest;
 import org.junit.Before;
+
+import de.greenrobot.event.test.EventBusMethodModifiersTest;
 
 public class EventBusMethodModifiersTestWithIndex extends EventBusMethodModifiersTest {
     @Before

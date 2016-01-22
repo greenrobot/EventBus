@@ -1,7 +1,8 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.test.EventBusMainThreadRacingTest;
 import org.junit.Before;
+
+import de.greenrobot.event.test.EventBusMainThreadRacingTest;
 
 public class EventBusMainThreadRacingTestWithIndex extends EventBusMainThreadRacingTest {
     @Before

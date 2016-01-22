@@ -16,12 +16,13 @@
 package de.greenrobot.event.test;
 
 import android.app.Activity;
+import android.support.test.annotation.UiThreadTest;
 import android.support.test.rule.UiThreadTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.test.annotation.UiThreadTest;
 import android.util.Log;
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.Subscribe;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

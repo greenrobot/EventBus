@@ -1,9 +1,9 @@
 package de.greenrobot.eventperf;
 
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import de.greenrobot.event.ThreadMode;
 
 public class TestParams implements Serializable {
     private static final long serialVersionUID = -2739435088947740809L;

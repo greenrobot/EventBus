@@ -1,6 +1,7 @@
 package de.greenrobot.eventperf.testsubject;
 
-import de.greenrobot.event.Subscribe;
+import org.greenrobot.eventbus.Subscribe;
+
 import de.greenrobot.eventperf.TestEvent;
 
 public class SubscribeClassEventBusDefault {

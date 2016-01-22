@@ -1,7 +1,8 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.test.EventBusOrderedSubscriptionsTest;
 import org.junit.Before;
+
+import de.greenrobot.event.test.EventBusOrderedSubscriptionsTest;
 
 /** TODO */
 public class EventBusOrderedSubscriptionsTestWithIndex extends EventBusOrderedSubscriptionsTest {

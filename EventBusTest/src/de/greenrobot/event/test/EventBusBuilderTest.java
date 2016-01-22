@@ -15,12 +15,12 @@
  */
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.EventBusBuilder;
-import de.greenrobot.event.EventBusException;
-import de.greenrobot.event.NoSubscriberEvent;
-import de.greenrobot.event.Subscribe;
-import de.greenrobot.event.SubscriberExceptionEvent;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBusBuilder;
+import org.greenrobot.eventbus.EventBusException;
+import org.greenrobot.eventbus.NoSubscriberEvent;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

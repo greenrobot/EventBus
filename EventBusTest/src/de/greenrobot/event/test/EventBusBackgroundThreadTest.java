@@ -16,11 +16,10 @@
 package de.greenrobot.event.test;
 
 import android.os.Looper;
-import android.support.test.runner.AndroidJUnit4;
-import de.greenrobot.event.Subscribe;
-import de.greenrobot.event.ThreadMode;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

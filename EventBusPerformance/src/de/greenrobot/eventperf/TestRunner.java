@@ -1,11 +1,12 @@
 package de.greenrobot.eventperf;
 
+import android.content.Context;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-
-import android.content.Context;
-import de.greenrobot.event.EventBus;
 
 /**
  * This thread initialize all selected tests and runs them through. Also the thread skips the tests, when it is canceled

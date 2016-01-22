@@ -17,8 +17,9 @@ package de.greenrobot.event.test;
 
 import android.os.Handler;
 import android.os.Looper;
-import de.greenrobot.event.Subscribe;
-import de.greenrobot.event.ThreadMode;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.junit.Test;
 
 import java.util.Random;

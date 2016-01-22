@@ -1,8 +1,9 @@
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.EventBus;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.greenrobot.eventbus.EventBus;
 import org.junit.Test;
 
 public class EventBusSubscriberInJarTest extends TestCase {

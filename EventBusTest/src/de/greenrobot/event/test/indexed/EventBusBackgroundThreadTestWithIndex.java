@@ -1,10 +1,9 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.test.EventBusBackgroundThreadTest;
-import org.greenrobot.eventbus.EventBusTestsIndex;
 import org.junit.Before;
 import org.junit.Test;
+
+import de.greenrobot.event.test.EventBusBackgroundThreadTest;
 
 import static org.junit.Assert.assertTrue;
 

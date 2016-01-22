@@ -1,15 +1,15 @@
 package de.greenrobot.eventperf;
 
-import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.Subscribe;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Process;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
-import de.greenrobot.event.EventBus;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * This activity gets the information from the activity before, sets up the test and starts the test. After it watchs

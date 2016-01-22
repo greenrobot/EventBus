@@ -1,11 +1,5 @@
 package de.greenrobot.eventperf.testsubject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
@@ -13,6 +7,11 @@ import android.os.Looper;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.otto.ThreadEnforcer;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;

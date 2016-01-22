@@ -16,9 +16,10 @@
 package de.greenrobot.event.test;
 
 import android.test.UiThreadTest;
-import de.greenrobot.event.EventBusException;
-import de.greenrobot.event.Subscribe;
-import de.greenrobot.event.ThreadMode;
+
+import org.greenrobot.eventbus.EventBusException;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;

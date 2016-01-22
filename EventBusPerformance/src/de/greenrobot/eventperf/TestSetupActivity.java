@@ -8,11 +8,13 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import de.greenrobot.event.ThreadMode;
-import de.greenrobot.eventperf.testsubject.PerfTestEventBus;
-import de.greenrobot.eventperf.testsubject.PerfTestOtto;
+
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+
+import de.greenrobot.eventperf.testsubject.PerfTestEventBus;
+import de.greenrobot.eventperf.testsubject.PerfTestOtto;
 
 public class TestSetupActivity extends Activity {
 

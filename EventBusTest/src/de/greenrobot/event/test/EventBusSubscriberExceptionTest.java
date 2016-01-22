@@ -15,9 +15,9 @@
  */
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.Subscribe;
-import de.greenrobot.event.SubscriberExceptionEvent;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.SubscriberExceptionEvent;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

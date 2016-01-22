@@ -1,6 +1,6 @@
 package de.greenrobot.event.test;
 
-import de.greenrobot.event.Subscribe;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

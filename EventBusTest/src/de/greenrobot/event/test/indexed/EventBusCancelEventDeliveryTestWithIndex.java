@@ -1,7 +1,8 @@
 package de.greenrobot.event.test.indexed;
 
-import de.greenrobot.event.test.EventBusCancelEventDeliveryTest;
 import org.junit.Before;
+
+import de.greenrobot.event.test.EventBusCancelEventDeliveryTest;
 
 public class EventBusCancelEventDeliveryTestWithIndex extends EventBusCancelEventDeliveryTest {
     @Before

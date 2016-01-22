@@ -1,13 +1,15 @@
 package de.greenrobot.eventperf.testsubject;
 
+import android.content.Context;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import android.content.Context;
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.ThreadMode;
-import de.greenrobot.event.Subscribe;
 import de.greenrobot.eventperf.MyEventBusIndex;
 import de.greenrobot.eventperf.Test;
 import de.greenrobot.eventperf.TestEvent;
@@ -172,7 +174,7 @@ public abstract class PerfTestEventBus extends Test {
         public RegisterFirstTime(Context context, TestParams params) {
             super(context, params);
             try {
-                Class<?> clazz = Class.forName("de.greenrobot.event.SubscriberMethodFinder");
+                Class<?> clazz = Class.forName("org.greenrobot.eventbus.SubscriberMethodFinder");
                 clearCachesMethod = clazz.getDeclaredMethod("clearCaches");
                 clearCachesMethod.setAccessible(true);
             } catch (Exception e) {

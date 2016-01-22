@@ -20,9 +20,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.test.runner.AndroidJUnit4;
-import de.greenrobot.event.EventBus;
+
+import org.greenrobot.eventbus.EventBus;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import java.util.List;

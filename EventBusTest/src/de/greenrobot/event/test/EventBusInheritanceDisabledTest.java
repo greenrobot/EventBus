@@ -16,8 +16,9 @@
 package de.greenrobot.event.test;
 
 import android.support.test.runner.AndroidJUnit4;
-import de.greenrobot.event.EventBus;
-import de.greenrobot.event.Subscribe;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
