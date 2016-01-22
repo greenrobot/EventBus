@@ -16,3 +16,8 @@ sourceSets {
         }
     }
 }
+
+compileJava {
+    options.compilerArgs << '-AeventBusIndex=org.greenrobot.eventbus.InJarIndex'
+    options.fork = true
+}

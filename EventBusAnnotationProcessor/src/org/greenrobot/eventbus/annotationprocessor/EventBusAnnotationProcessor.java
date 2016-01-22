@@ -16,6 +16,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -30,6 +31,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
+@SupportedOptions("eventBusIndex")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String INFO_CLASS_POSTFIX = "_EventBusInfo";
 

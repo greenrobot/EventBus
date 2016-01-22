@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import org.greenrobot.eventbus.EventBus;
 import org.junit.Test;
 
-import de.greenrobot.event.test.SubscriberInJar;
+import org.greenrobot.eventbus.SubscriberInJar;
 
 public class EventBusSubscriberInJarTest extends TestCase {
     protected EventBus eventBus = EventBus.builder().build();
