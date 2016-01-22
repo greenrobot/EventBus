@@ -1,4 +1,4 @@
-package de.greenrobot.eventperf;
+package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,8 +13,8 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 
-import de.greenrobot.eventperf.testsubject.PerfTestEventBus;
-import de.greenrobot.eventperf.testsubject.PerfTestOtto;
+import org.greenrobot.eventbusperf.testsubject.PerfTestEventBus;
+import org.greenrobot.eventbusperf.testsubject.PerfTestOtto;
 
 public class TestSetupActivity extends Activity {
 

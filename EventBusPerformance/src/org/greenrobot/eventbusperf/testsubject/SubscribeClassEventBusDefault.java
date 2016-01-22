@@ -1,8 +1,8 @@
-package de.greenrobot.eventperf.testsubject;
+package org.greenrobot.eventbusperf.testsubject;
 
 import org.greenrobot.eventbus.Subscribe;
 
-import de.greenrobot.eventperf.TestEvent;
+import org.greenrobot.eventbusperf.TestEvent;
 
 public class SubscribeClassEventBusDefault {
     private PerfTestEventBus perfTestEventBus;

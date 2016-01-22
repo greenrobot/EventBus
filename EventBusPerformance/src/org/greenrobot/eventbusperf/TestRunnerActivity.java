@@ -1,4 +1,4 @@
-package de.greenrobot.eventperf;
+package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
 import android.os.Bundle;

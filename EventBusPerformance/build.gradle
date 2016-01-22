@@ -24,7 +24,7 @@ dependencies {
 
 apt {
     arguments {
-        eventBusIndex "de.greenrobot.eventperf.MyEventBusIndex"
+        eventBusIndex "org.greenrobot.eventbusperf.MyEventBusIndex"
     }
 }
 
