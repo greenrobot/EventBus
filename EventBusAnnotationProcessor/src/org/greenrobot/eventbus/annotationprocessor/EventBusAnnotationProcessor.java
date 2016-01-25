@@ -34,10 +34,10 @@ import javax.tools.JavaFileObject;
 @SupportedOptions("eventBusIndex")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String INFO_CLASS_POSTFIX = "_EventBusInfo";
+    public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
 
     /** Found subscriber methods for a class (without superclasses). */
     private final Map<TypeElement, List<ExecutableElement>> methodsByClass = new HashMap<>();
-    private final Map<TypeElement, String> infoByClass = new HashMap<>();
     private final Set<TypeElement> classesToSkip = new HashSet<>();
 
     private boolean writerRoundDone;
@@ -74,10 +74,14 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             checkForSubscribersToSkip(messager);
 
             if (!methodsByClass.isEmpty()) {
-                createInfoFiles();
-                String index = processingEnv.getOptions().get("eventBusIndex");
+                // Nor now, we just use a single index and skip individual files: createInfoFiles();
+
+                String index = processingEnv.getOptions().get(OPTION_EVENT_BUS_INDEX);
                 if (index != null) {
                     createInfoIndexFile(index);
+                } else {
+                    messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX +
+                            " passed to annotation processor.");
                 }
             } else {
                 messager.printMessage(Diagnostic.Kind.WARNING, "No @Subscribe annotations found");
@@ -193,10 +197,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    // Currently unused in favor of single index files
     private void createInfoFiles() {
-        List<Map.Entry<TypeElement, List<ExecutableElement>>> entries = new ArrayList<>(methodsByClass.entrySet());
-        for (int i = 0; i < entries.size(); i++) {
-            Map.Entry<TypeElement, List<ExecutableElement>> entry = entries.get(i);
+        for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
             TypeElement subscriberClass = entry.getKey();
             if (classesToSkip.contains(subscriberClass)) {
                 continue;
@@ -208,8 +211,6 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 String myPackage = packageElement.getQualifiedName().toString();
                 String subscriberClassName = getClassString(subscriberClass, myPackage);
                 String infoClassName = getInfoClass(subscriberClass, myPackage);
-
-                infoByClass.put(subscriberClass, myPackage + "." + infoClassName);
 
                 JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(myPackage + '.' + infoClassName);
                 writer = new BufferedWriter(sourceFile.openWriter());
@@ -393,20 +394,22 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private void writeIndexLines(BufferedWriter writer, String myPackage) throws IOException {
-        for (Map.Entry<TypeElement, String> entry : infoByClass.entrySet()) {
+        for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
             TypeElement subscriberTypeElement = entry.getKey();
-            if (!classesToSkip.contains(subscriberTypeElement)) {
-                String subscriberClass = getClassString(subscriberTypeElement, myPackage);
-                if (isVisible(myPackage, subscriberTypeElement)) {
-                    writeLine(writer, 2,
-                            "putIndex(new SimpleSubscriberInfo(" + subscriberClass + ".class,",
-                            "true,", "new SubscriberMethodInfo[] {");
-                    List<ExecutableElement> methods = methodsByClass.get(subscriberTypeElement);
-                    writeCreateSubscriberMethods(writer, methods, "new SubscriberMethodInfo", myPackage);
-                    writer.write("        }));\n\n");
-                } else {
-                    writer.write("        // Subscriber not visible to index: " + subscriberClass + "\n");
-                }
+            if (classesToSkip.contains(subscriberTypeElement)) {
+                continue;
+            }
+
+            String subscriberClass = getClassString(subscriberTypeElement, myPackage);
+            if (isVisible(myPackage, subscriberTypeElement)) {
+                writeLine(writer, 2,
+                        "putIndex(new SimpleSubscriberInfo(" + subscriberClass + ".class,",
+                        "true,", "new SubscriberMethodInfo[] {");
+                List<ExecutableElement> methods = methodsByClass.get(subscriberTypeElement);
+                writeCreateSubscriberMethods(writer, methods, "new SubscriberMethodInfo", myPackage);
+                writer.write("        }));\n\n");
+            } else {
+                writer.write("        // Subscriber not visible to index: " + subscriberClass + "\n");
             }
         }
     }
