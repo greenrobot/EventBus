@@ -5,7 +5,6 @@ import org.greenrobot.eventbus.EventBusSubscriberInJarTest;
 import org.greenrobot.eventbus.InJarIndex;
 import org.junit.Before;
 
-/** TODO */
 public class EventBusSubscriberInJarTestWithIndex extends EventBusSubscriberInJarTest {
     @Before
     public void overwriteEventBus() throws Exception {
