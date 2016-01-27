@@ -33,7 +33,6 @@ import javax.tools.JavaFileObject;
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
 @SupportedOptions("eventBusIndex")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
-    public static final String INFO_CLASS_POSTFIX = "_EventBusInfo";
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
 
     /** Found subscriber methods for a class (without superclasses). */
@@ -52,6 +51,15 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
         Messager messager = processingEnv.getMessager();
         try {
+            String index = processingEnv.getOptions().get(OPTION_EVENT_BUS_INDEX);
+            if (index == null) {
+                messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX +
+                        " passed to annotation processor");
+                return false;
+            }
+            int lastPeriod = index.lastIndexOf('.');
+            String indexPackage = lastPeriod != -1 ? index.substring(0, lastPeriod) : null;
+
             round++;
             messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " +
                     !annotations.isEmpty() + ", processingOver: " + env.processingOver());
@@ -71,18 +79,10 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         "Unexpected processing state: annotations still available after writing.");
             }
             collectSubscribers(annotations, env, messager);
-            checkForSubscribersToSkip(messager);
+            checkForSubscribersToSkip(messager, indexPackage);
 
             if (!methodsByClass.isEmpty()) {
-                // Nor now, we just use a single index and skip individual files: createInfoFiles();
-
-                String index = processingEnv.getOptions().get(OPTION_EVENT_BUS_INDEX);
-                if (index != null) {
-                    createInfoIndexFile(index);
-                } else {
-                    messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX +
-                            " passed to annotation processor.");
-                }
+                createInfoIndexFile(index);
             } else {
                 messager.printMessage(Diagnostic.Kind.WARNING, "No @Subscribe annotations found");
             }
@@ -136,12 +136,12 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void checkForSubscribersToSkip(Messager messager) {
+    private void checkForSubscribersToSkip(Messager messager, String myPackage) {
         for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
             TypeElement skipCandidate = entry.getKey();
             TypeElement subscriberClass = skipCandidate;
             while (subscriberClass != null) {
-                if (!subscriberClass.getModifiers().contains(Modifier.PUBLIC)) {
+                if (!isVisible(myPackage, subscriberClass)) {
                     boolean added = classesToSkip.add(skipCandidate);
                     if (added) {
                         String msg;
@@ -159,9 +159,8 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 if (methods != null) {
                     for (ExecutableElement method : methods) {
                         VariableElement param = method.getParameters().get(0);
-                        DeclaredType paramType = (DeclaredType) param.asType();
-                        Set<Modifier> eventClassModifiers = paramType.asElement().getModifiers();
-                        if (!eventClassModifiers.contains(Modifier.PUBLIC)) {
+                        TypeElement eventTypeElement = (TypeElement) ((DeclaredType) param.asType()).asElement();
+                        if (!isVisible(myPackage, eventTypeElement)) {
                             boolean added = classesToSkip.add(skipCandidate);
                             if (added) {
                                 String msg;
