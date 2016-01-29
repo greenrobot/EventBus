@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.greenrobot.eventbus.annotationprocessor;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -6,10 +21,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -30,13 +43,15 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
+import de.greenrobot.common.ListMap;
+
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
 @SupportedOptions("eventBusIndex")
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
 
     /** Found subscriber methods for a class (without superclasses). */
-    private final Map<TypeElement, List<ExecutableElement>> methodsByClass = new HashMap<>();
+    private final ListMap<TypeElement, ExecutableElement> methodsByClass = new ListMap<>();
     private final Set<TypeElement> classesToSkip = new HashSet<>();
 
     private boolean writerRoundDone;
@@ -102,13 +117,8 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 if (element instanceof ExecutableElement) {
                     ExecutableElement method = (ExecutableElement) element;
                     if (checkHasNoErrors(method, messager)) {
-                        Element classElement = method.getEnclosingElement();
-                        List<ExecutableElement> methods = methodsByClass.get(classElement);
-                        if (methods == null) {
-                            methods = new ArrayList<>();
-                            methodsByClass.put((TypeElement) classElement, methods);
-                        }
-                        methods.add(method);
+                        TypeElement classElement = (TypeElement) method.getEnclosingElement();
+                        methodsByClass.putElement(classElement, method);
                     }
                 } else {
                     messager.printMessage(Diagnostic.Kind.ERROR, "@Subscribe is only valid for methods", element);
@@ -137,8 +147,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private void checkForSubscribersToSkip(Messager messager, String myPackage) {
-        for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
-            TypeElement skipCandidate = entry.getKey();
+        for (TypeElement skipCandidate : methodsByClass.keySet()) {
             TypeElement subscriberClass = skipCandidate;
             while (subscriberClass != null) {
                 if (!isVisible(myPackage, subscriberClass)) {
@@ -315,8 +324,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private void writeIndexLines(BufferedWriter writer, String myPackage) throws IOException {
-        for (Map.Entry<TypeElement, List<ExecutableElement>> entry : methodsByClass.entrySet()) {
-            TypeElement subscriberTypeElement = entry.getKey();
+        for (TypeElement subscriberTypeElement : methodsByClass.keySet()) {
             if (classesToSkip.contains(subscriberTypeElement)) {
                 continue;
             }
