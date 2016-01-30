@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Markus Junginger, greenrobot (http://greenrobot.de)
+ * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
