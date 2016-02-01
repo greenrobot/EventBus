@@ -1,5 +1,3 @@
-**Please help us with this short survey: http://bit.ly/eventbus-survey Thanks for your support!**
-
 EventBus
 ========
 EventBus is publish/subscribe event bus optimized for Android.<br/>
@@ -19,13 +17,13 @@ EventBus...
 
  [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 
-Limitations of the SNAPSHOT version
------------------------------------
-The "subscriber index" is an optional optimization to speed up initial subscriber registration. The subscriber index is created during build time using an annotation processor. There are a couple of limitations of the current implementation:
+Index and its Limitations
+-------------------------
+The "subscriber index" is a new feature of EventBus 3. It is an optional optimization to speed up initial subscriber registration. The subscriber index can be created during build time using EventBus' annotation processor. It is not required to use the index, but it's recommended on Android because of its poor reflection speed regarding annotations.
 
- * Subscriber classes must be public
- * Event classes must be public
- * @Subscribe seems to be not recognized when inside of anonymous classes
+Note that only those @Subscribers methods can be indexed for which the subscriber AND event class are public. Non-indexed methods have to be looked-up at runtime using reflection.
+
+Also, @Subscribe annotations are not recognized when inside of anonymous classes
 
 EventBus in 4 steps
 -------------------
@@ -47,16 +45,15 @@ Note: This SNAPSHOT version is only available on Sonatype's snapshot repository 
 
 Gradle:
 ```
-    compile 'de.greenrobot:eventbus:3.0.0-SNAPSHOT'
-    provided 'de.greenrobot:eventbus-annotation-processor:3.0.0-SNAPSHOT'
+    compile 'org.greenrobot:eventbus:3.0.0'
 ```
 
 Maven:
 ```
 <dependency>
-    <groupId>de.greenrobot</groupId>
+    <groupId>org.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -87,6 +84,8 @@ FAQ
 Release History, License
 ------------------------
 [CHANGELOG](CHANGELOG.md)
+
+Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 

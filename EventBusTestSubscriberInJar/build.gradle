@@ -1,16 +1,25 @@
 apply plugin: 'java'
 
 group = 'de.greenrobot'
-version = '3.0.0-beta2'
-sourceCompatibility = 1.6
+version = '3.0.0'
+sourceCompatibility = 1.7
+
+repositories {
+    jcenter()
+}
+
+configurations {
+    provided
+}
 
 dependencies {
     compile project(':EventBus')
-    compile project(':EventBusAnnotationProcessor')
+    provided project(':EventBusAnnotationProcessor')
 }
 
 sourceSets {
     main {
+        compileClasspath += configurations.provided
         java {
             srcDir 'src'
         }

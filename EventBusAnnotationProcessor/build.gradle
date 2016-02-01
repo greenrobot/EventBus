@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 archivesBaseName = 'eventbus-annotation-processor'
 group = 'org.greenrobot'
-version = '3.0.0-rc'
+version = '3.0.0'
 
 sourceCompatibility = 1.7
 
@@ -48,7 +48,7 @@ sourceSets {
 javadoc {
     classpath += configurations.provided
     title = "EventBus Annotation Processor ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2016 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -98,7 +98,7 @@ uploadArchives {
                 name 'EventBus Annotation Processor'
                 packaging 'jar'
                 description 'Precompiler for EventBus Annotations.'
-                url 'https://github.com/greenrobot/EventBus'
+                url 'http://greenrobot.org/eventbus/'
 
                 scm {
                     url 'https://github.com/greenrobot/EventBus'
@@ -128,7 +128,7 @@ uploadArchives {
 
                 organization {
                     name 'greenrobot'
-                    url 'http://greenrobot.de'
+                    url 'http://greenrobot.org'
                 }
             }
         }

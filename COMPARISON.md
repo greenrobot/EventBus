@@ -61,6 +61,8 @@ _**Note:** the following information is outdated, preprocessed annotations are m
 
 Besides features, performance is another differentiator. To compare performance, we created an Android application, which is also part of this repository (EventBusPerformance). You can also run the app on your phone to benchmark different scenarios.
 
+TODO: Update for EventBus 3 with and without index.
+
 Benchmark results indicate that EventBus is significantly faster in almost every scenario:
 <table>
     <tr>

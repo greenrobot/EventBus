@@ -3,8 +3,8 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 archivesBaseName = 'eventbus'
-group = 'de.greenrobot'
-version = '3.0.0-beta2'
+group = 'org.greenrobot'
+version = '3.0.0'
 sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
@@ -49,7 +49,7 @@ javadoc {
     failOnError = false
     classpath += configurations.provided
     title = "EventBus ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2015 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2016 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -98,7 +98,7 @@ uploadArchives {
                name 'EventBus'
                packaging 'jar'
                description 'EventBus is a publish/subscribe event bus optimized for Android .'
-               url 'https://github.com/greenrobot/EventBus'
+               url 'http://greenrobot.org/eventbus/'
 
                scm {
                    url 'https://github.com/greenrobot/EventBus'
@@ -128,7 +128,7 @@ uploadArchives {
 
                organization {
                    name 'greenrobot'
-                   url 'http://greenrobot.de'
+                   url 'http://greenrobot.org'
                }
            }
         }
