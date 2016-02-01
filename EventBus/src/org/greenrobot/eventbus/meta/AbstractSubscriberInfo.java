@@ -40,8 +40,15 @@ public abstract class AbstractSubscriberInfo implements SubscriberInfo {
     }
 
     @Override
-    public Class<? extends SubscriberInfo> getSuperSubscriberInfoClass() {
-        return superSubscriberInfoClass;
+    public SubscriberInfo getSuperSubscriberInfo() {
+        if(superSubscriberInfoClass == null) {
+            return null;
+        }
+        try {
+            return superSubscriberInfoClass.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

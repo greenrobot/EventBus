@@ -23,7 +23,7 @@ public interface SubscriberInfo {
 
     SubscriberMethod[] getSubscriberMethods();
 
-    Class<? extends SubscriberInfo> getSuperSubscriberInfoClass();
+    SubscriberInfo getSuperSubscriberInfo();
 
     boolean shouldCheckSuperclass();
 }

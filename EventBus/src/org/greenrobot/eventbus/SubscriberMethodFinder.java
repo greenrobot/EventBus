@@ -120,14 +120,10 @@ class SubscriberMethodFinder {
     }
 
     private SubscriberInfo getSubscriberInfo(FindState findState) {
-        if (findState.subscriberInfo != null && findState.subscriberInfo.getSuperSubscriberInfoClass() != null) {
-            try {
-                SubscriberInfo superclassInfo = findState.subscriberInfo.getSuperSubscriberInfoClass().newInstance();
-                if (findState.clazz == superclassInfo.getSubscriberClass()) {
-                    return superclassInfo;
-                }
-            } catch (IllegalAccessException | InstantiationException e) {
-                throw new EventBusException(e);
+        if (findState.subscriberInfo != null && findState.subscriberInfo.getSuperSubscriberInfo() != null) {
+            SubscriberInfo superclassInfo = findState.subscriberInfo.getSuperSubscriberInfo();
+            if (findState.clazz == superclassInfo.getSubscriberClass()) {
+                return superclassInfo;
             }
         }
         if (subscriberInfoIndexes != null) {
@@ -138,34 +134,7 @@ class SubscriberMethodFinder {
                 }
             }
         }
-        String infoClass = getInfoClassName(findState);
-        try {
-            Class<?> aClass = Class.forName(infoClass);
-            Object object = aClass.newInstance();
-            if (object instanceof SubscriberInfo) {
-                return (SubscriberInfo) object;
-            }
-        } catch (ClassNotFoundException e) {
-            // TODO don't try again
-        } catch (Exception e) {
-            throw new EventBusException("Could not get infos for " + findState.clazz, e);
-        }
         return null;
-    }
-
-    // A simple replace(char, char) is surprisingly slow, so we try to avoid it
-    private String getInfoClassName(FindState findState) {
-        String className = findState.clazz.getName();
-        for (int i = className.length() - 1; i >= 0; i--) {
-            char c = className.charAt(i);
-            if (c == '.') {
-                break;
-            } else if (c == '$') {
-                className = className.replace('$', '_');
-                break;
-            }
-        }
-        return className.concat("_EventBusInfo");
     }
 
     private List<SubscriberMethod> findUsingReflection(Class<?> subscriberClass) {
@@ -277,7 +246,7 @@ class SubscriberMethodFinder {
 
             String methodKey = methodKeyBuilder.toString();
             Class<?> methodClass = method.getDeclaringClass();
-            Class methodClassOld = subscriberClassByMethodKey.put(methodKey, methodClass);
+            Class<?> methodClassOld = subscriberClassByMethodKey.put(methodKey, methodClass);
             if (methodClassOld == null || methodClassOld.isAssignableFrom(methodClass)) {
                 // Only add if not already found in a sub class
                 return true;
