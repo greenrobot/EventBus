@@ -171,19 +171,15 @@ class SubscriberMethodFinder {
                                     subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
                         }
                     }
-                } else if (strictMethodVerification) {
-                    if (method.isAnnotationPresent(Subscribe.class)) {
-                        String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                        throw new EventBusException("@Subscribe method " + methodName +
-                                "must have exactly 1 parameter but has " + parameterTypes.length);
-                    }
-                }
-            } else if (strictMethodVerification) {
-                if (method.isAnnotationPresent(Subscribe.class)) {
+                } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
                     String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                    throw new EventBusException(methodName +
-                            " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
+                    throw new EventBusException("@Subscribe method " + methodName +
+                            "must have exactly 1 parameter but has " + parameterTypes.length);
                 }
+            } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
+                String methodName = method.getDeclaringClass().getName() + "." + method.getName();
+                throw new EventBusException(methodName +
+                        " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
             }
         }
     }

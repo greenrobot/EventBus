@@ -11,7 +11,7 @@ EventBus...
     * avoids complex and error-prone dependencies and life cycle issues
  * makes your code simpler
  * is fast
- * is tiny (<50k jar)
+ * is tiny (~50k jar)
  * is proven in practice by apps with 100,000,000+ installs
  * has advanced features like delivery threads, subscriber priorities, etc.
 
@@ -40,8 +40,6 @@ EventBus in 4 steps
 Add EventBus to your project
 ----------------------------
 EventBus is available on Maven Central. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
-
-Note: This SNAPSHOT version is only available on Sonatype's snapshot repository (https://oss.sonatype.org/content/repositories/snapshots).
 
 Gradle:
 ```
@@ -79,7 +77,7 @@ FAQ
 **A:** Unlike Android's BroadcastReceiver/Intent system, EventBus uses standard Java classes as events and offers a more convenient API. EventBus is intended for a lot more uses cases where you wouldn't want to go through the hassle of setting up Intents, preparing Intent extras, implementing broadcast receivers, and extracting Intent extras again. Also, EventBus comes with a much lower overhead.
 
 **Q:** How to do pull requests?<br/>
-**A:** Ensure good code quality and consistent formatting. EventBus has a good test coverage: if you propose a new feature or fix a bug, please add a unit test.
+**A:** Ensure good code quality and consistent formatting. EventBus has good test coverage: if you propose a new feature or fix a bug, please add a unit test.
 
 Release History, License
 ------------------------
