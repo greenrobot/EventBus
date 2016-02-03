@@ -17,14 +17,6 @@ EventBus...
 
  [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 
-Index and its Limitations
--------------------------
-The "subscriber index" is a new feature of EventBus 3. It is an optional optimization to speed up initial subscriber registration. The subscriber index can be created during build time using EventBus' annotation processor. It is not required to use the index, but it's recommended on Android because of its poor reflection speed regarding annotations.
-
-Note that only those @Subscribers methods can be indexed for which the subscriber AND event class are public. Non-indexed methods have to be looked-up at runtime using reflection.
-
-Also, @Subscribe annotations are not recognized when inside of anonymous classes
-
 EventBus in 4 steps
 -------------------
 1. Define events:<br/>
@@ -39,7 +31,7 @@ EventBus in 4 steps
 
 Add EventBus to your project
 ----------------------------
-EventBus is available on Maven Central. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
+EventBus is available on Maven Central. Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
 Gradle:
 ```
@@ -61,28 +53,25 @@ How-to, Developer Documentation
 -------------------------------
 Details on EventBus and its API are available in the [HOWTO document](HOWTO.md).
 
-How does EventBus compare to other solutions, like Otto from Square? Check this [comparison](COMPARISON.md).
-
 Additional Features and Notes
 -----------------------------
+Link: [Features](http://greenrobot.org/eventbus/features/)
 
 * **Based on annotations:** Event handling methods can be named however you want, and only need to be annotated with **@Subscribe**.
 * **Performance optimized:** It's probably the fastest event bus for Android.
 * **Convenience singleton:** You can get a process wide event bus instance by calling EventBus.getDefault(). You can still call new EventBus() to create any number of local busses.
 * **Subscriber and event inheritance:** Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.
 
-FAQ
----
-**Q:** How is EventBus different to Android's BroadcastReceiver/Intent system?<br/>
-**A:** Unlike Android's BroadcastReceiver/Intent system, EventBus uses standard Java classes as events and offers a more convenient API. EventBus is intended for a lot more uses cases where you wouldn't want to go through the hassle of setting up Intents, preparing Intent extras, implementing broadcast receivers, and extracting Intent extras again. Also, EventBus comes with a much lower overhead.
+Links
+-----
+[CHANGELOG](http://greenrobot.org/eventbus/changelog/)
 
-**Q:** How to do pull requests?<br/>
-**A:** Ensure good code quality and consistent formatting. EventBus has good test coverage: if you propose a new feature or fix a bug, please add a unit test.
+[FAQ](http://greenrobot.org/eventbus/documentation/faq/)
 
-Release History, License
-------------------------
-[CHANGELOG](CHANGELOG.md)
+How does EventBus compare to other solutions, like Otto from Square? Check this [comparison](COMPARISON.md).
 
+License
+-------
 Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
