@@ -146,6 +146,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return true;
     }
 
+    /**
+     * Subscriber classes should be skipped if their class or any involved event class are not visible to the index.
+     */
     private void checkForSubscribersToSkip(Messager messager, String myPackage) {
         for (TypeElement skipCandidate : methodsByClass.keySet()) {
             TypeElement subscriberClass = skipCandidate;
