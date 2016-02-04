@@ -4,23 +4,36 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.1'
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+
+sourceCompatibility = 1.7
 
 repositories {
     jcenter()
 }
 
 dependencies {
+    androidTestApt project(':EventBusAnnotationProcessor')
     androidTestCompile project(':EventBus')
+    compile fileTree(dir: 'libs', include: '*.jar')
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
 }
 
 android {
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
     compileSdkVersion 19
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
 
     sourceSets {
         main {
@@ -34,6 +47,13 @@ android {
 
     defaultConfig {
         testApplicationId "de.greenrobot.event.test"
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 }
+
+apt {
+    arguments {
+        eventBusIndex "org.greenrobot.eventbus.EventBusTestsIndex"
+    }
+}
+

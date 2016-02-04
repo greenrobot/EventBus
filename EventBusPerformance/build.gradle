@@ -4,11 +4,13 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.1'
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
     jcenter()
@@ -16,11 +18,18 @@ repositories {
 
 dependencies {
     compile project(':EventBus')
-    compile 'com.squareup:otto:1.3.5'
+    apt project(':EventBusAnnotationProcessor')
+    compile 'com.squareup:otto:1.3.8'
+}
+
+apt {
+    arguments {
+        eventBusIndex "org.greenrobot.eventbusperf.MyEventBusIndex"
+    }
 }
 
 android {
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
     compileSdkVersion 19
 
     sourceSets {
@@ -29,7 +38,6 @@ android {
             java.srcDirs = ['src']
             res.srcDirs = ['res']
         }
-
     }
 
 }
