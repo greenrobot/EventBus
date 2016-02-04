@@ -27,7 +27,7 @@ dependencies {
 }
 
 android {
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.2' // When updating, don't forget to adjust .travis.yml
     compileSdkVersion 19
 
     compileOptions {
