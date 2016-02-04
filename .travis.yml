@@ -9,6 +9,7 @@ android:
     - tools
     - build-tools-23.0.2
     - android-10
+    - extra-android-m2repository
 
 before_script:
   - chmod +x gradlew
