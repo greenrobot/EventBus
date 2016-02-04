@@ -52,22 +52,15 @@ Maven:
 
 [Or download EventBus from Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22de.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
-How-to, Developer Documentation
--------------------------------
-Details on EventBus and its API are available in the [HOWTO document](HOWTO.md).
+Homepage, Documentation, Links
+------------------------------
+For more details on EventBus please check [EventBus' website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
 
-Additional Features and Notes
------------------------------
-Link: [Features](http://greenrobot.org/eventbus/features/)
+[Features](http://greenrobot.org/eventbus/features/)
 
-* **Based on annotations:** Event handling methods can be named however you want, and only need to be annotated with **@Subscribe**.
-* **Performance optimized:** It's probably the fastest event bus for Android.
-* **Convenience singleton:** You can get a process wide event bus instance by calling EventBus.getDefault(). You can still call new EventBus() to create any number of local busses.
-* **Subscriber and event inheritance:** Event handler methods may be defined in super classes, and events are posted to handlers of the event's super classes including any implemented interfaces. For example, subscriber may register to events of the type Object to receive all events posted on the event bus.
+[Documentation](http://greenrobot.org/eventbus/documentation/)
 
-Links
------
-[CHANGELOG](http://greenrobot.org/eventbus/changelog/)
+[Changelog](http://greenrobot.org/eventbus/changelog/)
 
 [FAQ](http://greenrobot.org/eventbus/documentation/faq/)
 
@@ -85,4 +78,4 @@ More Open Source by greenrobot
 
 [__greenDAO__](https://github.com/greenrobot/greenDAO) is an ORM optimized for Android: it maps database tables to Java objects and uses code generation for optimal speed.
 
-[Follow us on Google+](https://plus.google.com/b/114381455741141514652/+GreenrobotDe/posts) to stay up to date.
+[Follow us on Google+](https://plus.google.com/b/114381455741141514652/+GreenrobotDe/posts) or check our [homepage](http://greenrobot.org/) to stay up to date.
