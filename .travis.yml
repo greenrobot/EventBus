@@ -6,6 +6,7 @@ jdk:
 # http://docs.travis-ci.com/user/languages/android/
 android:
   components:
+    - tools
     - build-tools-23.0.2
     - android-10
 
