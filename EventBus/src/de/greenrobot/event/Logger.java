@@ -1,7 +1,5 @@
 package de.greenrobot.event;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.util.Log;
 
 import java.util.logging.Level;
@@ -45,195 +43,84 @@ public abstract class Logger {
         }
     }
 
+    public abstract boolean isLoggable(Level level);
 
-    public abstract boolean isLoggable(int level);
+    public abstract void log(Level level, String msg);
 
-    public abstract void v(String msg);
-
-    public abstract void v(String msg, Throwable th);
-
-    public abstract void d(String msg);
-
-    public abstract void d(String msg, Throwable th);
-
-    public abstract void i(String msg);
-
-    public abstract void i(String msg, Throwable th);
-
-    public abstract void w(String msg);
-
-    public abstract void w(String msg, Throwable th);
-
-    public abstract void w(Throwable th);
-
-    public abstract void e(String msg);
-
-    public abstract void e(String msg, Throwable th);
-
-    public abstract void wtf(String msg);
-
-    public abstract void wtf(String msg, Throwable th);
+    public abstract void log(Level level, String msg, Throwable th);
 
     public static class AndroidLogger extends Logger {
-        public static final int VERBOSE = 2;
-        public static final int DEBUG = 3;
-        public static final int INFO = 4;
-        public static final int WARN = 5;
-        public static final int ERROR = 6;
-        public static final int ASSERT = 7;
-
         private final String tag;
 
         public AndroidLogger(String tag) {
             this.tag = tag;
         }
 
-        public boolean isLoggable(int level) {
-            return Log.isLoggable(tag, level);
+        public boolean isLoggable(Level level) {
+            if (level == Level.OFF) {
+                return false;
+            } else {
+                return Log.isLoggable(tag, mapLevel(level));
+            }
         }
 
-        public void v(String msg) {
-            Log.v(tag, msg);
+        public void log(Level level, String msg) {
+            if (level != Level.OFF) {
+                Log.println(mapLevel(level), tag, msg);
+            }
         }
 
-        public void v(String msg, Throwable th) {
-            Log.v(tag, msg, th);
+        public void log(Level level, String msg, Throwable th) {
+            if (level != Level.OFF) {
+                // That's how Log does it internally
+                Log.println(mapLevel(level), tag, msg + "\n" + Log.getStackTraceString(th));
+            }
         }
 
-        public void d(String msg) {
-            Log.d(tag, msg);
+        protected int mapLevel(Level level) {
+            if (level == Level.OFF) {
+                return 0;
+            } else if (level == Level.FINEST || level == Level.FINER) {
+                return Log.VERBOSE;
+            } else if (level == Level.FINE || level == Level.CONFIG) {
+                return Log.DEBUG;
+            } else if (level == Level.INFO) {
+                return Log.INFO;
+            } else if (level == Level.WARNING) {
+                return Log.WARN;
+            } else if (level == Level.SEVERE) {
+                return Log.ERROR;
+            } else if (level == Level.ALL) {
+                // Hmm, well..
+                return Log.ASSERT;
+            } else {
+                throw new IllegalArgumentException("Unexpected level: " + level);
+            }
         }
 
-        public void d(String msg, Throwable th) {
-            Log.d(tag, msg, th);
-        }
-
-        public void i(String msg) {
-            Log.i(tag, msg);
-        }
-
-        public void i(String msg, Throwable th) {
-            Log.i(tag, msg, th);
-        }
-
-        public void w(String msg) {
-            Log.w(tag, msg);
-        }
-
-        public void w(String msg, Throwable th) {
-            Log.w(tag, msg, th);
-        }
-
-        public void w(Throwable th) {
-            Log.w(tag, th);
-        }
-
-        public void e(String msg) {
-            Log.e(tag, msg);
-        }
-
-        public void e(String msg, Throwable th) {
-            Log.e(tag, msg, th);
-        }
-
-        @TargetApi(Build.VERSION_CODES.FROYO)
-        @Override
-        public void wtf(String msg) {
-            Log.wtf(tag, msg);
-        }
-
-        @TargetApi(Build.VERSION_CODES.FROYO)
-        @Override
-        public void wtf(String msg, Throwable th) {
-            Log.wtf(tag, msg, th);
-        }
     }
 
     public static class JavaLogger extends Logger {
-        private static final Level[] LEVEL_MAP = {
-                Level.OFF, Level.OFF, Level.OFF, // Unused
-                Level.FINEST, // VERBOSE = 2
-                Level.FINE, //DEBUG = 3
-                Level.INFO, // INFO = 4
-                Level.WARNING, // WARN = 5
-                Level.SEVERE, //ERROR = 6
-                Level.SEVERE, //ASSERT = 7
-        };
-
-        java.util.logging.Logger logger = java.util.logging.Logger.getLogger("");
+        protected final java.util.logging.Logger logger;
 
         public JavaLogger(String tag) {
             logger = java.util.logging.Logger.getLogger(tag);
         }
 
         @Override
-        public boolean isLoggable(int level) {
-            return logger.isLoggable(LEVEL_MAP[level]);
+        public boolean isLoggable(Level level) {
+            return logger.isLoggable(level);
         }
 
         @Override
-        public void v(String msg) {
-            logger.finest(msg);
+        public void log(Level level, String msg) {
+            logger.log(level, msg);
         }
 
         @Override
-        public void v(String msg, Throwable th) {
-            logger.log(Level.FINEST, msg, th);
+        public void log(Level level, String msg, Throwable th) {
+            logger.log(level, msg, th);
         }
 
-        @Override
-        public void d(String msg) {
-            logger.fine(msg);
-        }
-
-        @Override
-        public void d(String msg, Throwable th) {
-            logger.log(Level.FINE, msg, th);
-        }
-
-        @Override
-        public void i(String msg) {
-            logger.info(msg);
-        }
-
-        @Override
-        public void i(String msg, Throwable th) {
-            logger.log(Level.INFO, msg, th);
-        }
-
-        @Override
-        public void w(String msg) {
-            logger.warning(msg);
-        }
-
-        @Override
-        public void w(String msg, Throwable th) {
-            logger.log(Level.WARNING, msg, th);
-        }
-
-        @Override
-        public void w(Throwable th) {
-            logger.log(Level.WARNING, null, th);
-        }
-
-        @Override
-        public void e(String msg) {
-            logger.severe(msg);
-        }
-
-        @Override
-        public void e(String msg, Throwable th) {
-            logger.log(Level.SEVERE, msg, th);
-        }
-
-        @Override
-        public void wtf(String msg) {
-            logger.severe(msg);
-        }
-
-        @Override
-        public void wtf(String msg, Throwable th) {
-            logger.log(Level.SEVERE, msg, th);
-        }
     }
 }
