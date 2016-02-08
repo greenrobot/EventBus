@@ -171,18 +171,26 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 if (methods != null) {
                     for (ExecutableElement method : methods) {
                         VariableElement param = method.getParameters().get(0);
-                        TypeElement eventTypeElement = (TypeElement) ((DeclaredType) param.asType()).asElement();
-                        if (!isVisible(myPackage, eventTypeElement)) {
+                        TypeMirror typeMirror = param.asType();
+                        String skipReason = null;
+                        if (!(typeMirror instanceof DeclaredType) ||
+                                !(((DeclaredType) typeMirror).asElement() instanceof TypeElement)) {
+                            skipReason = "event type is not a standard class e.g. generics";
+                        }
+                        if (skipReason == null) {
+                            TypeElement eventTypeElement = (TypeElement) ((DeclaredType) typeMirror).asElement();
+                            if (!isVisible(myPackage, eventTypeElement)) {
+                                skipReason = "event type is not public";
+                            }
+                        }
+                        if (skipReason != null) {
                             boolean added = classesToSkip.add(skipCandidate);
                             if (added) {
-                                String msg;
-                                if (subscriberClass.equals(skipCandidate)) {
-                                    msg = "Falling back to reflection because event type is not public";
-                                } else {
-                                    msg = "Falling back to reflection because " + skipCandidate +
-                                            " has a super class using a non-public event type";
+                                String msg = "Falling back to reflection because " + skipReason;
+                                if (!subscriberClass.equals(skipCandidate)) {
+                                    msg += " (found in super class for " + skipCandidate + ")";
                                 }
-                                messager.printMessage(Diagnostic.Kind.NOTE, msg, subscriberClass);
+                                messager.printMessage(Diagnostic.Kind.NOTE, msg, method);
                             }
                             break;
                         }

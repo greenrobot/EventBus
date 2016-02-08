@@ -23,20 +23,66 @@ public class EventBusGenericsTest extends AbstractEventBusTest {
         T value;
     }
 
-    public class GenericSubscriber<T> {
+    public class GenericEventSubscriber<T> {
         @Subscribe
         public void onGenericEvent(GenericEvent<T> event) {
             trackEvent(event);
         }
     }
 
+    public class FullGenericEventSubscriber<T> {
+        @Subscribe
+        public void onGenericEvent(T event) {
+            trackEvent(event);
+        }
+    }
+
+    public class GenericNumberEventSubscriber<T extends Number> {
+        @Subscribe
+        public void onGenericEvent(T event) {
+            trackEvent(event);
+        }
+    }
+
+    public class GenericFloatEventSubscriber extends GenericNumberEventSubscriber<Float> {
+    }
+
     @Test
     public void testGenericEventAndSubscriber() {
-        GenericSubscriber<IntTestEvent> genericSubscriber = new GenericSubscriber<IntTestEvent>();
+        GenericEventSubscriber<IntTestEvent> genericSubscriber = new GenericEventSubscriber<IntTestEvent>();
         eventBus.register(genericSubscriber);
         eventBus.post(new GenericEvent<Integer>());
-        eventBus.unregister(genericSubscriber);
-
         assertEventCount(1);
+    }
+
+    @Test
+    public void testGenericEventAndSubscriber_TypeErasure() {
+        FullGenericEventSubscriber<IntTestEvent> genericSubscriber = new FullGenericEventSubscriber<IntTestEvent>();
+        eventBus.register(genericSubscriber);
+        eventBus.post(new IntTestEvent(42));
+        eventBus.post("Type erasure!");
+        assertEventCount(2);
+    }
+
+    @Test
+    public void testGenericEventAndSubscriber_BaseType() {
+        GenericNumberEventSubscriber<Float> genericSubscriber = new GenericNumberEventSubscriber<>();
+        eventBus.register(genericSubscriber);
+        eventBus.post(new Float(42));
+        eventBus.post(new Double(23));
+        assertEventCount(2);
+        eventBus.post("Not the same base type");
+        assertEventCount(2);
+    }
+
+    @Test
+    public void testGenericEventAndSubscriber_Subclass() {
+        GenericFloatEventSubscriber genericSubscriber = new GenericFloatEventSubscriber();
+        eventBus.register(genericSubscriber);
+        eventBus.post(new Float(42));
+        eventBus.post(new Double(77));
+        assertEventCount(2);
+        eventBus.post("Not the same base type");
+        assertEventCount(2);
     }
 }
