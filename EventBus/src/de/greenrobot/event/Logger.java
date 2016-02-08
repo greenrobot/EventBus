@@ -6,8 +6,6 @@ import java.util.logging.Level;
 
 public abstract class Logger {
     private static final boolean useAndroidLog;
-    private static volatile Logger DEFAULT_LOGGER;
-
 
     static {
         boolean android = false;
@@ -17,22 +15,6 @@ public abstract class Logger {
             // OK
         }
         useAndroidLog = android;
-    }
-
-
-    public static synchronized Logger initDefaultLogger(String tag) {
-        if (DEFAULT_LOGGER != null) {
-            throw new IllegalStateException("Default logger already set up");
-        }
-        DEFAULT_LOGGER = create(tag);
-        return DEFAULT_LOGGER;
-    }
-
-    public static Logger get() {
-        if (DEFAULT_LOGGER == null) {
-            throw new IllegalStateException("Default logger must be initialized before");
-        }
-        return DEFAULT_LOGGER;
     }
 
     public static Logger create(String tag) {
@@ -78,26 +60,21 @@ public abstract class Logger {
         }
 
         protected int mapLevel(Level level) {
-            if (level == Level.OFF) {
-                return 0;
-            } else if (level == Level.FINEST || level == Level.FINER) {
-                return Log.VERBOSE;
-            } else if (level == Level.FINE || level == Level.CONFIG) {
-                return Log.DEBUG;
-            } else if (level == Level.INFO) {
+            int value = level.intValue();
+            if (value < 800) { // below INFO
+                if (value < 500) { // below FINE
+                    return Log.VERBOSE;
+                } else {
+                    return Log.DEBUG;
+                }
+            } else if (value < 900) { // below WARNING
                 return Log.INFO;
-            } else if (level == Level.WARNING) {
+            } else if (value < 1000) { // below ERROR
                 return Log.WARN;
-            } else if (level == Level.SEVERE) {
-                return Log.ERROR;
-            } else if (level == Level.ALL) {
-                // Hmm, well..
-                return Log.ASSERT;
             } else {
-                throw new IllegalArgumentException("Unexpected level: " + level);
+                return Log.ERROR;
             }
         }
-
     }
 
     public static class JavaLogger extends Logger {
