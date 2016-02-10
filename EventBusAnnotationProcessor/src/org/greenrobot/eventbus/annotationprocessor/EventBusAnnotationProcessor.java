@@ -40,15 +40,17 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import de.greenrobot.common.ListMap;
 
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
-@SupportedOptions("eventBusIndex")
+@SupportedOptions(value = {"eventBusIndex", "verbose"})
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
+    public static final String OPTION_VERBOSE = "verbose";
 
     /** Found subscriber methods for a class (without superclasses). */
     private final ListMap<TypeElement, ExecutableElement> methodsByClass = new ListMap<>();
@@ -56,6 +58,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
 
     private boolean writerRoundDone;
     private int round;
+    private boolean verbose;
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
@@ -72,12 +75,15 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         " passed to annotation processor");
                 return false;
             }
+            verbose = Boolean.parseBoolean(processingEnv.getOptions().get(OPTION_VERBOSE));
             int lastPeriod = index.lastIndexOf('.');
             String indexPackage = lastPeriod != -1 ? index.substring(0, lastPeriod) : null;
 
             round++;
-            messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " +
-                    !annotations.isEmpty() + ", processingOver: " + env.processingOver());
+            if (verbose) {
+                messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " +
+                        !annotations.isEmpty() + ", processingOver: " + env.processingOver());
+            }
             if (env.processingOver()) {
                 if (!annotations.isEmpty()) {
                     messager.printMessage(Diagnostic.Kind.ERROR,
@@ -170,12 +176,12 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 List<ExecutableElement> methods = methodsByClass.get(subscriberClass);
                 if (methods != null) {
                     for (ExecutableElement method : methods) {
-                        VariableElement param = method.getParameters().get(0);
-                        TypeMirror typeMirror = param.asType();
                         String skipReason = null;
+                        VariableElement param = method.getParameters().get(0);
+                        TypeMirror typeMirror = getParamTypeMirror(param, messager);
                         if (!(typeMirror instanceof DeclaredType) ||
                                 !(((DeclaredType) typeMirror).asElement() instanceof TypeElement)) {
-                            skipReason = "event type is not a standard class e.g. generics";
+                            skipReason = "event type cannot be processed";
                         }
                         if (skipReason == null) {
                             TypeElement eventTypeElement = (TypeElement) ((DeclaredType) typeMirror).asElement();
@@ -190,7 +196,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                                 if (!subscriberClass.equals(skipCandidate)) {
                                     msg += " (found in super class for " + skipCandidate + ")";
                                 }
-                                messager.printMessage(Diagnostic.Kind.NOTE, msg, method);
+                                messager.printMessage(Diagnostic.Kind.NOTE, msg, param);
                             }
                             break;
                         }
@@ -199,6 +205,22 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 subscriberClass = getSuperclass(subscriberClass);
             }
         }
+    }
+
+    private TypeMirror getParamTypeMirror(VariableElement param, Messager messager) {
+        TypeMirror typeMirror = param.asType();
+        // Check for generic type
+        if (typeMirror instanceof TypeVariable) {
+            TypeMirror upperBound = ((TypeVariable) typeMirror).getUpperBound();
+            if (upperBound instanceof DeclaredType) {
+                if (messager != null) {
+                    messager.printMessage(Diagnostic.Kind.NOTE, "Using upper bound type " + upperBound +
+                            " for generic parameter", param);
+                }
+                typeMirror = upperBound;
+            }
+        }
+        return typeMirror;
     }
 
     private TypeElement getSuperclass(TypeElement type) {
@@ -252,7 +274,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                                               String callPrefix, String myPackage) throws IOException {
         for (ExecutableElement method : methods) {
             List<? extends VariableElement> parameters = method.getParameters();
-            TypeMirror paramType = parameters.get(0).asType();
+            TypeMirror paramType = getParamTypeMirror(parameters.get(0), null);
             TypeElement paramElement = (TypeElement) processingEnv.getTypeUtils().asElement(paramType);
             String methodName = method.getSimpleName().toString();
             String eventClass = getClassString(paramElement, myPackage) + ".class";
@@ -276,9 +298,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             }
             writeLine(writer, 3, parts.toArray(new String[parts.size()]));
 
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
-                    method.getEnclosingElement().getSimpleName() + "." + methodName +
-                    "(" + paramElement.getSimpleName() + ")");
+            if (verbose) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
+                        method.getEnclosingElement().getSimpleName() + "." + methodName +
+                        "(" + paramElement.getSimpleName() + ")");
+            }
 
         }
     }
