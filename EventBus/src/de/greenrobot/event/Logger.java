@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.logging.Level;
 
 public abstract class Logger {
-    private static final boolean useAndroidLog;
+    private static final boolean ANDROID_LOG_AVAILABLE;
 
     static {
         boolean android = false;
@@ -14,14 +14,18 @@ public abstract class Logger {
         } catch (ClassNotFoundException e) {
             // OK
         }
-        useAndroidLog = android;
+        ANDROID_LOG_AVAILABLE = android;
+    }
+
+    public static boolean isAndroidLogAvailable() {
+        return ANDROID_LOG_AVAILABLE;
     }
 
     public static Logger create(String tag) {
-        if (useAndroidLog) {
+        if (ANDROID_LOG_AVAILABLE) {
             return new AndroidLogger(tag);
         } else {
-            return new JavaLogger(tag);
+            return new SystemOutLogger();
         }
     }
 
@@ -91,13 +95,36 @@ public abstract class Logger {
 
         @Override
         public void log(Level level, String msg) {
+            // TODO Replace logged method with caller method
             logger.log(level, msg);
         }
 
         @Override
         public void log(Level level, String msg, Throwable th) {
+            // TODO Replace logged method with caller method
             logger.log(level, msg, th);
         }
 
     }
+
+    public static class SystemOutLogger extends Logger {
+
+        @Override
+        public boolean isLoggable(Level level) {
+            return true;
+        }
+
+        @Override
+        public void log(Level level, String msg) {
+            System.out.println("[" + level + "] " + msg);
+        }
+
+        @Override
+        public void log(Level level, String msg, Throwable th) {
+            System.out.println("[" + level + "] " + msg);
+            th.printStackTrace(System.out);
+        }
+
+    }
+
 }
