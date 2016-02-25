@@ -16,11 +16,11 @@
 package org.greenrobot.eventbus.util;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.log.EBLog;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 /**
  * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events of any
@@ -117,7 +117,7 @@ public class AsyncExecutor {
                     try {
                         event = failureEventConstructor.newInstance(e);
                     } catch (Exception e1) {
-                        EBLog.e("Original exception:", e);
+                        eventBus.getLogger().log(Level.SEVERE, "Original exception:", e);
                         throw new RuntimeException("Could not create failure event", e1);
                     }
                     if (event instanceof HasExecutionScope) {

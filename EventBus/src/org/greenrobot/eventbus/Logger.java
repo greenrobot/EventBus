@@ -1,53 +1,37 @@
-package de.greenrobot.event;
+package org.greenrobot.eventbus;
 
 import android.util.Log;
 
 import java.util.logging.Level;
 
-public abstract class Logger {
-    private static final boolean ANDROID_LOG_AVAILABLE;
+public interface Logger {
 
-    static {
-        boolean android = false;
-        try {
-            android = Class.forName("android.util.Log") != null;
-        } catch (ClassNotFoundException e) {
-            // OK
+    void log(Level level, String msg);
+
+    void log(Level level, String msg, Throwable th);
+
+    public static class AndroidLogger implements Logger {
+        static final boolean ANDROID_LOG_AVAILABLE;
+
+        static {
+            boolean android = false;
+            try {
+                android = Class.forName("android.util.Log") != null;
+            } catch (ClassNotFoundException e) {
+                // OK
+            }
+            ANDROID_LOG_AVAILABLE = android;
         }
-        ANDROID_LOG_AVAILABLE = android;
-    }
 
-    public static boolean isAndroidLogAvailable() {
-        return ANDROID_LOG_AVAILABLE;
-    }
-
-    public static Logger create(String tag) {
-        if (ANDROID_LOG_AVAILABLE) {
-            return new AndroidLogger(tag);
-        } else {
-            return new SystemOutLogger();
+        public static boolean isAndroidLogAvailable() {
+            return ANDROID_LOG_AVAILABLE;
         }
-    }
 
-    public abstract boolean isLoggable(Level level);
 
-    public abstract void log(Level level, String msg);
-
-    public abstract void log(Level level, String msg, Throwable th);
-
-    public static class AndroidLogger extends Logger {
         private final String tag;
 
         public AndroidLogger(String tag) {
             this.tag = tag;
-        }
-
-        public boolean isLoggable(Level level) {
-            if (level == Level.OFF) {
-                return false;
-            } else {
-                return Log.isLoggable(tag, mapLevel(level));
-            }
         }
 
         public void log(Level level, String msg) {
@@ -81,16 +65,11 @@ public abstract class Logger {
         }
     }
 
-    public static class JavaLogger extends Logger {
+    public static class JavaLogger implements Logger {
         protected final java.util.logging.Logger logger;
 
         public JavaLogger(String tag) {
             logger = java.util.logging.Logger.getLogger(tag);
-        }
-
-        @Override
-        public boolean isLoggable(Level level) {
-            return logger.isLoggable(level);
         }
 
         @Override
@@ -107,12 +86,7 @@ public abstract class Logger {
 
     }
 
-    public static class SystemOutLogger extends Logger {
-
-        @Override
-        public boolean isLoggable(Level level) {
-            return true;
-        }
+    public static class SystemOutLogger implements Logger {
 
         @Override
         public void log(Level level, String msg) {
