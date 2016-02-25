@@ -15,11 +15,11 @@
  */
 package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.log.EBLog;
+import java.util.logging.Level;
 
 /**
  * Posts events in background.
- * 
+ *
  * @author Markus
  */
 final class BackgroundPoster implements Runnable, Poster {
@@ -64,7 +64,7 @@ final class BackgroundPoster implements Runnable, Poster {
                     eventBus.invokeSubscriber(pendingPost);
                 }
             } catch (InterruptedException e) {
-                EBLog.w(Thread.currentThread().getName() + " was interruppted", e);
+                eventBus.getLogger().log(Level.WARNING, Thread.currentThread().getName() + " was interruppted", e);
             }
         } finally {
             executorRunning = false;

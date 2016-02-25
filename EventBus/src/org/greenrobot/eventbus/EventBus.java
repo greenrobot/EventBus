@@ -15,9 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.log.AndroidLog;
-import org.greenrobot.eventbus.log.EBLog;
-import org.greenrobot.eventbus.log.SystemOutLog;
 import org.greenrobot.eventbus.util.AndroidMTCalculator;
 import org.greenrobot.eventbus.util.MainThreadCalculator;
 import org.greenrobot.eventbus.util.NonAndroidMTCalculator;
@@ -31,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
 
 /**
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
@@ -78,6 +76,7 @@ public class EventBus {
     private final boolean eventInheritance;
 
     private final int indexCount;
+    private final Logger logger;
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
@@ -110,11 +109,7 @@ public class EventBus {
     }
 
     EventBus(EventBusBuilder builder) {
-        if (builder.logTarget == null) {
-            EBLog.setLogTarget(builder.nonAndroidEnvironment ? new SystemOutLog() : new AndroidLog(TAG));
-        } else {
-            EBLog.setLogTarget(builder.logTarget);
-        }
+        logger = builder.initLogger();
         subscriptionsByEventType = new HashMap<>();
         typesBySubscriber = new HashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
@@ -241,7 +236,7 @@ public class EventBus {
             }
             typesBySubscriber.remove(subscriber);
         } else {
-            EBLog.w("Subscriber to unregister was not registered before: " + subscriber.getClass());
+            logger.log(Level.WARNING, "Subscriber to unregister was not registered before: " + subscriber.getClass());
         }
     }
 
@@ -385,7 +380,7 @@ public class EventBus {
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
-                EBLog.d("No subscribers registered for event " + eventClass);
+                logger.log(Level.FINE, "No subscribers registered for event " + eventClass);
             }
             if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
                     eventClass != SubscriberExceptionEvent.class) {
@@ -505,10 +500,10 @@ public class EventBus {
         if (event instanceof SubscriberExceptionEvent) {
             if (logSubscriberExceptions) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
-                EBLog.e("SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                logger.log(Level.SEVERE, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
                         + " threw an exception", cause);
                 SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
-                EBLog.e("Initial event " + exEvent.causingEvent + " caused exception in "
+                logger.log(Level.SEVERE, "Initial event " + exEvent.causingEvent + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
             }
         } else {
@@ -516,7 +511,7 @@ public class EventBus {
                 throw new EventBusException("Invoking subscriber failed", cause);
             }
             if (logSubscriberExceptions) {
-                EBLog.e("Could not dispatch event: " + event.getClass() + " to subscribing class "
+                logger.log(Level.SEVERE, "Could not dispatch event: " + event.getClass() + " to subscribing class "
                         + subscription.subscriber.getClass(), cause);
             }
             if (sendSubscriberExceptionEvent) {
@@ -539,6 +534,13 @@ public class EventBus {
 
     ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    /**
+     * For internal use only.
+     */
+    public Logger getLogger() {
+        return logger;
     }
 
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
