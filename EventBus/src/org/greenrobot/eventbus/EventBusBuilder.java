@@ -41,7 +41,7 @@ public class EventBusBuilder {
     List<Class<?>> skipMethodVerificationForClasses;
     List<SubscriberInfoIndex> subscriberInfoIndexes;
     Logger logger;
-    boolean nonAndroidEnvironment;
+    MainThreadSupport mainThreadSupport;
 
     EventBusBuilder() {
     }
