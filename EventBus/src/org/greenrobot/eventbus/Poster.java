@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
+ * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.greenrobot.eventbus;
 
 /**
  * Posts events.
- * 
+ *
  * @author William Ferguson
  */
 interface Poster {
@@ -25,8 +25,8 @@ interface Poster {
     /**
      * Enqueue an event to be posted for a particular subscription.
      *
-     * @param subscription  Subscription which will receive the event.
-     * @param event         Event that will be posted to subscribers.
+     * @param subscription Subscription which will receive the event.
+     * @param event        Event that will be posted to subscribers.
      */
     void enqueue(Subscription subscription, Object event);
 }
