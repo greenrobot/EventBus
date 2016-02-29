@@ -15,9 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.util.AndroidMTCalculator;
-import org.greenrobot.eventbus.util.MainThreadCalculator;
-import org.greenrobot.eventbus.util.NonAndroidMTCalculator;
+import android.os.Looper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -61,12 +59,14 @@ public class EventBus {
         }
     };
 
+    // @Nullable
+    private final MainThreadSupport mainThreadSupport;
+    // @Nullable
     private final Poster mainThreadPoster;
     private final BackgroundPoster backgroundPoster;
     private final AsyncPoster asyncPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
     private final ExecutorService executorService;
-    private final MainThreadCalculator mtCalculator;
 
     private final boolean throwSubscriberException;
     private final boolean logSubscriberExceptions;
@@ -113,7 +113,10 @@ public class EventBus {
         subscriptionsByEventType = new HashMap<>();
         typesBySubscriber = new HashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
-        mainThreadPoster = (builder.nonAndroidEnvironment ? new SyncPoster(this) : new HandlerPoster(this, 10));
+        mainThreadSupport = builder.mainThreadSupport != null ? builder.mainThreadSupport :
+                Logger.AndroidLogger.isAndroidLogAvailable() ?
+                        new MainThreadSupport.AndroidHandlerMainThreadSupport(Looper.getMainLooper()) : null;
+        mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
         indexCount = builder.subscriberInfoIndexes != null ? builder.subscriberInfoIndexes.size() : 0;
@@ -126,7 +129,6 @@ public class EventBus {
         throwSubscriberException = builder.throwSubscriberException;
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
-        mtCalculator = (builder.nonAndroidEnvironment ? new NonAndroidMTCalculator() : new AndroidMTCalculator());
     }
 
     /**
@@ -202,8 +204,18 @@ public class EventBus {
         if (stickyEvent != null) {
             // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
             // --> Strange corner case, which we don't take care of here.
-            postToSubscription(newSubscription, stickyEvent, mtCalculator.isMainThread());
+            postToSubscription(newSubscription, stickyEvent, isMainThread());
         }
+    }
+
+    /**
+     * Checks if the current thread is running in the main thread.
+     * If there is no main thread support (e.g. non-Android), "true" is always returned. In that case MAIN thread
+     * subscribers are always called in posting thread, and BACKGROUND subscribers are always called from a background
+     * poster.
+     */
+    private boolean isMainThread() {
+        return mainThreadSupport != null? mainThreadSupport.isMainThread(): true;
     }
 
     public synchronized boolean isRegistered(Object subscriber) {
@@ -247,7 +259,7 @@ public class EventBus {
         eventQueue.add(event);
 
         if (!postingState.isPosting) {
-            postingState.isMainThread = mtCalculator.isMainThread();
+            postingState.isMainThread = isMainThread();
             postingState.isPosting = true;
             if (postingState.canceled) {
                 throw new EventBusException("Internal error. Abort state was not reset");

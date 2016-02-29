@@ -20,15 +20,15 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 
-final class HandlerPoster extends Handler implements Poster {
+public class HandlerPoster extends Handler implements Poster {
 
     private final PendingPostQueue queue;
     private final int maxMillisInsideHandleMessage;
     private final EventBus eventBus;
     private boolean handlerActive;
 
-    HandlerPoster(EventBus eventBus, int maxMillisInsideHandleMessage) {
-        super(Looper.getMainLooper());
+    protected HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
+        super(looper);
         this.eventBus = eventBus;
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
         queue = new PendingPostQueue();
