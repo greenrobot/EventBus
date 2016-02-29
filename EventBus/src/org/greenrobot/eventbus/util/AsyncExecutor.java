@@ -57,10 +57,6 @@ public class AsyncExecutor {
             return buildForScope(null);
         }
 
-        public AsyncExecutor buildForActivityScope(Object activity) {
-            return buildForScope(activity.getClass());
-        }
-        
         public AsyncExecutor buildForScope(Object executionContext) {
             if (eventBus == null) {
                 eventBus = EventBus.getDefault();
