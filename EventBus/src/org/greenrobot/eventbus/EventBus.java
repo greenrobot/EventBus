@@ -18,6 +18,10 @@ package org.greenrobot.eventbus;
 import android.os.Looper;
 import android.util.Log;
 
+import org.greenrobot.eventbus.logger.EventLoggerFilter;
+import org.greenrobot.eventbus.logger.EventLoggerParameter;
+import org.greenrobot.eventbus.logger.EventLoggerUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +31,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
@@ -71,6 +77,10 @@ public class EventBus {
     private final boolean sendSubscriberExceptionEvent;
     private final boolean sendNoSubscriberEvent;
     private final boolean eventInheritance;
+
+    private Logger eventLogger;
+    private Level eventLoggerLevel;
+    private EventLoggerFilter eventLoggerFilter;
 
     private final int indexCount;
 
@@ -190,6 +200,8 @@ public class EventBus {
                 checkPostStickyEventToSubscription(newSubscription, stickyEvent);
             }
         }
+
+        logSubscribe(subscriber,subscriberMethod);
     }
 
     private void checkPostStickyEventToSubscription(Subscription newSubscription, Object stickyEvent) {
@@ -216,6 +228,8 @@ public class EventBus {
                     subscriptions.remove(i);
                     i--;
                     size--;
+
+                    logUnsubscribe(subscription);
                 }
             }
         }
@@ -239,6 +253,7 @@ public class EventBus {
         PostingThreadState postingState = currentPostingThreadState.get();
         List<Object> eventQueue = postingState.eventQueue;
         eventQueue.add(event);
+        logPost(event);
 
         if (!postingState.isPosting) {
             postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
@@ -373,6 +388,9 @@ public class EventBus {
             subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
         }
         if (!subscriptionFound) {
+
+            logPostNotSubscriber(event);
+
             if (logNoSubscriberMessages) {
                 Log.d(TAG, "No subscribers registered for event " + eventClass);
             }
@@ -483,6 +501,7 @@ public class EventBus {
     void invokeSubscriber(Subscription subscription, Object event) {
         try {
             subscription.subscriberMethod.method.invoke(subscription.subscriber, event);
+            logPostEvent(subscription,event);
         } catch (InvocationTargetException e) {
             handleSubscriberException(subscription, event, e.getCause());
         } catch (IllegalAccessException e) {
@@ -533,6 +552,111 @@ public class EventBus {
     // Just an idea: we could provide a callback to post() to be notified, an alternative would be events, of course...
     /* public */interface PostCallback {
         void onPostCompleted(List<SubscriberExceptionEvent> exceptionEvents);
+    }
+
+    /**
+     * Set a Logger to receive every event in the eventbus
+     * @param eventLogger
+     */
+    public void setEventLogger(Logger eventLogger) {
+        setEventLogger(eventLogger,Level.INFO,EventLoggerFilter.ALL);
+    }
+
+    /**
+     * Set a Logger to receive every event in the eventbus
+     * @param eventLogger
+     * @param eventLoggerLevel level to use in the logger messages
+     */
+    public void setEventLogger(Logger eventLogger, Level eventLoggerLevel) {
+        setEventLogger(eventLogger,eventLoggerLevel,EventLoggerFilter.ALL);
+    }
+
+    /**
+     * Set a Logger to receive every event in the eventbus
+     * @param eventLogger
+     * @param eventLoggerLevel level to use in the logger messages
+     */
+    public void setEventLogger(Logger eventLogger, Level eventLoggerLevel, EventLoggerFilter eventLoggerFilter) {
+        synchronized(this) {
+            this.eventLogger = eventLogger;
+            this.eventLoggerLevel = eventLoggerLevel;
+            this.eventLoggerFilter = eventLoggerFilter;
+        }
+    }
+
+    /**
+     * Get the Logger set in the current eventbus.
+     * @return Logger. Null if not Logger has been set
+     */
+    public Logger getEventLogger() {
+        return eventLogger;
+    }
+
+    /**
+     * Get the Level set for the current logger if any, null in other case
+     * @return
+     */
+    public Level getEventLoggerLevel() {
+        return eventLoggerLevel;
+    }
+
+    /**
+     * Ask if a logger has been set for the current evenbus
+     */
+    public boolean hasLoggerAttached() {
+        return eventLogger != null;
+    }
+
+    /**
+     * Remove the logger instance attached to this eventbus
+     */
+    public void removeLogger() {
+        synchronized(this) {
+            this.eventLogger = null;
+            this.eventLoggerLevel = null;
+        }
+    }
+
+    private void logSubscribe(Object subscriber, SubscriberMethod subscriberMethod) {
+
+        if(eventLogger != null && eventLoggerFilter != EventLoggerFilter.ONLY_POSTS) {
+            String msg = String.format(EventLoggerUtils.SUBSCRIBE_MSG,subscriber.getClass().toString(),
+                    subscriberMethod.eventType.getName(),
+                    subscriberMethod.method.getName());
+            eventLogger.log(eventLoggerLevel,msg,new EventLoggerParameter(EventLoggerParameter.EventLoggerParameterType.REGISTER,subscriber,subscriberMethod,null));
+        }
+
+    }
+
+    private void logUnsubscribe(Subscription subscription) {
+        if(eventLogger != null && eventLoggerFilter != EventLoggerFilter.ONLY_POSTS) {
+            String msg = String.format(EventLoggerUtils.UNSUBSCRIBE_MSG,subscription.subscriber.getClass().toString(), subscription.subscriberMethod.eventType.getName());
+            eventLogger.log(eventLoggerLevel,msg,new EventLoggerParameter(EventLoggerParameter.EventLoggerParameterType.UNREGISTER,subscription.subscriber,
+                    subscription.subscriberMethod,null));
+        }
+    }
+
+    private void logPost(Object event) {
+        if(eventLogger != null && eventLoggerFilter != EventLoggerFilter.ONLY_SUBSCRIPTIONS) {
+            String msg = String.format(EventLoggerUtils.POST_MSG,event.getClass().toString());
+            eventLogger.log(eventLoggerLevel,msg,new EventLoggerParameter(EventLoggerParameter.EventLoggerParameterType.POST_EVENT,null,null,event));
+        }
+    }
+
+    private void logPostNotSubscriber(Object event) {
+        if(eventLogger != null && eventLoggerFilter != EventLoggerFilter.ONLY_SUBSCRIPTIONS) {
+            String msg = String.format(EventLoggerUtils.POST_NOT_SUBSCRIBER_MSG,event.getClass().toString());
+            eventLogger.log(eventLoggerLevel,msg,new EventLoggerParameter(EventLoggerParameter.EventLoggerParameterType.POST_NO_SUBSCRIBER,null,null,event));
+        }
+    }
+
+
+    private void logPostEvent(Subscription subscription, Object event) {
+        if(eventLogger != null && eventLoggerFilter != EventLoggerFilter.ONLY_SUBSCRIPTIONS) {
+            String msg = String.format(EventLoggerUtils.POST_EVENT_MSG,event.getClass().toString(),subscription.subscriber.getClass().toString());
+            eventLogger.log(eventLoggerLevel,msg,new EventLoggerParameter(EventLoggerParameter.EventLoggerParameterType.POSTING_EVENT,
+                    subscription.subscriber,subscription.subscriberMethod,event));
+        }
     }
 
     @Override
