@@ -15,6 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
+import android.os.Looper;
 import android.util.Log;
 
 import java.util.logging.Level;
@@ -31,8 +32,9 @@ public interface Logger {
         static {
             boolean android = false;
             try {
-                android = Class.forName("android.util.Log") != null;
-            } catch (ClassNotFoundException e) {
+                // getMainLooper will throw RuntimeException if running from Android Studio on JVM
+                android = Class.forName("android.util.Log") != null && Looper.getMainLooper() != null;
+            } catch (ClassNotFoundException | RuntimeException e) {
                 // OK
             }
             ANDROID_LOG_AVAILABLE = android;
