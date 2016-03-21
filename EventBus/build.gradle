@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'idea'
 
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
@@ -42,6 +43,12 @@ sourceSets {
             srcDir 'src'
             // exclude 'de/greenrobot/event/util/**'
         }
+    }
+}
+
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
     }
 }
 

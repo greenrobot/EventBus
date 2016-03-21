@@ -3,11 +3,12 @@ Before you create an Issue...
 
 There are better Places for Support
 -----------------------------------
-Please be aware that an issue tracker is not the best place to ask for support. An issue tracker is used to track issues (bugs or feature requests).
+We want your question to be answered, so it is important that you ask at the right place. Be aware that an issue tracker is not the best place to ask for support. An issue tracker is used to track issues (bugs or feature requests).
 Instead, please use [stackoverflow.com](http://stackoverflow.com/questions/tagged/greenrobot-eventbus?sort=frequent) and use the tag [greenrobot-eventbus](http://stackoverflow.com/tags/greenrobot-eventbus/info) for your question.
-If you want professional support, you can contact the main author and maintainer [Markus Junginger via Google+](https://plus.google.com/+MarkusJunginger/posts).
 
-Examples for support questions better asked elsewhere:
+If you want professional support, check http://greenrobot.org/contact-support/.
+
+Examples for support questions that are more likely to be answered on StackOverflow:
 
 * Asking how something works
 * Asking how to use EventBus in a specific scenario
@@ -35,7 +36,7 @@ Requesting features:
 
 A Note on Pull Requests
 =======================
-Pull requests (and issue) may queue up up a bit. Usually, pull requests and issues are checked when new releases are planned.
+Pull requests (and issues) may queue up up a bit. Usually, pull requests and issues are checked when new releases are planned.
 
 For bigger pull requests, it's a good idea to check with the maintainer upfront about the idea and the implementation outline.
 
