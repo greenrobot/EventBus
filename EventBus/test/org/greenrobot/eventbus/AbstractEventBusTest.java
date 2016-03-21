@@ -15,28 +15,28 @@
  */
 package org.greenrobot.eventbus;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
-import android.support.test.runner.AndroidJUnit4;
 
-import org.greenrobot.eventbus.EventBus;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-@RunWith(AndroidJUnit4.class)
 public abstract class AbstractEventBusTest {
     /** Activates long(er) running tests e.g. testing multi-threading more thoroughly.  */
     protected static final boolean LONG_TESTS = false;
@@ -49,7 +49,7 @@ public abstract class AbstractEventBusTest {
     protected volatile Object lastEvent;
     protected volatile Thread lastThread;
 
-    private EventPostHandler mainPoster;
+    protected Thread mainThread;
 
     public AbstractEventBusTest() {
         this(false);
@@ -66,13 +66,33 @@ public abstract class AbstractEventBusTest {
     @Before
     public void setUpBase() throws Exception {
         EventBus.clearCaches();
-        eventBus = new EventBus();
-        mainPoster = new EventPostHandler(Looper.getMainLooper());
-        assertFalse(Looper.getMainLooper().getThread().equals(Thread.currentThread()));
-    }
 
-    protected void postInMainThread(Object event) {
-        mainPoster.post(event);
+        final EventBusBuilder builder = new EventBusBuilder();
+        if (builder.mainThreadSupport == null) {
+            final Executor mainExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable r) {
+                    mainThread = new Thread(r);
+                    return mainThread;
+                }
+            });
+            // running on JVM
+            builder.mainThreadSupport = new MainThreadSupport() {
+                @Override
+                public boolean isMainThread() {
+                    return Thread.currentThread() == mainThread;
+                }
+
+                @Override
+                public Poster createPoster(EventBus eventBus) {
+                    return new AsyncPoster(eventBus, mainExecutor);
+                }
+            };
+        } else {
+            mainThread = Looper.getMainLooper().getThread();
+            assertFalse(Looper.getMainLooper().getThread().equals(Thread.currentThread()));
+        }
+        eventBus = builder.build();
     }
 
     protected void waitForEventCount(int expectedCount, int maxMillis) {
@@ -104,23 +124,6 @@ public abstract class AbstractEventBusTest {
         eventCount.incrementAndGet();
     }
 
-    @SuppressLint("HandlerLeak")
-    class EventPostHandler extends Handler {
-        public EventPostHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            eventBus.post(msg.obj);
-        }
-
-        void post(Object event) {
-            sendMessage(obtainMessage(0, event));
-        }
-
-    }
-    
     protected void assertEventCount(int expectedEventCount) {
         assertEquals(expectedEventCount, eventCount.intValue());
     }
@@ -138,4 +141,7 @@ public abstract class AbstractEventBusTest {
         }
     }
 
+    public void log(String message) {
+        eventBus.getLogger().log(Level.FINE, message);
+    }
 }

@@ -15,8 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotSame;
@@ -37,26 +35,26 @@ public class EventBusMethodModifiersTest extends AbstractEventBusTest {
 
     @Subscribe
     public void onEvent(String event) {
+        assertNotSame(mainThread, Thread.currentThread());
         trackEvent(event);
-        assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(String event) {
+        assertSame(mainThread, Thread.currentThread());
         trackEvent(event);
-        assertSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(String event) {
+        assertNotSame(mainThread, Thread.currentThread());
         trackEvent(event);
-        assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onEventAsync(String event) {
+        assertNotSame(mainThread, Thread.currentThread());
         trackEvent(event);
-        assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
 
 }

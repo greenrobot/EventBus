@@ -15,8 +15,12 @@
  */
 package org.greenrobot.eventbus;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
 import android.os.Looper;
 
+import android.os.Message;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +29,18 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Markus Junginger, greenrobot
  */
+//TODO port to JVM
 public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
+    private EventPostHandler mainPoster;
+
+    @Before
+    public void setUp() throws Exception {
+        mainPoster = new EventPostHandler(Looper.getMainLooper());
+    }
+
+    private void postInMainThread(Object event) {
+        mainPoster.post(event);
+    }
 
     @Test
     public void testPostInCurrentThread() throws InterruptedException {
@@ -52,4 +67,20 @@ public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
         trackEvent(event);
     }
 
+    @SuppressLint("HandlerLeak")
+    class EventPostHandler extends Handler {
+        public EventPostHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            eventBus.post(msg.obj);
+        }
+
+        void post(Object event) {
+            sendMessage(obtainMessage(0, event));
+        }
+
+    }
 }

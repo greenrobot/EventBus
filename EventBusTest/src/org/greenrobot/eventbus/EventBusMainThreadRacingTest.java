@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author Markus Junginger, greenrobot
  */
+//TODO port to JVM
 public class EventBusMainThreadRacingTest extends AbstractEventBusTest {
 
     private static final int ITERATIONS = LONG_TESTS ? 100000 : 1000;

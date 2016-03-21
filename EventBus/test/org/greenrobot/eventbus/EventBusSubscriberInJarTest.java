@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import org.greenrobot.eventbus.SubscriberInJar;
 
-public class EventBusSubscriberInJarTest extends TestCase {
+public class EventBusSubscriberInJarTest {
     protected EventBus eventBus = EventBus.builder().build();
 
     @Test

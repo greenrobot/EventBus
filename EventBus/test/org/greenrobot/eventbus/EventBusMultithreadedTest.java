@@ -15,7 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
 import android.util.Log;
 
 import org.junit.Test;
@@ -103,7 +102,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         List<PosterThread> threads = startThreads(latch, threadCount, iterations, "Hello");
         long time = triggerAndWaitForThreads(threads, latch);
 
-        Log.d(EventBus.TAG, threadCount + " threads posted " + iterations + " events each in " + time + "ms");
+        log(threadCount + " threads posted " + iterations + " events each in " + time + "ms");
 
         waitForEventCount(COUNT * 2, 5000);
 
@@ -133,8 +132,7 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
         threads.addAll(threadsIntTestEvent);
         long time = triggerAndWaitForThreads(threads, latch);
 
-        Log.d(EventBus.TAG, threadCount * eventTypeCount + " mixed threads posted " + iterations + " events each in "
-                + time + "ms");
+        log(threadCount * eventTypeCount + " mixed threads posted " + iterations + " events each in " + time + "ms");
 
         int expectedCountEach = threadCount * iterations;
         int expectedCountTotal = expectedCountEach * eventTypeCount * 2;
@@ -255,22 +253,22 @@ public class EventBusMultithreadedTest extends AbstractEventBusTest {
 
         @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThread(String event) {
-            assertSame(Looper.getMainLooper(), Looper.myLooper());
+            assertSame(mainThread, Thread.currentThread());
         }
 
         @Subscribe(threadMode = ThreadMode.BACKGROUND)
         public void onEventBackgroundThread(Integer event) {
-            assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+            assertNotSame(mainThread, Thread.currentThread());
         }
 
         @Subscribe
         public void onEvent(Object event) {
-            assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+            assertNotSame(mainThread, Thread.currentThread());
         }
 
         @Subscribe(threadMode = ThreadMode.ASYNC)
         public void onEventAsync(Object event) {
-            assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+            assertNotSame(mainThread, Thread.currentThread());
         }
     }
 
