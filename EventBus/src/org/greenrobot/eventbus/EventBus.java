@@ -113,12 +113,9 @@ public class EventBus {
         subscriptionsByEventType = new HashMap<>();
         typesBySubscriber = new HashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
-        mainThreadSupport = builder.mainThreadSupport != null ? builder.mainThreadSupport :
-                Logger.AndroidLogger.isAndroidLogAvailable() ?
-                        new MainThreadSupport.AndroidHandlerMainThreadSupport(Looper.getMainLooper()) : null;
+        mainThreadSupport = builder.mainThreadSupport;
         mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
         backgroundPoster = new BackgroundPoster(this);
-        asyncPoster = new AsyncPoster(this);
         indexCount = builder.subscriberInfoIndexes != null ? builder.subscriberInfoIndexes.size() : 0;
         subscriberMethodFinder = new SubscriberMethodFinder(builder.subscriberInfoIndexes,
                 builder.strictMethodVerification, builder.ignoreGeneratedIndex);
@@ -129,6 +126,7 @@ public class EventBus {
         throwSubscriberException = builder.throwSubscriberException;
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
+        asyncPoster = new AsyncPoster(this);
     }
 
     /**
