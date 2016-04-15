@@ -12,14 +12,14 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
     </tr>
     <tr>
         <th>Declare event handling methods</th>
-        <td>Name conventions</td>
+        <td>Annotations (since 3.0, can be precompiled for best performance)</td>
         <td>Annotations</td>
-    </tr>	
+    </tr>
     <tr>
         <th>Event inheritance</th>
         <td>Yes</td>
         <td>Yes</td>
-    </tr>	
+    </tr>
     <tr>
         <th>Subscriber inheritance</th>
         <td>Yes</td>
@@ -39,25 +39,29 @@ Otto is another event bus library for Android; actually it's a fork of Guava's E
         <th>Event delivery in posting thread</th>
         <td>Yes (Default)</td>
         <td>Yes</td>
-    </tr>	
+    </tr>
     <tr>
         <th>Event delivery in main thread</th>
         <td>Yes</td>
         <td>No</td>
-    </tr>	
+    </tr>
     <tr>
         <th>Event delivery in background thread</th>
         <td>Yes</td>
         <td>No</td>
-    </tr>	
+    </tr>
     <tr>
-        <th>Aynchronous event delivery</th>
+        <th>Asynchronous event delivery</th>
         <td>Yes</td>
         <td>No</td>
     </tr>
 </table>
 
+_**Note:** the following information is outdated, preprocessed annotations are much faster than EventBus 2.x, on which the following table is based._
+
 Besides features, performance is another differentiator. To compare performance, we created an Android application, which is also part of this repository (EventBusPerformance). You can also run the app on your phone to benchmark different scenarios.
+
+TODO: Update for EventBus 3 with and without index.
 
 Benchmark results indicate that EventBus is significantly faster in almost every scenario:
 <table>

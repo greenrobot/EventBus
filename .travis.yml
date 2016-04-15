@@ -1,13 +1,15 @@
+sudo: false
 language: android
 jdk:
-  - openjdk6
   - oraclejdk7
 
 # http://docs.travis-ci.com/user/languages/android/
 android:
   components:
-    - build-tools-21.1.2
+    - tools
+    - build-tools-23.0.2
     - android-10
+    - extra-android-m2repository
 
 before_script:
   - chmod +x gradlew

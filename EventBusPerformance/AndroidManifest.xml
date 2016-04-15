@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.greenrobot.eventperf"
-    android:versionCode="3"
-    android:versionName="1.1.0" >
+    package="org.greenrobot.eventbusperf"
+    android:versionCode="1"
+    android:versionName="2.0.0" >
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -16,16 +16,15 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".TestSetupActivity"
+            android:name="org.greenrobot.eventbusperf.TestSetupActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".TestRunnerActivity"
+            android:name="org.greenrobot.eventbusperf.TestRunnerActivity"
             android:label="@string/app_name"
             android:process="de.greenrobot.eventperf.benchmark" >
         </activity>

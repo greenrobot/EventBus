@@ -1,0 +1,32 @@
+apply plugin: 'java'
+
+group = 'de.greenrobot'
+version = '3.0.0'
+sourceCompatibility = 1.7
+
+repositories {
+    jcenter()
+}
+
+configurations {
+    provided
+}
+
+dependencies {
+    compile project(':EventBus')
+    provided project(':EventBusAnnotationProcessor')
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+compileJava {
+    options.compilerArgs << '-AeventBusIndex=org.greenrobot.eventbus.InJarIndex'
+    options.fork = true
+}

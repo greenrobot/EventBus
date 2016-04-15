@@ -1,10 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'idea'
 
-group = 'de.greenrobot'
-version = '2.4.1-SNAPSHOT'
-sourceCompatibility = 1.6
+archivesBaseName = 'eventbus'
+group = 'org.greenrobot'
+version = '3.0.0'
+sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
 def sonatypeRepositoryUrl
@@ -44,10 +46,17 @@ sourceSets {
     }
 }
 
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
+}
+
 javadoc {
+    failOnError = false
     classpath += configurations.provided
     title = "EventBus ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2014 <a href="http://greenrobot.de/">greenrobot.de</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2016 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -92,13 +101,11 @@ uploadArchives {
             } else {
                 println "Settings sonatypeUsername/sonatypePassword missing/incomplete for ${project.name}"
             }
-
-            pom.artifactId = 'eventbus'
             pom.project {
                name 'EventBus'
                packaging 'jar'
                description 'EventBus is a publish/subscribe event bus optimized for Android .'
-               url 'https://github.com/greenrobot/EventBus'
+               url 'http://greenrobot.org/eventbus/'
 
                scm {
                    url 'https://github.com/greenrobot/EventBus'
@@ -128,7 +135,7 @@ uploadArchives {
 
                organization {
                    name 'greenrobot'
-                   url 'http://greenrobot.de'
+                   url 'http://greenrobot.org'
                }
            }
         }
