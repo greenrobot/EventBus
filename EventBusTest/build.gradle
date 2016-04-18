@@ -19,9 +19,11 @@ repositories {
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
+
     androidTestApt project(':EventBusAnnotationProcessor')
     androidTestCompile project(':EventBus')
-    compile fileTree(dir: 'libs', include: '*.jar')
+    androidTestCompile project(path: ':EventBus', configuration: 'tests')
     androidTestCompile 'com.android.support.test:runner:0.4.1'
     androidTestCompile 'com.android.support.test:rules:0.4.1'
 }
@@ -56,4 +58,3 @@ apt {
         eventBusIndex "org.greenrobot.eventbus.EventBusTestsIndex"
     }
 }
-

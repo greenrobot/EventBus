@@ -16,6 +16,8 @@
 package org.greenrobot.eventbus;
 
 
+import java.util.concurrent.Executor;
+
 /**
  * Posts events in background.
  * 
@@ -25,16 +27,22 @@ class AsyncPoster implements Runnable, Poster {
 
     private final PendingPostQueue queue;
     private final EventBus eventBus;
+    private final Executor executor;
 
     AsyncPoster(EventBus eventBus) {
+        this(eventBus, eventBus.getExecutorService());
+    }
+
+    AsyncPoster(EventBus eventBus, Executor executor) {
         this.eventBus = eventBus;
+        this.executor = executor;
         queue = new PendingPostQueue();
     }
 
     public void enqueue(Subscription subscription, Object event) {
         PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         queue.enqueue(pendingPost);
-        eventBus.getExecutorService().execute(this);
+        executor.execute(this);
     }
 
     @Override

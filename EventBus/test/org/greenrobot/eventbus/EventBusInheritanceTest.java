@@ -15,43 +15,39 @@
  */
 package org.greenrobot.eventbus;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusInheritanceTest extends TestCase {
+public class EventBusInheritanceTest {
 
     protected EventBus eventBus;
+    protected final Subscriber subscriber = new Subscriber();
 
-    protected int countMyEventExtended;
-    protected int countMyEvent;
-    protected int countObjectEvent;
-    private int countMyEventInterface;
-    private int countMyEventInterfaceExtended;
-
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         eventBus = new EventBus();
     }
 
     @Test
     public void testEventClassHierarchy() {
-        eventBus.register(this);
+        eventBus.register(subscriber);
 
         eventBus.post("Hello");
-        assertEquals(1, countObjectEvent);
+        assertEquals(1, subscriber.countObjectEvent);
 
         eventBus.post(new MyEvent());
-        assertEquals(2, countObjectEvent);
-        assertEquals(1, countMyEvent);
+        assertEquals(2, subscriber.countObjectEvent);
+        assertEquals(1, subscriber.countMyEvent);
 
         eventBus.post(new MyEventExtended());
-        assertEquals(3, countObjectEvent);
-        assertEquals(2, countMyEvent);
-        assertEquals(1, countMyEventExtended);
+        assertEquals(3, subscriber.countObjectEvent);
+        assertEquals(2, subscriber.countMyEvent);
+        assertEquals(1, subscriber.countMyEventExtended);
     }
 
     @Test
@@ -60,31 +56,31 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.postSticky(new MyEvent());
         eventBus.postSticky(new MyEventExtended());
         eventBus.register(new StickySubscriber());
-        assertEquals(1, countMyEventExtended);
-        assertEquals(2, countMyEvent);
-        assertEquals(3, countObjectEvent);
+        assertEquals(1, subscriber.countMyEventExtended);
+        assertEquals(2, subscriber.countMyEvent);
+        assertEquals(3, subscriber.countObjectEvent);
     }
 
     @Test
     public void testEventInterfaceHierarchy() {
-        eventBus.register(this);
+        eventBus.register(subscriber);
 
         eventBus.post(new MyEvent());
-        assertEquals(1, countMyEventInterface);
+        assertEquals(1, subscriber.countMyEventInterface);
 
         eventBus.post(new MyEventExtended());
-        assertEquals(2, countMyEventInterface);
-        assertEquals(1, countMyEventInterfaceExtended);
+        assertEquals(2, subscriber.countMyEventInterface);
+        assertEquals(1, subscriber.countMyEventInterfaceExtended);
     }
 
     @Test
     public void testEventSuperInterfaceHierarchy() {
-        eventBus.register(this);
+        eventBus.register(subscriber);
 
         eventBus.post(new MyEventInterfaceExtended() {
         });
-        assertEquals(1, countMyEventInterface);
-        assertEquals(1, countMyEventInterfaceExtended);
+        assertEquals(1, subscriber.countMyEventInterface);
+        assertEquals(1, subscriber.countMyEventInterfaceExtended);
     }
 
     @Test
@@ -125,44 +121,52 @@ public class EventBusInheritanceTest extends TestCase {
         assertEquals(1, subscriber.countMyEventExtended);
     }
 
-    @Subscribe
-    public void onEvent(Object event) {
-        countObjectEvent++;
-    }
-
-    @Subscribe
-    public void onEvent(MyEvent event) {
-        countMyEvent++;
-    }
-
-    @Subscribe
-    public void onEvent(MyEventExtended event) {
-        countMyEventExtended++;
-    }
-
-    @Subscribe
-    public void onEvent(MyEventInterface event) {
-        countMyEventInterface++;
-    }
-
-    @Subscribe
-    public void onEvent(MyEventInterfaceExtended event) {
-        countMyEventInterfaceExtended++;
-    }
-
-    public static interface MyEventInterface {
+    public interface MyEventInterface {
     }
 
     public static class MyEvent implements MyEventInterface {
     }
 
-    public static interface MyEventInterfaceExtended extends MyEventInterface {
+    public interface MyEventInterfaceExtended extends MyEventInterface {
     }
 
     public static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
     }
+    
+    public static class Subscriber {
+        int countMyEventExtended;
+        int countMyEvent;
+        int countObjectEvent;
+        int countMyEventInterface;
+        int countMyEventInterfaceExtended;
+        
+        @Subscribe
+        public void onEvent(Object event) {
+            countObjectEvent++;
+        }
 
-    public static class SubscriberExtended extends EventBusInheritanceTest {
+        @Subscribe
+        public void onEvent(MyEvent event) {
+            countMyEvent++;
+        }
+
+        @Subscribe
+        public void onEvent(MyEventExtended event) {
+            countMyEventExtended++;
+        }
+
+        @Subscribe
+        public void onEvent(MyEventInterface event) {
+            countMyEventInterface++;
+        }
+
+        @Subscribe
+        public void onEvent(MyEventInterfaceExtended event) {
+            countMyEventInterfaceExtended++;
+        }
+    }
+
+    public static class SubscriberExtended extends Subscriber {
         private int countMyEventOverwritten;
 
         @Subscribe
@@ -171,33 +175,33 @@ public class EventBusInheritanceTest extends TestCase {
         }
     }
 
-    static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
+    static class SubscriberExtendedWithoutNewSubscriberMethod extends Subscriber {
     }
 
     public class StickySubscriber {
         @Subscribe(sticky = true)
         public void onEvent(Object event) {
-            countObjectEvent++;
+            subscriber.countObjectEvent++;
         }
 
         @Subscribe(sticky = true)
         public void onEvent(MyEvent event) {
-            countMyEvent++;
+            subscriber.countMyEvent++;
         }
 
         @Subscribe(sticky = true)
         public void onEvent(MyEventExtended event) {
-            countMyEventExtended++;
+            subscriber.countMyEventExtended++;
         }
 
         @Subscribe(sticky = true)
         public void onEvent(MyEventInterface event) {
-            countMyEventInterface++;
+            subscriber.countMyEventInterface++;
         }
 
         @Subscribe(sticky = true)
         public void onEvent(MyEventInterfaceExtended event) {
-            countMyEventInterfaceExtended++;
+            subscriber.countMyEventInterfaceExtended++;
         }
     }
 

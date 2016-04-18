@@ -25,6 +25,8 @@ repositories {
 configurations {
     provided
     deployerJars
+    // include test classes and their dependencies
+    tests.extendsFrom testRuntime
 }
 
 dependencies {
@@ -32,6 +34,10 @@ dependencies {
     provided 'com.google.android:android-test:4.1.1.4'
     provided 'com.google.android:annotations:4.1.1.4'
     provided 'com.google.android:support-v4:r7'
+
+    testCompile 'junit:junit:4.12'
+    testCompile fileTree(dir: '../EventBusTest/libs', include: '*.jar')
+
     // deployerJars 'org.apache.maven.wagon:wagon-webdav-jackrabbit:2.4'
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
@@ -43,6 +49,10 @@ sourceSets {
             srcDir 'src'
             // exclude 'de/greenrobot/event/util/**'
         }
+    }
+    test {
+        compileClasspath += configurations.provided
+        java.srcDirs = ['test']
     }
 }
 
@@ -69,10 +79,20 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
+// build a jar with all test classes to allow usage as dependency in android test project
+// https://discuss.gradle.org/t/how-do-i-declare-a-dependency-on-a-modules-test-code/7172/9
+task testJar(type: Jar) {
+    classifier "test"
+    from sourceSets.test.output
+    // exclude tests which can not run on Android
+    exclude '**/*Jvm*'
+}
+
 artifacts {
     archives jar
     archives javadocJar
     archives sourcesJar
+    tests testJar
 }
 
 signing {

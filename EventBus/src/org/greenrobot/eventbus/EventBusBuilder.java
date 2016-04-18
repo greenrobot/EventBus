@@ -15,6 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
+import android.os.Looper;
+
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
 
 import java.util.ArrayList;
@@ -44,6 +46,9 @@ public class EventBusBuilder {
     MainThreadSupport mainThreadSupport;
 
     EventBusBuilder() {
+        if (Logger.AndroidLogger.isAndroidLogAvailable()) {
+            mainThreadSupport = new MainThreadSupport.AndroidHandlerMainThreadSupport(Looper.getMainLooper());
+        }
     }
 
     /** Default: true */
@@ -67,6 +72,15 @@ public class EventBusBuilder {
     /** Default: true */
     public EventBusBuilder sendNoSubscriberEvent(boolean sendNoSubscriberEvent) {
         this.sendNoSubscriberEvent = sendNoSubscriberEvent;
+        return this;
+    }
+
+    /**
+     * Interface to the "main" thread, which can be whatever you like
+     * Default: android main thread if running on Android, or null otherwise
+     */
+    public EventBusBuilder mainThreadSupport(MainThreadSupport mainThreadSupport) {
+        this.mainThreadSupport = mainThreadSupport;
         return this;
     }
 

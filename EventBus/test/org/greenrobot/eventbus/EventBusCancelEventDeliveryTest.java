@@ -21,14 +21,16 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author Markus Junginger, greenrobot
  */
 public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
 
-    private Throwable failed;
+    protected Throwable failed;
 
     @Test
     public void testCancel() {

@@ -17,10 +17,9 @@
 package org.greenrobot.eventbus.indexed;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBusInheritanceDisabledTest;
 import org.greenrobot.eventbus.EventBusTestsIndex;
 import org.junit.Before;
-
-import org.greenrobot.eventbus.EventBusInheritanceDisabledTest;
 
 public class EventBusInheritanceDisabledTestWithIndex extends EventBusInheritanceDisabledTest {
     @Before
