@@ -39,6 +39,12 @@ public enum ThreadMode {
     MAIN,
 
     /**
+     * Event will be queued for delivery and the subscriber will be called in Android's main thread (sometimes referred to as UI thread).
+     * This ensures that the poster does not block and that the subscriber is called by Android's main thread so can update UI.
+     */
+    MAIN_ASYNC,
+
+    /**
      * Subscriber will be called in a background thread. If posting thread is not the main thread, event handler methods
      * will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single
      * background thread, that will deliver all its events sequentially. Event handlers using this mode should try to
