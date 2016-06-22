@@ -33,10 +33,10 @@ public class EventBusBuilder {
     boolean logNoSubscriberMessages = true;
     boolean sendSubscriberExceptionEvent = true;
     boolean sendNoSubscriberEvent = true;
-    boolean throwSubscriberException;
+    boolean throwNoSubscribersException = true;
+    boolean throwSubscriberException = false;
     boolean eventInheritance = true;
     boolean ignoreGeneratedIndex;
-    boolean throwNoSubscribersException;
     boolean strictMethodVerification;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
@@ -80,6 +80,13 @@ public class EventBusBuilder {
         return this;
     }
 
+
+    /** Ignore when registered class have no subscribers (default: true). */
+    public EventBusBuilder throwNoSubscribersException(boolean throwNoSubscribersException) {
+        this.throwNoSubscribersException = throwNoSubscribersException;
+        return this;
+    }
+
     /**
      * By default, EventBus considers the event class hierarchy (subscribers to super classes will be notified).
      * Switching this feature off will improve posting of events. For simple event classes extending Object directly,
@@ -120,12 +127,6 @@ public class EventBusBuilder {
     /** Forces the use of reflection even if there's a generated index (default: false). */
     public EventBusBuilder ignoreGeneratedIndex(boolean ignoreGeneratedIndex) {
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
-        return this;
-    }
-
-    /** Ignore when registered class have no subscribers (default: false). */
-    public EventBusBuilder throwNoSubscribersException(boolean throwNoSubscribersException) {
-        this.throwNoSubscribersException = throwNoSubscribersException;
         return this;
     }
 
