@@ -36,6 +36,7 @@ public class EventBusBuilder {
     boolean throwSubscriberException;
     boolean eventInheritance = true;
     boolean ignoreGeneratedIndex;
+    boolean throwNoSubscribersException;
     boolean strictMethodVerification;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
@@ -119,6 +120,12 @@ public class EventBusBuilder {
     /** Forces the use of reflection even if there's a generated index (default: false). */
     public EventBusBuilder ignoreGeneratedIndex(boolean ignoreGeneratedIndex) {
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
+        return this;
+    }
+
+    /** Ignore when registered class have no subscribers (default: false). */
+    public EventBusBuilder throwNoSubscribersException(boolean throwNoSubscribersException) {
+        this.throwNoSubscribersException = throwNoSubscribersException;
         return this;
     }
 

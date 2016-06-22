@@ -39,6 +39,7 @@ class SubscriberMethodFinder {
     private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
     private List<SubscriberInfoIndex> subscriberInfoIndexes;
+    private final boolean throwNoSubscribersException;
     private final boolean strictMethodVerification;
     private final boolean ignoreGeneratedIndex;
 
@@ -46,10 +47,11 @@ class SubscriberMethodFinder {
     private static final FindState[] FIND_STATE_POOL = new FindState[POOL_SIZE];
 
     SubscriberMethodFinder(List<SubscriberInfoIndex> subscriberInfoIndexes, boolean strictMethodVerification,
-                           boolean ignoreGeneratedIndex) {
+                           boolean ignoreGeneratedIndex, boolean throwNoSubscribersException) {
         this.subscriberInfoIndexes = subscriberInfoIndexes;
         this.strictMethodVerification = strictMethodVerification;
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
+        this.throwNoSubscribersException = throwNoSubscribersException;
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
@@ -63,7 +65,7 @@ class SubscriberMethodFinder {
         } else {
             subscriberMethods = findUsingInfo(subscriberClass);
         }
-        if (subscriberMethods.isEmpty()) {
+        if (throwNoSubscribersException && subscriberMethods.isEmpty()) {
             throw new EventBusException("Subscriber " + subscriberClass
                     + " and its super classes have no public methods with the @Subscribe annotation");
         } else {
