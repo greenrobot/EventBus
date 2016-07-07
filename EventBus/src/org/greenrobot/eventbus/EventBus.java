@@ -20,6 +20,8 @@ import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -359,56 +361,69 @@ public class EventBus {
         return false;
     }
 
-    private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
-        Class<?> eventClass = event.getClass();
-        boolean subscriptionFound = false;
-        if (eventInheritance) {
-            List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
-            int countTypes = eventTypes.size();
-            for (int h = 0; h < countTypes; h++) {
-                Class<?> clazz = eventTypes.get(h);
-                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
-            }
-        } else {
-            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
-        }
-        if (!subscriptionFound) {
-            if (logNoSubscriberMessages) {
-                Log.d(TAG, "No subscribers registered for event " + eventClass);
-            }
-            if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
-                    eventClass != SubscriberExceptionEvent.class) {
-                post(new NoSubscriberEvent(this, event));
-            }
-        }
-    }
+	private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
+		Class<?> eventClass = event.getClass();
+		boolean subscriptionFound = false;
+		if (eventInheritance) {
+			List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
+			ArrayList<Subscription> subscriptions = new ArrayList<>();
+			int countTypes = eventTypes.size();
+			for (int h = 0; h < countTypes; h++) {
+				Class<?> clazz = eventTypes.get(h);
+				synchronized (this) {
+					CopyOnWriteArrayList<Subscription> subscriptionsForClass = subscriptionsByEventType.get(clazz);
+					if(subscriptionsForClass != null) {
+						subscriptions.addAll(subscriptionsForClass);
+					}
+				}
+			}
+			Collections.sort(subscriptions, new Comparator<Subscription>() {
+				@Override
+				public int compare(Subscription s1, Subscription s2) {
+					return Double.compare(s2.subscriberMethod.priority, s1.subscriberMethod.priority);
+				}
+			});
+			subscriptionFound |= postSingleEvent(event, postingState, subscriptions);
+		} else {
+			CopyOnWriteArrayList<Subscription> subscriptions;
+			synchronized (this) {
+				subscriptions = subscriptionsByEventType.get(eventClass);
+			}
+			subscriptionFound = postSingleEvent(event, postingState, subscriptions);
+		}
+		if (!subscriptionFound) {
+			if (logNoSubscriberMessages) {
+				Log.d(TAG, "No subscribers registered for event " + eventClass);
+			}
+			if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
+					eventClass != SubscriberExceptionEvent.class) {
+				post(new NoSubscriberEvent(this, event));
+			}
+		}
+	}
 
-    private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass) {
-        CopyOnWriteArrayList<Subscription> subscriptions;
-        synchronized (this) {
-            subscriptions = subscriptionsByEventType.get(eventClass);
-        }
-        if (subscriptions != null && !subscriptions.isEmpty()) {
-            for (Subscription subscription : subscriptions) {
-                postingState.event = event;
-                postingState.subscription = subscription;
-                boolean aborted = false;
-                try {
-                    postToSubscription(subscription, event, postingState.isMainThread);
-                    aborted = postingState.canceled;
-                } finally {
-                    postingState.event = null;
-                    postingState.subscription = null;
-                    postingState.canceled = false;
-                }
-                if (aborted) {
-                    break;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
+	private boolean postSingleEvent(Object event, PostingThreadState postingState, List<Subscription> subscriptions) {
+		if (subscriptions != null && !subscriptions.isEmpty()) {
+			for (Subscription subscription : subscriptions) {
+				postingState.event = event;
+				postingState.subscription = subscription;
+				boolean aborted = false;
+				try {
+					postToSubscription(subscription, event, postingState.isMainThread);
+					aborted = postingState.canceled;
+				} finally {
+					postingState.event = null;
+					postingState.subscription = null;
+					postingState.canceled = false;
+				}
+				if (aborted) {
+					break;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
         switch (subscription.subscriberMethod.threadMode) {
