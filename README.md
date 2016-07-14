@@ -19,16 +19,31 @@ EventBus...
 
 EventBus in 3 steps
 -------------------
-1. Define events:<br/>
-<code>public class MessageEvent { /* Additional fields if needed */ }</code><br/><br/>
-2. Prepare subscribers<br/>
-Register your subscriber (in your onCreate or in a constructor):<br/>
-<code>eventBus.register(this);</code><br/><br/>
-Declare your subscribing method:<br/>
-<code>@Subscribe</code><br/>
-<code>public void onEvent(AnyEventType event) {/* Do something */};</code><br/><br/>
-3. Post events:<br/>
-<code>eventBus.post(event);</code>
+1. Define events:
+
+    ```java  
+public class MessageEvent { /* Additional fields if needed */ }
+```
+
+2. Prepare subscribers:
+    Register your subscriber (in your onCreate or in a constructor):  
+
+   ```java
+eventBus.register(this);
+```
+
+    Declare your subscribing method:  
+
+    ```java
+@Subscribe  
+public void onEvent(AnyEventType event) {/* Do something */};
+```
+
+3. Post events:
+
+   ```java
+eventBus.post(event);
+```
 
 This [getting started guide](http://greenrobot.org/eventbus/documentation/how-to-get-started/) shows these 3 steps in more detail.
 
@@ -37,12 +52,12 @@ Add EventBus to your project
 Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
 Gradle:
-```
-    compile 'org.greenrobot:eventbus:3.0.0'
+```gradle
+compile 'org.greenrobot:eventbus:3.0.0'
 ```
 
 Maven:
-```
+```xml
 <dependency>
     <groupId>org.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
