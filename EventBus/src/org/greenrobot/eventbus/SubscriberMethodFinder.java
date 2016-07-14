@@ -57,7 +57,7 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-
+        //ignoreGeneratedIndex 暂时是为false
         if (ignoreGeneratedIndex) {
             subscriberMethods = findUsingReflection(subscriberClass);
         } else {
@@ -75,6 +75,7 @@ class SubscriberMethodFinder {
     private List<SubscriberMethod> findUsingInfo(Class<?> subscriberClass) {
         FindState findState = prepareFindState();
         findState.initForSubscriber(subscriberClass);
+        //通过 moveToSuperclass()方法更新 findState.clazz ，直到为null
         while (findState.clazz != null) {
             findState.subscriberInfo = getSubscriberInfo(findState);
             if (findState.subscriberInfo != null) {
@@ -159,6 +160,8 @@ class SubscriberMethodFinder {
         }
         for (Method method : methods) {
             int modifiers = method.getModifiers();
+            //忽略非public , abstract,static ,bridge,synthetic
+            //compilers may add methods. Those are called bridge or synthetic methods.
             if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes.length == 1) {
@@ -219,11 +222,13 @@ class SubscriberMethodFinder {
         boolean checkAdd(Method method, Class<?> eventType) {
             // 2 level check: 1st level with event type only (fast), 2nd level with complete signature when required.
             // Usually a subscriber doesn't have methods listening to the same event type.
+            //如果对同一事件有多个订阅者，那么后面的订阅者注册时一定不为空，如果只有一个，那么注册时为空
             Object existing = anyMethodByEventType.put(eventType, method);
             if (existing == null) {
                 return true;
             } else {
                 if (existing instanceof Method) {
+                    //EventBus不建议同一个订阅者对同一事件有多个监听方法，所以如果这样做会抛出异常
                     if (!checkAddWithMethodSignature((Method) existing, eventType)) {
                         // Paranoia check
                         throw new IllegalStateException();
@@ -243,10 +248,13 @@ class SubscriberMethodFinder {
             String methodKey = methodKeyBuilder.toString();
             Class<?> methodClass = method.getDeclaringClass();
             Class<?> methodClassOld = subscriberClassByMethodKey.put(methodKey, methodClass);
+            //如果之前没有订阅者订阅这个事件，或者当前的订阅者是之前订阅者的“子类”（即父类也订阅了同一事件）
             if (methodClassOld == null || methodClassOld.isAssignableFrom(methodClass)) {
                 // Only add if not already found in a sub class
                 return true;
-            } else {
+            }
+            //
+            else {
                 // Revert the put, old class is further down the class hierarchy
                 subscriberClassByMethodKey.put(methodKey, methodClassOld);
                 return false;
