@@ -54,6 +54,7 @@ class SubscriberMethodFinder {
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
         List<SubscriberMethod> subscriberMethods = METHOD_CACHE.get(subscriberClass);
+        //如果已经注册过了就直接返回该类下所有的方法集合
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
