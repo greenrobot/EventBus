@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
 
-archivesBaseName = 'eventbus'
+archivesBaseName = 'eventbus-annotation'
 group = 'org.greenrobot'
 version = '3.0.0'
 sourceCompatibility = 1.7
@@ -28,11 +28,6 @@ configurations {
 }
 
 dependencies {
-    compile project(':EventBusAnnotation')
-    provided 'com.google.android:android:4.1.1.4'
-    provided 'com.google.android:android-test:4.1.1.4'
-    provided 'com.google.android:annotations:4.1.1.4'
-    provided 'com.google.android:support-v4:r7'
     // deployerJars 'org.apache.maven.wagon:wagon-webdav-jackrabbit:2.4'
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
@@ -103,7 +98,7 @@ uploadArchives {
                 println "Settings sonatypeUsername/sonatypePassword missing/incomplete for ${project.name}"
             }
             pom.project {
-               name 'EventBus'
+               name 'EventBus Annotation'
                packaging 'jar'
                description 'EventBus is a publish/subscribe event bus optimized for Android .'
                url 'http://greenrobot.org/eventbus/'
