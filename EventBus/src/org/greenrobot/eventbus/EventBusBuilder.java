@@ -33,7 +33,8 @@ public class EventBusBuilder {
     boolean logNoSubscriberMessages = true;
     boolean sendSubscriberExceptionEvent = true;
     boolean sendNoSubscriberEvent = true;
-    boolean throwSubscriberException;
+    boolean throwNoSubscribersException = true;
+    boolean throwSubscriberException = false;
     boolean eventInheritance = true;
     boolean ignoreGeneratedIndex;
     boolean strictMethodVerification;
@@ -76,6 +77,13 @@ public class EventBusBuilder {
      */
     public EventBusBuilder throwSubscriberException(boolean throwSubscriberException) {
         this.throwSubscriberException = throwSubscriberException;
+        return this;
+    }
+
+
+    /** Ignore when registered class have no subscribers (default: true). */
+    public EventBusBuilder throwNoSubscribersException(boolean throwNoSubscribersException) {
+        this.throwNoSubscribersException = throwNoSubscribersException;
         return this;
     }
 
