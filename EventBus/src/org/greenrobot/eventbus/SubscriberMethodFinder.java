@@ -35,7 +35,8 @@ class SubscriberMethodFinder {
     private static final int BRIDGE = 0x40;
     private static final int SYNTHETIC = 0x1000;
 
-    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
+    //delete Modifier.STATIC
+    private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | BRIDGE | SYNTHETIC;
     private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
     private List<SubscriberInfoIndex> subscriberInfoIndexes;

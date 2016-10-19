@@ -19,6 +19,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -132,11 +133,15 @@ public class EventBus {
      * ThreadMode} and priority.
      */
     public void register(Object subscriber) {
-        Class<?> subscriberClass = subscriber.getClass();
-        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
+        boolean staticRegister = subscriber.getClass().equals(Class.class);
+        Class clazz = staticRegister ? (Class) subscriber : subscriber.getClass();
+        List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(clazz);
         synchronized (this) {
             for (SubscriberMethod subscriberMethod : subscriberMethods) {
-                subscribe(subscriber, subscriberMethod);
+                if (staticRegister && (subscriberMethod.method.getModifiers() & Modifier.STATIC) != 0
+                        || !staticRegister) {
+                    subscribe(subscriber, subscriberMethod);
+                }
             }
         }
     }
@@ -151,8 +156,10 @@ public class EventBus {
             subscriptionsByEventType.put(eventType, subscriptions);
         } else {
             if (subscriptions.contains(newSubscription)) {
-                throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
-                        + eventType);
+                Log.i(TAG, "Subscriber " + ((subscriber instanceof Class) ?
+                                subscriber : subscriber.getClass()) +
+                                " already registered to event " + eventType);
+                return;
             }
         }
 
