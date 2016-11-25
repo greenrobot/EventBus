@@ -33,32 +33,31 @@ import org.greenrobot.eventbus.ThreadMode;
  * test are finished, it cancels the timer.
  */
 public class TestRunnerActivity extends Activity {
-
-    private TestRunner testRunner;
-    private EventBus controlBus;
-    private TextView textViewResult;
+    private TestRunner mTestRunner;
+    private EventBus mControlBus;
+    private TextView mTextViewResult;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_runtests);
-        textViewResult = (TextView) findViewById(R.id.textViewResult);
-        controlBus = new EventBus();
-        controlBus.register(this);
+        mTextViewResult = (TextView) findViewById(R.id.textViewResult);
+        mControlBus = new EventBus();
+        mControlBus.register(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (testRunner == null) {
+        if (mTestRunner == null) {
             TestParams testParams = (TestParams) getIntent().getSerializableExtra("params");
-            testRunner = new TestRunner(getApplicationContext(), testParams, controlBus);
+            mTestRunner = new TestRunner(getApplicationContext(), testParams, mControlBus);
 
             if (testParams.getTestNumber() == 1) {
-                textViewResult.append("Events: " + testParams.getEventCount() + "\n");
+                mTextViewResult.append("Events: " + testParams.getEventCount() + "\n");
             }
-            textViewResult.append("Subscribers: " + testParams.getSubscriberCount() + "\n\n");
-            testRunner.start();
+            mTextViewResult.append("Subscribers: " + testParams.getSubscriberCount() + "\n\n");
+            mTestRunner.start();
         }
     }
 
@@ -72,7 +71,7 @@ public class TestRunnerActivity extends Activity {
             text += test.getOtherTestResults();
         }
         text += "<br/>----------------<br/>";
-        textViewResult.append(Html.fromHtml(text));
+        mTextViewResult.append(Html.fromHtml(text));
         if (event.isLastEvent) {
             findViewById(R.id.buttonCancel).setVisibility(View.GONE);
             findViewById(R.id.textViewTestRunning).setVisibility(View.GONE);
@@ -82,9 +81,9 @@ public class TestRunnerActivity extends Activity {
 
     public void onClickCancel(View view) {
         // Cancel asap
-        if (testRunner != null) {
-            testRunner.cancel();
-            testRunner = null;
+        if (mTestRunner != null) {
+            mTestRunner.cancel();
+            mTestRunner = null;
         }
         finish();
     }
@@ -94,10 +93,10 @@ public class TestRunnerActivity extends Activity {
     }
 
     public void onDestroy() {
-        if (testRunner != null) {
-            testRunner.cancel();
+        if (mTestRunner != null) {
+            mTestRunner.cancel();
         }
-        controlBus.unregister(this);
+        mControlBus.unregister(this);
         super.onDestroy();
     }
 }

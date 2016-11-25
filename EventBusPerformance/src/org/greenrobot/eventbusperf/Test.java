@@ -21,22 +21,21 @@ import android.content.Context;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Test {
-    protected final Context context;
-    protected final TestParams params;
     public final AtomicLong eventsReceivedCount = new AtomicLong();
-    protected long primaryResultMicros;
-    protected int primaryResultCount;
-    protected String otherTestResults;
-
-    protected boolean canceled;
+    protected final Context mContext;
+    protected final TestParams mParams;
+    protected long mPrimaryResultMicros;
+    protected int mPrimaryResultCount;
+    protected String mOtherTestResults;
+    protected boolean mCanceled;
 
     public Test(Context context, TestParams params) {
-        this.context = context;
-        this.params = params;
+        this.mContext = context;
+        this.mParams = params;
     }
 
     public void cancel() {
-        canceled = true;
+        mCanceled = true;
     }
 
     /** prepares the test, all things which are not relevant for test results */
@@ -58,15 +57,15 @@ public abstract class Test {
     }
 
     public long getPrimaryResultMicros() {
-        return primaryResultMicros;
+        return mPrimaryResultMicros;
     }
 
     public double getPrimaryResultRate() {
-        return primaryResultCount / (primaryResultMicros / 1000000d);
+        return mPrimaryResultCount / (mPrimaryResultMicros / 1000000d);
     }
 
     public String getOtherTestResults() {
-        return otherTestResults;
+        return mOtherTestResults;
     }
 
 }

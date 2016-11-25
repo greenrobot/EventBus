@@ -24,14 +24,14 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.otto.ThreadEnforcer;
 
+import org.greenrobot.eventbusperf.Test;
+import org.greenrobot.eventbusperf.TestEvent;
+import org.greenrobot.eventbusperf.TestParams;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.greenrobot.eventbusperf.Test;
-import org.greenrobot.eventbusperf.TestEvent;
-import org.greenrobot.eventbusperf.TestParams;
 
 public abstract class PerfTestOtto extends Test {
 
@@ -56,12 +56,34 @@ public abstract class PerfTestOtto extends Test {
 
         try {
             Constructor<?> constructor = subscriberClass.getConstructor(PerfTestOtto.class);
-            for (int i = 0; i < params.getSubscriberCount(); i++) {
+            for (int i = 0; i < mParams.getSubscriberCount(); i++) {
                 Object subscriber = constructor.newInstance(this);
                 subscribers.add(subscriber);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private long registerSubscribers() {
+        long time = 0;
+        for (Object subscriber : subscribers) {
+            long timeStart = System.nanoTime();
+            eventBus.register(subscriber);
+            long timeEnd = System.nanoTime();
+            time += timeEnd - timeStart;
+            if (mCanceled) {
+                return 0;
+            }
+        }
+        return time;
+    }
+
+    private void registerUnregisterOneSubscribers() {
+        if (!subscribers.isEmpty()) {
+            Object subscriber = subscribers.get(0);
+            eventBus.register(subscriber);
+            eventBus.unregister(subscriber);
         }
     }
 
@@ -81,15 +103,15 @@ public abstract class PerfTestOtto extends Test {
             long timeStart = System.nanoTime();
             for (int i = 0; i < super.eventCount; i++) {
                 super.eventBus.post(event);
-                if (canceled) {
+                if (mCanceled) {
                     break;
                 }
             }
             long timeAfterPosting = System.nanoTime();
             waitForReceivedEventCount(super.expectedEventCount);
 
-            primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
-            primaryResultCount = super.expectedEventCount;
+            mPrimaryResultMicros = (timeAfterPosting - timeStart) / 1000;
+            mPrimaryResultCount = super.expectedEventCount;
         }
 
         @Override
@@ -106,8 +128,8 @@ public abstract class PerfTestOtto extends Test {
         public void runTest() {
             super.registerUnregisterOneSubscribers();
             long timeNanos = super.registerSubscribers();
-            primaryResultMicros = timeNanos / 1000;
-            primaryResultCount = params.getSubscriberCount();
+            mPrimaryResultMicros = timeNanos / 1000;
+            mPrimaryResultCount = mParams.getSubscriberCount();
         }
 
         @Override
@@ -147,13 +169,13 @@ public abstract class PerfTestOtto extends Test {
                 long timeRegister = end - beforeRegister - timeMeasureOverhead;
                 time += timeRegister;
                 super.eventBus.unregister(subscriber);
-                if (canceled) {
+                if (mCanceled) {
                     return;
                 }
             }
 
-            primaryResultMicros = time / 1000;
-            primaryResultCount = params.getSubscriberCount();
+            mPrimaryResultMicros = time / 1000;
+            mPrimaryResultCount = mParams.getSubscriberCount();
         }
 
         @Override
@@ -206,28 +228,6 @@ public abstract class PerfTestOtto extends Test {
         public void dummy5() {
         }
 
-    }
-
-    private long registerSubscribers() {
-        long time = 0;
-        for (Object subscriber : subscribers) {
-            long timeStart = System.nanoTime();
-            eventBus.register(subscriber);
-            long timeEnd = System.nanoTime();
-            time += timeEnd - timeStart;
-            if (canceled) {
-                return 0;
-            }
-        }
-        return time;
-    }
-
-    private void registerUnregisterOneSubscribers() {
-        if (!subscribers.isEmpty()) {
-            Object subscriber = subscribers.get(0);
-            eventBus.register(subscriber);
-            eventBus.unregister(subscriber);
-        }
     }
 
 }

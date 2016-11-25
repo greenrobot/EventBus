@@ -26,14 +26,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
-
 import org.greenrobot.eventbusperf.testsubject.PerfTestEventBus;
 import org.greenrobot.eventbusperf.testsubject.PerfTestOtto;
 
-public class TestSetupActivity extends Activity {
+import java.util.ArrayList;
 
+public class TestSetupActivity extends Activity {
     @SuppressWarnings("rawtypes")
     static final Class[] TEST_CLASSES_EVENTBUS = {PerfTestEventBus.Post.class,//
             PerfTestEventBus.RegisterOneByOne.class,//
@@ -49,7 +47,6 @@ public class TestSetupActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setuptests);
-
         Spinner spinnerRun = (Spinner) findViewById(R.id.spinnerTestToRun);
         spinnerRun.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -117,7 +114,6 @@ public class TestSetupActivity extends Activity {
         }
         if (checkBoxLocalBroadcast.isChecked()) {
         }
-
         return testClasses;
     }
 }

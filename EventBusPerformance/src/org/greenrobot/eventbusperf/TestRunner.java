@@ -28,19 +28,19 @@ import java.util.List;
  * This thread initialize all selected tests and runs them through. Also the thread skips the tests, when it is canceled
  */
 public class TestRunner extends Thread {
-    private List<Test> tests;
-    private volatile boolean canceled;
     private final EventBus controlBus;
+    private List<Test> mTests;
+    private volatile boolean mCanceled;
 
     public TestRunner(Context context, TestParams testParams, EventBus controlBus) {
         this.controlBus = controlBus;
-        tests = new ArrayList<Test>();
+        mTests = new ArrayList<Test>();
         for (Class<? extends Test> testClazz : testParams.getTestClasses()) {
             try {
                 Constructor<?>[] constructors = testClazz.getConstructors();
                 Constructor<? extends Test> constructor = testClazz.getConstructor(Context.class, TestParams.class);
                 Test test = constructor.newInstance(context, testParams);
-                tests.add(test);
+                mTests.add(test);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -48,9 +48,8 @@ public class TestRunner extends Thread {
     }
 
     public void run() {
-
         int idx = 0;
-        for (Test test : tests) {
+        for (Test test : mTests) {
             // Clean up and let the main thread calm down
             System.gc();
             try {
@@ -61,25 +60,24 @@ public class TestRunner extends Thread {
             }
 
             test.prepareTest();
-            if (!canceled) {
+            if (!mCanceled) {
                 test.runTest();
             }
-            if (!canceled) {
-                boolean isLastEvent = idx == tests.size() - 1;
+            if (!mCanceled) {
+                boolean isLastEvent = idx == mTests.size() - 1;
                 controlBus.post(new TestFinishedEvent(test, isLastEvent));
             }
             idx++;
         }
-
     }
 
     public List<Test> getTests() {
-        return tests;
+        return mTests;
     }
 
     public void cancel() {
-        canceled = true;
-        for (Test test : tests) {
+        mCanceled = true;
+        for (Test test : mTests) {
             test.cancel();
         }
     }
