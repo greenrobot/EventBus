@@ -156,11 +156,15 @@ public class EventBus {
             }
         }
 
-        int size = subscriptions.size();
-        for (int i = 0; i <= size; i++) {
-            if (i == size || subscriberMethod.priority > subscriptions.get(i).subscriberMethod.priority) {
-                subscriptions.add(i, newSubscription);
-                break;
+        if (subscriberMethod.priority == 0) {
+            subscriptions.add(newSubscription);
+        } else {
+            int size = subscriptions.size();
+            for (int i = 0; i <= size; i++) {
+                if (i == size || subscriberMethod.priority > subscriptions.get(i).subscriberMethod.priority) {
+                    subscriptions.add(i, newSubscription);
+                    break;
+                }
             }
         }
 
