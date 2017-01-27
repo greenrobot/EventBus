@@ -32,6 +32,7 @@ android {
     buildToolsVersion "25.0.2" // When updating, don't forget to adjust .travis.yml
     compileSdkVersion 25
 
+    //noinspection GroovyMissingReturnStatement
     lintOptions {
         disable 'IconMissingDensityFolder'
     }
