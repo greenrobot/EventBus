@@ -7,8 +7,8 @@ jdk:
 android:
   components:
     - tools
-    - build-tools-23.0.2
-    - android-10
+    - build-tools-25.0.2
+    - android-25
     - extra-android-m2repository
 
 before_script:

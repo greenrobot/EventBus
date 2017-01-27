@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
+        classpath 'com.android.tools.build:gradle:2.2.3'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -29,8 +29,9 @@ apt {
 }
 
 android {
-    buildToolsVersion '23.0.2' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 19
+    buildToolsVersion "25.0.2" // When updating, don't forget to adjust .travis.yml
+    compileSdkVersion 25
+
 
     sourceSets {
         main {
