@@ -76,7 +76,6 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         " passed to annotation processor");
                 return false;
             }
-            System.out.println("Yasir here :" + index);
             verbose = Boolean.parseBoolean(processingEnv.getOptions().get(OPTION_VERBOSE));
             int lastPeriod = index.lastIndexOf('.');
             String indexPackage = lastPeriod != -1 ? index.substring(0, lastPeriod) : null;
@@ -284,8 +283,12 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
 
             Subscribe subscribe = method.getAnnotation(Subscribe.class);
             List<String> parts = new ArrayList<>();
-            String invoker = "new SubscriberMethodInvoker(){public void invoke(Object subscriber, Object event){(("+subscriberClass+")subscriber)." + methodName + "(("+ eventClassString+ ")event);}}";
-            parts.add(callPrefix + "(" + invoker + ", \"" + methodName + "\", ");
+            writeLine(writer, 4, callPrefix , "(new SubscriberMethodInvoker() {");
+            writeLine(writer, 5,"public void invoke(Object subscriber, Object event) {");
+            writeLine(writer, 6,"((" + subscriberClass + ")subscriber)." + methodName + "((" + eventClassString + ")event);");
+            writeLine(writer, 5, "}");
+
+            parts.add("}, \"" + methodName + "\", ");
             String lineEnd = "),";
             if (subscribe.priority() == 0 && !subscribe.sticky()) {
                 if (subscribe.threadMode() == ThreadMode.POSTING) {
@@ -300,7 +303,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 parts.add(subscribe.priority() + ",");
                 parts.add(subscribe.sticky() + lineEnd);
             }
-            writeLine(writer, 3, parts.toArray(new String[parts.size()]));
+            writeLine(writer, 4, parts.toArray(new String[parts.size()]));
 
             if (verbose) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
