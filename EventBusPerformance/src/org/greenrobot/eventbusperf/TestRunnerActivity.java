@@ -17,6 +17,8 @@
 package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
@@ -84,6 +86,7 @@ public class TestRunnerActivity extends Activity {
 
     private Spanned fromHtml(String text) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            //noinspection deprecation
             return Html.fromHtml(text);
         } else {
             return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
@@ -98,6 +101,8 @@ public class TestRunnerActivity extends Activity {
         }
         finish();
     }
+
+
 
     public void onClickKillProcess(View view) {
         Process.killProcess(Process.myPid());
