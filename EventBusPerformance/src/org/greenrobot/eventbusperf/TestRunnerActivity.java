@@ -34,6 +34,7 @@ import org.greenrobot.eventbus.ThreadMode;
  * after that, if a test is finished. When a test is finished, the activity appends it on the textview analyse. If all
  * test are finished, it cancels the timer.
  */
+@SuppressWarnings("deprecation")
 public class TestRunnerActivity extends Activity {
 
     private TestRunner testRunner;
@@ -84,7 +85,6 @@ public class TestRunnerActivity extends Activity {
 
     private Spanned fromHtml(String text) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            //noinspection deprecation
             return Html.fromHtml(text);
         } else {
             return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
