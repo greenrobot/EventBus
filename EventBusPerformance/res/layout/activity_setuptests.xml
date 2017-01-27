@@ -40,6 +40,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="48dp"
+                android:layout_marginStart="48dp"
                 android:entries="@array/spinnerThreadModes" />
 
             <CheckBox
@@ -49,6 +50,7 @@
                 android:checked="true"
                 android:onClick="checkEventBus"
                 android:layout_marginLeft="48dp"
+                android:layout_marginStart="48dp"
                 android:text="@string/test_eventBusEventHierarchy" />
 
             <CheckBox
@@ -57,6 +59,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="checkEventBus"
                 android:layout_marginLeft="48dp"
+                android:layout_marginStart="48dp"
                 android:text="@string/test_eventBusEventIgnoreGeneratedIndex" />
 
             <CheckBox
@@ -95,8 +98,9 @@
                     android:layout_width="90dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:inputType="number"
-                    android:text="1000" />
+                    android:text="@string/thousand" />
 
                 <TextView
                     android:id="@+id/eventView"
@@ -104,7 +108,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/editTextEvent"
                     android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:layout_toLeftOf="@+id/editTextEvent"
+                    android:layout_toStartOf="@+id/editTextEvent"
                     android:text="@string/eventViewText" />
             </RelativeLayout>
 
@@ -119,8 +125,9 @@
                     android:layout_width="90dp"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:inputType="number"
-                    android:text="1" />
+                    android:text="@string/number_one" />
 
                 <TextView
                     android:id="@+id/subscribe"
@@ -128,7 +135,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@+id/editTextSubscribe"
                     android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:layout_toLeftOf="@+id/editTextSubscribe"
+                    android:layout_toStartOf="@+id/editTextSubscribe"
                     android:text="@string/subscriberViewText" />
             </RelativeLayout>
         </LinearLayout>

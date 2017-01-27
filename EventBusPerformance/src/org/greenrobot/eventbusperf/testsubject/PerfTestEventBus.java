@@ -31,6 +31,7 @@ import org.greenrobot.eventbusperf.Test;
 import org.greenrobot.eventbusperf.TestEvent;
 import org.greenrobot.eventbusperf.TestParams;
 
+@SuppressWarnings("ALL")
 public abstract class PerfTestEventBus extends Test {
 
     private final EventBus eventBus;
@@ -39,11 +40,11 @@ public abstract class PerfTestEventBus extends Test {
     private final int eventCount;
     private final int expectedEventCount;
 
-    public PerfTestEventBus(Context context, TestParams params) {
+    PerfTestEventBus(Context context, TestParams params) {
         super(context, params);
         eventBus = EventBus.builder().eventInheritance(params.isEventInheritance()).addIndex(new MyEventBusIndex())
                 .ignoreGeneratedIndex(params.isIgnoreGeneratedIndex()).build();
-        subscribers = new ArrayList<Object>();
+        subscribers = new ArrayList<>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
         subscriberClass = getSubscriberClassForThreadMode();
@@ -142,9 +143,9 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     public static class RegisterOneByOne extends PerfTestEventBus {
-        protected Method clearCachesMethod;
+        Method clearCachesMethod;
 
-        public RegisterOneByOne(Context context, TestParams params) {
+        RegisterOneByOne(Context context, TestParams params) {
             super(context, params);
         }
 
@@ -205,6 +206,7 @@ public abstract class PerfTestEventBus extends Test {
 
     }
 
+    @SuppressWarnings({"EmptyMethod", "unused"})
     public class SubscribeClassEventBusMain {
         @Subscribe(threadMode = ThreadMode.MAIN)
         public void onEventMainThread(TestEvent event) {

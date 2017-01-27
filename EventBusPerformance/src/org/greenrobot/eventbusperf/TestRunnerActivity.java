@@ -17,8 +17,6 @@
 package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;

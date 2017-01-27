@@ -21,7 +21,6 @@ import android.content.Context;
 import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class Test {
-    protected final Context context;
     protected final TestParams params;
     public final AtomicLong eventsReceivedCount = new AtomicLong();
     protected long primaryResultMicros;
@@ -30,12 +29,11 @@ public abstract class Test {
 
     protected boolean canceled;
 
-    public Test(Context context, TestParams params) {
-        this.context = context;
+    protected Test(Context context, TestParams params) {
         this.params = params;
     }
 
-    public void cancel() {
+    void cancel() {
         canceled = true;
     }
 
@@ -57,16 +55,15 @@ public abstract class Test {
         }
     }
 
-    public long getPrimaryResultMicros() {
+    long getPrimaryResultMicros() {
         return primaryResultMicros;
     }
 
-    public double getPrimaryResultRate() {
+    double getPrimaryResultRate() {
         return primaryResultCount / (primaryResultMicros / 1000000d);
     }
 
-    public String getOtherTestResults() {
+    String getOtherTestResults() {
         return otherTestResults;
     }
-
 }

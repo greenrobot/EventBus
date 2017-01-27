@@ -16,6 +16,7 @@
 
 package org.greenrobot.eventbusperf.testsubject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
@@ -44,7 +45,7 @@ public abstract class PerfTestOtto extends Test {
     public PerfTestOtto(Context context, TestParams params) {
         super(context, params);
         eventBus = new Bus(ThreadEnforcer.ANY);
-        subscribers = new ArrayList<Object>();
+        subscribers = new ArrayList<>();
         eventCount = params.getEventCount();
         expectedEventCount = eventCount * params.getSubscriberCount();
         subscriberClass = Subscriber.class;
@@ -117,9 +118,9 @@ public abstract class PerfTestOtto extends Test {
     }
 
     public static class RegisterOneByOne extends PerfTestOtto {
-        protected Field cacheField;
+        Field cacheField;
 
-        public RegisterOneByOne(Context context, TestParams params) {
+        RegisterOneByOne(Context context, TestParams params) {
             super(context, params);
         }
 
@@ -182,6 +183,8 @@ public abstract class PerfTestOtto extends Test {
 
     }
 
+    @SuppressWarnings("EmptyMethod")
+    @SuppressLint("Registered")
     public class Subscriber extends Activity {
         public Subscriber() {
         }
