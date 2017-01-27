@@ -17,9 +17,11 @@
 package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
 import android.widget.TextView;
 
@@ -72,11 +74,19 @@ public class TestRunnerActivity extends Activity {
             text += test.getOtherTestResults();
         }
         text += "<br/>----------------<br/>";
-        textViewResult.append(Html.fromHtml(text));
+        textViewResult.append(fromHtml(text));
         if (event.isLastEvent) {
             findViewById(R.id.buttonCancel).setVisibility(View.GONE);
             findViewById(R.id.textViewTestRunning).setVisibility(View.GONE);
             findViewById(R.id.buttonKillProcess).setVisibility(View.VISIBLE);
+        }
+    }
+
+    private Spanned fromHtml(String text) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            return Html.fromHtml(text);
+        } else {
+            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
         }
     }
 
