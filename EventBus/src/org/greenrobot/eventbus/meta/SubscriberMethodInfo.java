@@ -20,7 +20,6 @@ import org.greenrobot.eventbus.ThreadMode;
 public class SubscriberMethodInfo {
     final SubscriberMethodInvoker invoker;
     final String methodString;
-    final Class<?> declaringClass;
     final ThreadMode threadMode;
     final Class<?> eventType;
     final int priority;
@@ -28,12 +27,10 @@ public class SubscriberMethodInfo {
 
     public SubscriberMethodInfo(SubscriberMethodInvoker invoker,
                                 String methodString,
-                                Class<?> declaringClass,
                                 Class<?> eventType, ThreadMode threadMode,
                                 int priority, boolean sticky) {
         this.invoker = invoker;
         this.methodString = methodString;
-        this.declaringClass = declaringClass;
         this.threadMode = threadMode;
         this.eventType = eventType;
         this.priority = priority;
@@ -42,13 +39,12 @@ public class SubscriberMethodInfo {
 
     public SubscriberMethodInfo(SubscriberMethodInvoker invoker,
                                 String methodString,
-                                Class<?> declaringClass,
                                 Class<?> eventType) {
-        this(invoker, methodString, declaringClass, eventType, ThreadMode.POSTING, 0, false);
+        this(invoker, methodString, eventType, ThreadMode.POSTING, 0, false);
     }
 
-    public SubscriberMethodInfo(SubscriberMethodInvoker invoker, String methodString, Class<?> declaringClass, Class<?> eventType, ThreadMode threadMode) {
-        this(invoker, methodString, declaringClass, eventType, threadMode, 0, false);
+    public SubscriberMethodInfo(SubscriberMethodInvoker invoker, String methodString, Class<?> eventType, ThreadMode threadMode) {
+        this(invoker, methodString, eventType, threadMode, 0, false);
     }
 
 }

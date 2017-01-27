@@ -41,7 +41,7 @@ public class EventBusIndexTest {
                             public void invoke(Object subscriber, Object event) {
                                 ((EventBusIndexTest)subscriber).someMethodWithoutAnnotation((String)event);
                             }
-                        }, "someMethodWithoutAnnotation", EventBusIndexTest.class, String.class)
+                        }, "someMethodWithoutAnnotation", String.class)
                 };
                 return new SimpleSubscriberInfo(EventBusIndexTest.class, false, methodInfos);
             }

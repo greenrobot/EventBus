@@ -285,7 +285,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             Subscribe subscribe = method.getAnnotation(Subscribe.class);
             List<String> parts = new ArrayList<>();
             String invoker = "new SubscriberMethodInvoker(){public void invoke(Object subscriber, Object event){(("+subscriberClass+")subscriber)." + methodName + "(("+ eventClassString+ ")event);}}";
-            parts.add(callPrefix + "(" + invoker + ", \"" + methodName + "\", " + subscriberClass + ".class, ");
+            parts.add(callPrefix + "(" + invoker + ", \"" + methodName + "\", ");
             String lineEnd = "),";
             if (subscribe.priority() == 0 && !subscribe.sticky()) {
                 if (subscribe.threadMode() == ThreadMode.POSTING) {
