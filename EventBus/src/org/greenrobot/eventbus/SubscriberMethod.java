@@ -15,11 +15,10 @@
  */
 package org.greenrobot.eventbus;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 /** Used internally by EventBus and generated subscriber indexes. */
-public class SubscriberMethod {
-    final Method method;
+public abstract class SubscriberMethod {
     final ThreadMode threadMode;
     final Class<?> eventType;
     final int priority;
@@ -27,8 +26,7 @@ public class SubscriberMethod {
     /** Used for efficient comparison */
     String methodString;
 
-    public SubscriberMethod(Method method, Class<?> eventType, ThreadMode threadMode, int priority, boolean sticky) {
-        this.method = method;
+    public SubscriberMethod(Class<?> eventType, ThreadMode threadMode, int priority, boolean sticky) {
         this.threadMode = threadMode;
         this.eventType = eventType;
         this.priority = priority;
@@ -54,15 +52,18 @@ public class SubscriberMethod {
         if (methodString == null) {
             // Method.toString has more overhead, just take relevant parts of the method
             StringBuilder builder = new StringBuilder(64);
-            builder.append(method.getDeclaringClass().getName());
-            builder.append('#').append(method.getName());
+            builder.append(getDeclaringClass().getName());
+            builder.append('#').append(getName());
             builder.append('(').append(eventType.getName());
             methodString = builder.toString();
         }
     }
 
-    @Override
-    public int hashCode() {
-        return method.hashCode();
-    }
+
+    public abstract void invoke(Object subscriber, Object event) throws InvocationTargetException, IllegalAccessException;
+
+
+    public abstract String getName();
+
+    public abstract Class<?> getDeclaringClass();
 }

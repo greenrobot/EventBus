@@ -68,6 +68,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment env) {
         Messager messager = processingEnv.getMessager();
+
         try {
             String index = processingEnv.getOptions().get(OPTION_EVENT_BUS_INDEX);
             if (index == null) {
@@ -75,6 +76,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         " passed to annotation processor");
                 return false;
             }
+            System.out.println("Yasir here :" + index);
             verbose = Boolean.parseBoolean(processingEnv.getOptions().get(OPTION_VERBOSE));
             int lastPeriod = index.lastIndexOf('.');
             String indexPackage = lastPeriod != -1 ? index.substring(0, lastPeriod) : null;
@@ -270,18 +272,20 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return (PackageElement) candidate;
     }
 
-    private void writeCreateSubscriberMethods(BufferedWriter writer, List<ExecutableElement> methods,
+    private void writeCreateSubscriberMethods(BufferedWriter writer, String subscriberClass, List<ExecutableElement> methods,
                                               String callPrefix, String myPackage) throws IOException {
         for (ExecutableElement method : methods) {
             List<? extends VariableElement> parameters = method.getParameters();
             TypeMirror paramType = getParamTypeMirror(parameters.get(0), null);
             TypeElement paramElement = (TypeElement) processingEnv.getTypeUtils().asElement(paramType);
             String methodName = method.getSimpleName().toString();
-            String eventClass = getClassString(paramElement, myPackage) + ".class";
+            String eventClassString = getClassString(paramElement, myPackage);
+            String eventClass = eventClassString + ".class";
 
             Subscribe subscribe = method.getAnnotation(Subscribe.class);
             List<String> parts = new ArrayList<>();
-            parts.add(callPrefix + "(\"" + methodName + "\",");
+            String invoker = "new SubscriberMethodInvoker(){public void invoke(Object subscriber, Object event){(("+subscriberClass+")subscriber)." + methodName + "(("+ eventClassString+ ")event);}}";
+            parts.add(callPrefix + "(" + invoker + ", \"" + methodName + "\", " + subscriberClass + ".class, ");
             String lineEnd = "),";
             if (subscribe.priority() == 0 && !subscribe.sticky()) {
                 if (subscribe.threadMode() == ThreadMode.POSTING) {
@@ -318,8 +322,10 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             if (myPackage != null) {
                 writer.write("package " + myPackage + ";\n\n");
             }
+
             writer.write("import org.greenrobot.eventbus.meta.SimpleSubscriberInfo;\n");
             writer.write("import org.greenrobot.eventbus.meta.SubscriberMethodInfo;\n");
+            writer.write("import org.greenrobot.eventbus.meta.SubscriberMethodInvoker;\n");
             writer.write("import org.greenrobot.eventbus.meta.SubscriberInfo;\n");
             writer.write("import org.greenrobot.eventbus.meta.SubscriberInfoIndex;\n\n");
             writer.write("import org.greenrobot.eventbus.ThreadMode;\n\n");
@@ -370,7 +376,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         "putIndex(new SimpleSubscriberInfo(" + subscriberClass + ".class,",
                         "true,", "new SubscriberMethodInfo[] {");
                 List<ExecutableElement> methods = methodsByClass.get(subscriberTypeElement);
-                writeCreateSubscriberMethods(writer, methods, "new SubscriberMethodInfo", myPackage);
+                writeCreateSubscriberMethods(writer, subscriberClass, methods, "new SubscriberMethodInfo", myPackage);
                 writer.write("        }));\n\n");
             } else {
                 writer.write("        // Subscriber not visible to index: " + subscriberClass + "\n");
