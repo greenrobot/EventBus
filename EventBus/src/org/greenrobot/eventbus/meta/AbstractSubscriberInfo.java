@@ -58,9 +58,5 @@ public abstract class AbstractSubscriberInfo implements SubscriberInfo {
         return shouldCheckSuperclass;
     }
 
-    protected SubscriberMethod createSubscriberMethod(SubscriberMethodInvoker invoker, String methodName, Class<?> eventType, ThreadMode threadMode,
-                                                      int priority, boolean sticky) {
-        return new GeneratedSubscriberMethod(invoker, methodName, getSubscriberClass(), eventType, threadMode, priority, sticky);
-    }
 
 }

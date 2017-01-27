@@ -15,7 +15,9 @@
  */
 package org.greenrobot.eventbus.meta;
 
+import org.greenrobot.eventbus.GeneratedSubscriberMethod;
 import org.greenrobot.eventbus.SubscriberMethod;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Uses {@link SubscriberMethodInfo} objects to create {@link org.greenrobot.eventbus.SubscriberMethod} objects on demand.
@@ -39,5 +41,10 @@ public class SimpleSubscriberInfo extends AbstractSubscriberInfo {
                     info.priority, info.sticky);
         }
         return methods;
+    }
+
+    protected SubscriberMethod createSubscriberMethod(SubscriberMethodInvoker invoker, String methodName, Class<?> eventType, ThreadMode threadMode,
+                                                      int priority, boolean sticky) {
+        return new GeneratedSubscriberMethod(invoker, methodName, getSubscriberClass(), eventType, threadMode, priority, sticky);
     }
 }
