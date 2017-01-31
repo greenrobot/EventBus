@@ -1,4 +1,4 @@
-EventBus
+EventBus  [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus) [![Maven Central](https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg)]()
 ========
 EventBus is a publish/subscribe event bus optimized for Android.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
@@ -14,8 +14,6 @@ EventBus...
  * is tiny (~50k jar)
  * is proven in practice by apps with 100,000,000+ installs
  * has advanced features like delivery threads, subscriber priorities, etc.
-
- [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 
 EventBus in 3 steps
 -------------------
