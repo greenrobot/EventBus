@@ -76,6 +76,11 @@ Maven:
 
 [Or download EventBus from Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22)
 
+Proguard
+--------
+
+If you're using proguard recommended rules can be found [here](http://greenrobot.org/eventbus/documentation/proguard/)
+
 Homepage, Documentation, Links
 ------------------------------
 For more details on EventBus please check [EventBus' website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
