@@ -5,28 +5,28 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
     jcenter()
 }
 
-dependencies {
-    androidTestApt project(':EventBusAnnotationProcessor')
-    androidTestCompile project(':EventBus')
-    compile fileTree(dir: 'libs', include: '*.jar')
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
-}
-
 android {
     buildToolsVersion '25.0.2' // When updating, don't forget to adjust .travis.yml
     compileSdkVersion 19
+
+    defaultConfig {
+        testApplicationId "de.greenrobot.event.test"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [eventBusIndex: "org.greenrobot.eventbus.EventBusTestsIndex"]
+            }
+        }
+    }
 
     sourceSets {
         main {
@@ -37,16 +37,12 @@ android {
             java.srcDirs = ['src']
         }
     }
-
-    defaultConfig {
-        testApplicationId "de.greenrobot.event.test"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
 }
 
-apt {
-    arguments {
-        eventBusIndex "org.greenrobot.eventbus.EventBusTestsIndex"
-    }
+dependencies {
+    androidTestAnnotationProcessor project(':EventBusAnnotationProcessor')
+    androidTestCompile project(':EventBus')
+    compile fileTree(dir: 'libs', include: '*.jar')
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
 }
-
