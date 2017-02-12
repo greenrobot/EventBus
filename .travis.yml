@@ -5,12 +5,11 @@ jdk: oraclejdk8
 android:
   components:
     - tools
-    - build-tools-23.0.2
-    - android-10
+    - build-tools-25.0.2
+    - android-25
     - extra-android-m2repository
 
 before_script:
-  - chmod +x gradlew
 #  - echo no | android create avd --force -n test -t android-10 --abi armeabi
 #  - emulator -avd test -no-skin -no-audio -no-window &
 #  - android-wait-for-emulator
