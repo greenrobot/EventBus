@@ -4,35 +4,28 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.1'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:2.3.0'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-
-sourceCompatibility = 1.7
 
 repositories {
     jcenter()
 }
 
-dependencies {
-    androidTestApt project(':EventBusAnnotationProcessor')
-    androidTestCompile project(':EventBus')
-    compile fileTree(dir: 'libs', include: '*.jar')
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
-}
-
 android {
-    buildToolsVersion '23.0.2' // When updating, don't forget to adjust .travis.yml
+    buildToolsVersion '25.0.2' // When updating, don't forget to adjust .travis.yml
     compileSdkVersion 19
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+    defaultConfig {
+        testApplicationId "de.greenrobot.event.test"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [eventBusIndex: "org.greenrobot.eventbus.EventBusTestsIndex"]
+            }
+        }
     }
 
     sourceSets {
@@ -44,16 +37,12 @@ android {
             java.srcDirs = ['src']
         }
     }
-
-    defaultConfig {
-        testApplicationId "de.greenrobot.event.test"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
 }
 
-apt {
-    arguments {
-        eventBusIndex "org.greenrobot.eventbus.EventBusTestsIndex"
-    }
+dependencies {
+    androidTestAnnotationProcessor project(':EventBusAnnotationProcessor')
+    androidTestCompile project(':EventBus')
+    compile fileTree(dir: 'libs', include: '*.jar')
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
 }
-
