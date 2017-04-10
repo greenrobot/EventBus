@@ -1,7 +1,7 @@
 sudo: false
 language: android
 jdk:
-  - oraclejdk7
+  - oraclejdk8
 
 # http://docs.travis-ci.com/user/languages/android/
 android:
