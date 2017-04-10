@@ -49,6 +49,11 @@ android {
         testApplicationId "de.greenrobot.event.test"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    lintOptions {
+        // To see problems right away, also nice for Travis CI
+        textOutput 'stdout'
+    }
 }
 
 apt {
