@@ -1,12 +1,14 @@
 sudo: false
 language: android
-jdk: oraclejdk8
+jdk:
+  - oraclejdk8
 
 # http://docs.travis-ci.com/user/languages/android/
 android:
   components:
     - tools
     - build-tools-25.0.2
+    - android-10
     - android-25
     - extra-android-m2repository
 
