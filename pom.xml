@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.greenbot</groupId>
+    <artifactId>EventBus-parent</artifactId>
+    <version>1.0.1</version>
+    <packaging>pom</packaging>
+    <name>EventBus - Parent</name>
+
+    <modules>
+        <module>EventBus</module>
+        <module>EventBusTest</module>
+    </modules>
+
+    <properties>
+        <platform.version> 2.3.3
+            </platform.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android</artifactId>
+                <version>${platform.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android-test</artifactId>
+                <version>${platform.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Androlog is a logging and reporting library for Android -->
+            <dependency>
+                <groupId>de.akquinet.android.androlog</groupId>
+                <artifactId>androlog</artifactId>
+                <version>1.0.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.10</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
+                        <assetsDirectory>${project.basedir}/assets</assetsDirectory>
+                        <resourceDirectory>${project.basedir}/res</resourceDirectory>
+                        <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
+                        <sdk>
+                            <platform>10</platform>
+                        </sdk>
+                                                <undeployBeforeDeploy>true</undeployBeforeDeploy>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jarsigner-plugin</artifactId>
+                    <version>1.2</version>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <removeExistingSignatures>true</removeExistingSignatures>
+                        <archiveDirectory />
+                        <archive>${project.build.directory}/${project.build.finalName}.${project.packaging}</archive>
+                        <verbose>true</verbose>
+                        <certs>true</certs>
+                        <keystore>${sign.keystore}</keystore>
+                        <alias>${sign.alias}</alias>
+                        <storepass>${sign.storepass}</storepass>
+                        <keypass>${sign.keypass}</keypass>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.pyx4me</groupId>
+                    <artifactId>proguard-maven-plugin</artifactId>
+                    <version>2.0.4</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>net.sf.proguard</groupId>
+                            <artifactId>proguard</artifactId>
+                            <version>4.4</version>
+                            <scope>runtime</scope>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <proguardVersion>4.4</proguardVersion>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-signing-properties</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>sign.keystore</property>
+                                            <message>The 'sign.keystore' property is missing. It must contain the path to the
+                                                keystore used to sign the application.</message>
+                                        </requireProperty>
+                                        <requireFilesExist>
+                                            <files>
+                                                <file>${sign.keystore}</file>
+                                            </files>
+                                            <message>The 'sign.keystore' property does not point to a file. It must contain the
+                                                path to the keystore used to sign the application.</message>
+                                        </requireFilesExist>
+                                        <requireProperty>
+                                            <property>sign.alias</property>
+                                            <message>The 'sign.alias' property is missing. It must contain the key alias used to
+                                                sign the application.</message>
+                                        </requireProperty>
+                                        <requireProperty>
+                                            <property>sign.storepass</property>
+                                            <message>The 'sign.storepass' property is missing. It must contain the password of
+                                                the keystore used to sign the application.
+                      </message>
+                                        </requireProperty>
+                                        <requireProperty>
+                                            <property>sign.keypass</property>
+                                            <message>The 'sign.keypass' property is missing. It must contain the password of the
+                                                key used to sign the application.</message>
+                                        </requireProperty>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>linux</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <rt.jar.path>${java.home}/jre/lib/rt.jar</rt.jar.path>
+                <jsse.jar.path>${java.home}/jre/lib/jsse.jar</jsse.jar.path>
+            </properties>
+        </profile>
+        <!-- mac profile has to be after unix since running on mac will trigger both -->
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <!-- absolute path -->
+                <!--<rt.jar.path>/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Classes/classes.jar</rt.jar.path> -->
+                <!-- or with JAVA_HOME /System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home/ -->
+                <rt.jar.path>${java.home}/../Classes/classes.jar</rt.jar.path>
+                <jsse.jar.path>${java.home}/../Classes/jsse.jar</jsse.jar.path>
+            </properties>
+        </profile>
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <rt.jar.path>${java.home}/jre/lib/rt.jar</rt.jar.path>
+                <jsse.jar.path>${java.home}/jre/lib/jsse.jar</jsse.jar.path>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
