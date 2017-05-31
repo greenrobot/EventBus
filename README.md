@@ -36,14 +36,14 @@ EventBus in 3 steps
 
    ```java
     @Override
-    public void onStart() {
-        super.onStart();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
     }
  
     @Override
-    public void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
     ```
