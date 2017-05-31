@@ -17,7 +17,6 @@
 package org.greenrobot.eventbusperf;
 
 public class TestFinishedEvent {
-
     public final Test test;
     public final boolean isLastEvent;
 

@@ -21,15 +21,14 @@ import android.content.Context;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-
 import org.greenrobot.eventbusperf.MyEventBusIndex;
 import org.greenrobot.eventbusperf.Test;
 import org.greenrobot.eventbusperf.TestEvent;
 import org.greenrobot.eventbusperf.TestParams;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public abstract class PerfTestEventBus extends Test {
 
@@ -49,11 +48,17 @@ public abstract class PerfTestEventBus extends Test {
         subscriberClass = getSubscriberClassForThreadMode();
     }
 
+    private static String getDisplayModifier(TestParams params) {
+        String inheritance = params.isEventInheritance() ? "" : ", no event inheritance";
+        String ignoreIndex = params.isIgnoreGeneratedIndex() ? ", ignore index" : "";
+        return inheritance + ignoreIndex;
+    }
+
     @Override
     public void prepareTest() {
         try {
             Constructor<?> constructor = subscriberClass.getConstructor(PerfTestEventBus.class);
-            for (int i = 0; i < params.getSubscriberCount(); i++) {
+            for (int i = 0; i < mParams.getSubscriberCount(); i++) {
                 Object subscriber = constructor.newInstance(this);
                 subscribers.add(subscriber);
             }
@@ -63,7 +68,7 @@ public abstract class PerfTestEventBus extends Test {
     }
 
     private Class<?> getSubscriberClassForThreadMode() {
-        switch (params.getThreadMode()) {
+        switch (mParams.getThreadMode()) {
             case MAIN:
                 return SubscribeClassEventBusMain.class;
             case BACKGROUND:
@@ -73,16 +78,31 @@ public abstract class PerfTestEventBus extends Test {
             case POSTING:
                 return SubscribeClassEventBusDefault.class;
             default:
-                throw new RuntimeException("Unknown: " + params.getThreadMode());
+                throw new RuntimeException("Unknown: " + mParams.getThreadMode());
         }
     }
 
-    private static String getDisplayModifier(TestParams params) {
-        String inheritance = params.isEventInheritance() ? "" : ", no event inheritance";
-        String ignoreIndex = params.isIgnoreGeneratedIndex() ? ", ignore index" : "";
-        return inheritance + ignoreIndex;
+    private long registerSubscribers() {
+        long time = 0;
+        for (Object subscriber : subscribers) {
+            long timeStart = System.nanoTime();
+            eventBus.register(subscriber);
+            long timeEnd = System.nanoTime();
+            time += timeEnd - timeStart;
+            if (mCanceled) {
+                return 0;
+            }
+        }
+        return time;
     }
 
+    private void registerUnregisterOneSubscribers() {
+        if (!subscribers.isEmpty()) {
+            Object subscriber = subscribers.get(0);
+            eventBus.register(subscriber);
+            eventBus.unregister(subscriber);
+        }
+    }
 
     public static class Post extends PerfTestEventBus {
         public Post(Context context, TestParams params) {
@@ -100,7 +120,7 @@ public abstract class PerfTestEventBus extends Test {
             long timeStart = System.nanoTime();
             for (int i = 0; i < super.eventCount; i++) {
                 super.eventBus.post(event);
-                if (canceled) {
+                if (mCanceled) {
                     break;
                 }
             }
@@ -108,17 +128,17 @@ public abstract class PerfTestEventBus extends Test {
             waitForReceivedEventCount(super.expectedEventCount);
             long timeAllReceived = System.nanoTime();
 
-            primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
-            primaryResultCount = super.expectedEventCount;
+            mPrimaryResultMicros = (timeAfterPosting - timeStart) / 1000;
+            mPrimaryResultCount = super.expectedEventCount;
             long deliveredMicros = (timeAllReceived - timeStart) / 1000;
-            int deliveryRate = (int) (primaryResultCount / (deliveredMicros / 1000000d));
-            otherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
+            int deliveryRate = (int) (mPrimaryResultCount / (deliveredMicros / 1000000d));
+            mOtherTestResults = "Post and delivery time: " + deliveredMicros + " micros<br/>" + //
                     "Post and delivery rate: " + deliveryRate + "/s";
         }
 
         @Override
         public String getDisplayName() {
-            return "EventBus Post Events, " + params.getThreadMode() + getDisplayModifier(params);
+            return "EventBus Post Events, " + mParams.getThreadMode() + getDisplayModifier(mParams);
         }
 
     }
@@ -131,13 +151,13 @@ public abstract class PerfTestEventBus extends Test {
         public void runTest() {
             super.registerUnregisterOneSubscribers();
             long timeNanos = super.registerSubscribers();
-            primaryResultMicros = timeNanos / 1000;
-            primaryResultCount = params.getSubscriberCount();
+            mPrimaryResultMicros = timeNanos / 1000;
+            mPrimaryResultCount = mParams.getSubscriberCount();
         }
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register, no unregister" + getDisplayModifier(params);
+            return "EventBus Register, no unregister" + getDisplayModifier(mParams);
         }
     }
 
@@ -170,18 +190,18 @@ public abstract class PerfTestEventBus extends Test {
                 long timeRegister = end - beforeRegister - timeMeasureOverhead;
                 time += timeRegister;
                 super.eventBus.unregister(subscriber);
-                if (canceled) {
+                if (mCanceled) {
                     return;
                 }
             }
 
-            primaryResultMicros = time / 1000;
-            primaryResultCount = params.getSubscriberCount();
+            mPrimaryResultMicros = time / 1000;
+            mPrimaryResultCount = mParams.getSubscriberCount();
         }
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register" + getDisplayModifier(params);
+            return "EventBus Register" + getDisplayModifier(mParams);
         }
     }
 
@@ -200,7 +220,7 @@ public abstract class PerfTestEventBus extends Test {
 
         @Override
         public String getDisplayName() {
-            return "EventBus Register, first time"+ getDisplayModifier(params);
+            return "EventBus Register, first time" + getDisplayModifier(mParams);
         }
 
     }
@@ -268,28 +288,6 @@ public abstract class PerfTestEventBus extends Test {
         }
 
         public void dummy5() {
-        }
-    }
-
-    private long registerSubscribers() {
-        long time = 0;
-        for (Object subscriber : subscribers) {
-            long timeStart = System.nanoTime();
-            eventBus.register(subscriber);
-            long timeEnd = System.nanoTime();
-            time += timeEnd - timeStart;
-            if (canceled) {
-                return 0;
-            }
-        }
-        return time;
-    }
-
-    private void registerUnregisterOneSubscribers() {
-        if (!subscribers.isEmpty()) {
-            Object subscriber = subscribers.get(0);
-            eventBus.register(subscriber);
-            eventBus.unregister(subscriber);
         }
     }
 
