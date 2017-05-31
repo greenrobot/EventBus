@@ -69,7 +69,14 @@ public abstract class AbstractSubscriberInfo implements SubscriberInfo {
     protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode,
                                                       int priority, boolean sticky) {
         try {
-            Method method = subscriberClass.getDeclaredMethod(methodName, eventType);
+            Method method;
+            try {
+                method = subscriberClass.getDeclaredMethod(methodName, eventType);
+            } catch (Throwable th) {
+                // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
+                method = subscriberClass.getMethod(methodName, eventType);
+            }
+
             return new SubscriberMethod(method, eventType, threadMode, priority, sticky);
         } catch (NoSuchMethodException e) {
             throw new EventBusException("Could not find subscriber method in " + subscriberClass +
