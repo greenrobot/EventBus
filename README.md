@@ -54,18 +54,18 @@ EventBus in 3 steps
     EventBus.getDefault().post(new MessageEvent());
     ```
 
-**Read the full [getting started guide](http://greenrobot.org/eventbus/documentation/how-to-get-started/).**
+Read the full [getting started guide](http://greenrobot.org/eventbus/documentation/how-to-get-started/).
 
 Add EventBus to your project
 ----------------------------
-Please ensure that you are using the latest version by [checking here](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22)
+<a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22"><img src="https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg"></a>
 
-Gradle:
+Via Gradle:
 ```gradle
 compile 'org.greenrobot:eventbus:3.0.0'
 ```
 
-Maven:
+Via Maven:
 ```xml
 <dependency>
     <groupId>org.greenrobot</groupId>
@@ -74,15 +74,17 @@ Maven:
 </dependency>
 ```
 
-[Or download EventBus from Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22)
+Or download [the latest JAR](https://search.maven.org/remote_content?g=org.greenrobot&a=eventbus&v=LATEST) from Maven Central.
 
 Homepage, Documentation, Links
 ------------------------------
-For more details on EventBus please check [EventBus' website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
+For more details please check the [EventBus website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
 
 [Features](http://greenrobot.org/eventbus/features/)
 
 [Documentation](http://greenrobot.org/eventbus/documentation/)
+
+[ProGuard](http://greenrobot.org/eventbus/documentation/proguard)
 
 [Changelog](http://greenrobot.org/eventbus/changelog/)
 
