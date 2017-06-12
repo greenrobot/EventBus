@@ -15,8 +15,12 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
-import android.util.Log;
+import org.greenrobot.eventbus.log.AndroidLog;
+import org.greenrobot.eventbus.log.EBLog;
+import org.greenrobot.eventbus.log.SystemOutLog;
+import org.greenrobot.eventbus.util.AndroidMTCalculator;
+import org.greenrobot.eventbus.util.MainThreadCalculator;
+import org.greenrobot.eventbus.util.NonAndroidMTCalculator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -59,11 +63,12 @@ public class EventBus {
         }
     };
 
-    private final HandlerPoster mainThreadPoster;
+    private final Poster mainThreadPoster;
     private final BackgroundPoster backgroundPoster;
     private final AsyncPoster asyncPoster;
     private final SubscriberMethodFinder subscriberMethodFinder;
     private final ExecutorService executorService;
+    private final MainThreadCalculator mtCalculator;
 
     private final boolean throwSubscriberException;
     private final boolean logSubscriberExceptions;
@@ -105,10 +110,15 @@ public class EventBus {
     }
 
     EventBus(EventBusBuilder builder) {
+        if (builder.logTarget == null) {
+            EBLog.setLogTarget(builder.nonAndroidEnvironment ? new SystemOutLog() : new AndroidLog(TAG));
+        } else {
+            EBLog.setLogTarget(builder.logTarget);
+        }
         subscriptionsByEventType = new HashMap<>();
         typesBySubscriber = new HashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
-        mainThreadPoster = new HandlerPoster(this, Looper.getMainLooper(), 10);
+        mainThreadPoster = (builder.nonAndroidEnvironment ? new SyncPoster(this) : new HandlerPoster(this, 10));
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
         indexCount = builder.subscriberInfoIndexes != null ? builder.subscriberInfoIndexes.size() : 0;
@@ -121,6 +131,7 @@ public class EventBus {
         throwSubscriberException = builder.throwSubscriberException;
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
+        mtCalculator = (builder.nonAndroidEnvironment ? new NonAndroidMTCalculator() : new AndroidMTCalculator());
     }
 
     /**
@@ -196,7 +207,7 @@ public class EventBus {
         if (stickyEvent != null) {
             // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
             // --> Strange corner case, which we don't take care of here.
-            postToSubscription(newSubscription, stickyEvent, Looper.getMainLooper() == Looper.myLooper());
+            postToSubscription(newSubscription, stickyEvent, mtCalculator.isMainThread());
         }
     }
 
@@ -230,7 +241,7 @@ public class EventBus {
             }
             typesBySubscriber.remove(subscriber);
         } else {
-            Log.w(TAG, "Subscriber to unregister was not registered before: " + subscriber.getClass());
+            EBLog.w("Subscriber to unregister was not registered before: " + subscriber.getClass());
         }
     }
 
@@ -241,7 +252,7 @@ public class EventBus {
         eventQueue.add(event);
 
         if (!postingState.isPosting) {
-            postingState.isMainThread = Looper.getMainLooper() == Looper.myLooper();
+            postingState.isMainThread = mtCalculator.isMainThread();
             postingState.isPosting = true;
             if (postingState.canceled) {
                 throw new EventBusException("Internal error. Abort state was not reset");
@@ -374,7 +385,7 @@ public class EventBus {
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
-                Log.d(TAG, "No subscribers registered for event " + eventClass);
+                EBLog.d("No subscribers registered for event " + eventClass);
             }
             if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
                     eventClass != SubscriberExceptionEvent.class) {
@@ -494,10 +505,10 @@ public class EventBus {
         if (event instanceof SubscriberExceptionEvent) {
             if (logSubscriberExceptions) {
                 // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
-                Log.e(TAG, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                EBLog.e("SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
                         + " threw an exception", cause);
                 SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
-                Log.e(TAG, "Initial event " + exEvent.causingEvent + " caused exception in "
+                EBLog.e("Initial event " + exEvent.causingEvent + " caused exception in "
                         + exEvent.causingSubscriber, exEvent.throwable);
             }
         } else {
@@ -505,7 +516,7 @@ public class EventBus {
                 throw new EventBusException("Invoking subscriber failed", cause);
             }
             if (logSubscriberExceptions) {
-                Log.e(TAG, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                EBLog.e("Could not dispatch event: " + event.getClass() + " to subscribing class "
                         + subscription.subscriber.getClass(), cause);
             }
             if (sendSubscriberExceptionEvent) {
@@ -518,7 +529,7 @@ public class EventBus {
 
     /** For ThreadLocal, much faster to set (and get multiple values). */
     final static class PostingThreadState {
-        final List<Object> eventQueue = new ArrayList<Object>();
+        final List<Object> eventQueue = new ArrayList<>();
         boolean isPosting;
         boolean isMainThread;
         Subscription subscription;

@@ -15,10 +15,8 @@
  */
 package org.greenrobot.eventbus.util;
 
-import android.app.Activity;
-import android.util.Log;
-
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.log.EBLog;
 
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Executor;
@@ -59,7 +57,7 @@ public class AsyncExecutor {
             return buildForScope(null);
         }
 
-        public AsyncExecutor buildForActivityScope(Activity activity) {
+        public AsyncExecutor buildForActivityScope(Object activity) {
             return buildForScope(activity.getClass());
         }
         
@@ -119,7 +117,7 @@ public class AsyncExecutor {
                     try {
                         event = failureEventConstructor.newInstance(e);
                     } catch (Exception e1) {
-                        Log.e(EventBus.TAG, "Original exception:", e);
+                        EBLog.e("Original exception:", e);
                         throw new RuntimeException("Could not create failure event", e1);
                     }
                     if (event instanceof HasExecutionScope) {
