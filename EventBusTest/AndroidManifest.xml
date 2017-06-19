@@ -6,15 +6,11 @@
 
     <uses-sdk android:minSdkVersion="8" />
 
-    <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="de.greenrobot.event.test" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="false"
         android:label="EventBus Test" >
-        <uses-library android:name="android.test.runner" />
     </application>
 
 </manifest>
