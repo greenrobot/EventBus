@@ -5,7 +5,7 @@
     android:versionName="2.0.0" >
 
     <uses-sdk
-        android:minSdkVersion="7"
+        android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
     <uses-feature

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ * Copyright (C) 2012 Markus Junginger, greenrobot (http://greenrobot.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,19 @@ package org.greenrobot.eventbus;
 
 
 /**
- * Posts events in background.
+ * Posts events in the current Thread.
  * 
- * @author Markus
+ * @author William Ferguson
  */
-class AsyncPoster implements Runnable, Poster {
+class SyncPoster implements Poster {
 
-    private final PendingPostQueue queue;
     private final EventBus eventBus;
 
-    AsyncPoster(EventBus eventBus) {
+    SyncPoster(EventBus eventBus) {
         this.eventBus = eventBus;
-        queue = new PendingPostQueue();
     }
 
     public void enqueue(Subscription subscription, Object event) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
-        queue.enqueue(pendingPost);
-        eventBus.getExecutorService().execute(this);
+        eventBus.invokeSubscriber(subscription, event);
     }
-
-    @Override
-    public void run() {
-        PendingPost pendingPost = queue.poll();
-        if(pendingPost == null) {
-            throw new IllegalStateException("No pending post available");
-        }
-        eventBus.invokeSubscriber(pendingPost);
-    }
-
 }
