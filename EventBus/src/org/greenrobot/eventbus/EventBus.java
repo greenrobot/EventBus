@@ -104,7 +104,7 @@ public class EventBus {
         this(DEFAULT_BUILDER);
     }
 
-    EventBus(EventBusBuilder builder) {
+    public EventBus(EventBusBuilder builder) {
         subscriptionsByEventType = new HashMap<>();
         typesBySubscriber = new HashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
