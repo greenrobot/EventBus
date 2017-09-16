@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 
 import static org.junit.Assert.assertEquals;
@@ -105,6 +106,10 @@ public abstract class AbstractEventBusTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void log(String msg) {
+        eventBus.getLogger().log(Level.FINE, msg);
     }
 
 }
