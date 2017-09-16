@@ -15,6 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
+import android.os.Looper;
+
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
 
 import java.util.ArrayList;
@@ -150,12 +152,36 @@ public class EventBusBuilder {
         return this;
     }
 
-    Logger initLogger() {
+    Logger getLogger() {
         if (logger != null) {
             return logger;
         } else {
-            return Logger.AndroidLogger.isAndroidLogAvailable() ? new Logger.AndroidLogger("EventBus") :
+            // also check main looper to see if we have "good" Android classes (not Stubs etc.)
+            return Logger.AndroidLogger.isAndroidLogAvailable() && getAndroidMainLooperOrNull() != null
+                    ? new Logger.AndroidLogger("EventBus") :
                     new Logger.SystemOutLogger();
+        }
+    }
+
+
+    MainThreadSupport getMainThreadSupport() {
+        if (mainThreadSupport != null) {
+            return mainThreadSupport;
+        } else if (Logger.AndroidLogger.isAndroidLogAvailable()) {
+            Object looperOrNull = getAndroidMainLooperOrNull();
+            return looperOrNull == null ? null :
+                    new MainThreadSupport.AndroidHandlerMainThreadSupport((Looper) looperOrNull);
+        } else {
+            return null;
+        }
+    }
+
+    Object getAndroidMainLooperOrNull() {
+        try {
+            return Looper.getMainLooper();
+        } catch (RuntimeException e) {
+            // Not really a functional Android (e.g. "Stub!" maven dependencies)
+            return null;
         }
     }
 

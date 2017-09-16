@@ -15,8 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,13 +107,11 @@ public class EventBus {
     }
 
     EventBus(EventBusBuilder builder) {
-        logger = builder.initLogger();
+        logger = builder.getLogger();
         subscriptionsByEventType = new HashMap<>();
         typesBySubscriber = new HashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
-        mainThreadSupport = builder.mainThreadSupport != null ? builder.mainThreadSupport :
-                Logger.AndroidLogger.isAndroidLogAvailable() ?
-                        new MainThreadSupport.AndroidHandlerMainThreadSupport(Looper.getMainLooper()) : null;
+        mainThreadSupport = builder.getMainThreadSupport();
         mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
@@ -215,7 +211,7 @@ public class EventBus {
      * poster.
      */
     private boolean isMainThread() {
-        return mainThreadSupport != null? mainThreadSupport.isMainThread(): true;
+        return mainThreadSupport != null ? mainThreadSupport.isMainThread() : true;
     }
 
     public synchronized boolean isRegistered(Object subscriber) {
