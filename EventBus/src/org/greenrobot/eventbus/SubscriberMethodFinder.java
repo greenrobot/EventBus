@@ -80,7 +80,7 @@ class SubscriberMethodFinder {
             if (findState.subscriberInfo != null) {
                 SubscriberMethod[] array = findState.subscriberInfo.getSubscriberMethods();
                 for (SubscriberMethod subscriberMethod : array) {
-                    if (findState.checkAdd(subscriberMethod.method, subscriberMethod.eventType)) {
+                    if (findState.checkAdd(subscriberMethod, subscriberMethod.eventType)) {
                         findState.subscriberMethods.add(subscriberMethod);
                     }
                 }
@@ -165,10 +165,11 @@ class SubscriberMethodFinder {
                     Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
                     if (subscribeAnnotation != null) {
                         Class<?> eventType = parameterTypes[0];
-                        if (findState.checkAdd(method, eventType)) {
-                            ThreadMode threadMode = subscribeAnnotation.threadMode();
-                            findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
-                                    subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
+                        ThreadMode threadMode = subscribeAnnotation.threadMode();
+                        ReflectiveSubscriberMethod reflectiveSubscriberMethod = new ReflectiveSubscriberMethod(method, eventType, threadMode,
+                                subscribeAnnotation.priority(), subscribeAnnotation.sticky());
+                        if (findState.checkAdd(reflectiveSubscriberMethod, eventType)) {
+                            findState.subscriberMethods.add(reflectiveSubscriberMethod);
                         }
                     }
                 } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
@@ -216,15 +217,15 @@ class SubscriberMethodFinder {
             subscriberInfo = null;
         }
 
-        boolean checkAdd(Method method, Class<?> eventType) {
+        boolean checkAdd(SubscriberMethod method, Class<?> eventType) {
             // 2 level check: 1st level with event type only (fast), 2nd level with complete signature when required.
             // Usually a subscriber doesn't have methods listening to the same event type.
             Object existing = anyMethodByEventType.put(eventType, method);
             if (existing == null) {
                 return true;
             } else {
-                if (existing instanceof Method) {
-                    if (!checkAddWithMethodSignature((Method) existing, eventType)) {
+                if (existing instanceof SubscriberMethod) {
+                    if (!checkAddWithMethodSignature((SubscriberMethod) existing, eventType)) {
                         // Paranoia check
                         throw new IllegalStateException();
                     }
@@ -235,7 +236,7 @@ class SubscriberMethodFinder {
             }
         }
 
-        private boolean checkAddWithMethodSignature(Method method, Class<?> eventType) {
+        private boolean checkAddWithMethodSignature(SubscriberMethod method, Class<?> eventType) {
             methodKeyBuilder.setLength(0);
             methodKeyBuilder.append(method.getName());
             methodKeyBuilder.append('>').append(eventType.getName());

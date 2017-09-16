@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.greenrobot.eventbusperf"
     android:versionCode="1"
     android:versionName="2.0.0" >
 
     <uses-sdk
         android:minSdkVersion="7"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="25" />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -14,7 +15,9 @@
 
     <application
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name" >
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name="org.greenrobot.eventbusperf.TestSetupActivity"
             android:label="@string/app_name" >

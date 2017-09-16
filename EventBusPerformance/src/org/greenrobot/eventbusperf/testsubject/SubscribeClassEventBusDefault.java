@@ -20,8 +20,9 @@ import org.greenrobot.eventbus.Subscribe;
 
 import org.greenrobot.eventbusperf.TestEvent;
 
+@SuppressWarnings("EmptyMethod")
 public class SubscribeClassEventBusDefault {
-    private PerfTestEventBus perfTestEventBus;
+    private final PerfTestEventBus perfTestEventBus;
 
     public SubscribeClassEventBusDefault(PerfTestEventBus perfTestEventBus) {
         this.perfTestEventBus = perfTestEventBus;

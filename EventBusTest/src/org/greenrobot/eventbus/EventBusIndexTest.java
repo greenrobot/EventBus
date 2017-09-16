@@ -20,6 +20,7 @@ import org.greenrobot.eventbus.meta.SimpleSubscriberInfo;
 import org.greenrobot.eventbus.meta.SubscriberInfo;
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
 import org.greenrobot.eventbus.meta.SubscriberMethodInfo;
+import org.greenrobot.eventbus.meta.SubscriberMethodInvoker;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,7 +36,12 @@ public class EventBusIndexTest {
             public SubscriberInfo getSubscriberInfo(Class<?> subscriberClass) {
                 Assert.assertEquals(EventBusIndexTest.class, subscriberClass);
                 SubscriberMethodInfo[] methodInfos = {
-                        new SubscriberMethodInfo("someMethodWithoutAnnotation", String.class)
+                        new SubscriberMethodInfo(new SubscriberMethodInvoker() {
+                            @Override
+                            public void invoke(Object subscriber, Object event) {
+                                ((EventBusIndexTest)subscriber).someMethodWithoutAnnotation((String)event);
+                            }
+                        }, "someMethodWithoutAnnotation", String.class)
                 };
                 return new SimpleSubscriberInfo(EventBusIndexTest.class, false, methodInfos);
             }

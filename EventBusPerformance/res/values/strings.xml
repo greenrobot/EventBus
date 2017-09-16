@@ -28,5 +28,7 @@
     <string name="testIsRunning">Test Is \nRunning!</string>
     <string name="buttonCancel">Cancel</string>
     <string name="buttonKillProcess">Kill Process</string>
-    
+    <string name="thousand">1000</string>
+    <string name="number_one">1</string>
+
 </resources>

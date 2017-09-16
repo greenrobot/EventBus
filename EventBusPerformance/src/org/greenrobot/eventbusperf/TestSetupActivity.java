@@ -32,15 +32,16 @@ import java.util.ArrayList;
 import org.greenrobot.eventbusperf.testsubject.PerfTestEventBus;
 import org.greenrobot.eventbusperf.testsubject.PerfTestOtto;
 
+@SuppressWarnings("StatementWithEmptyBody")
 public class TestSetupActivity extends Activity {
 
     @SuppressWarnings("rawtypes")
-    static final Class[] TEST_CLASSES_EVENTBUS = {PerfTestEventBus.Post.class,//
+    private static final Class[] TEST_CLASSES_EVENTBUS = {PerfTestEventBus.Post.class,//
             PerfTestEventBus.RegisterOneByOne.class,//
             PerfTestEventBus.RegisterAll.class, //
             PerfTestEventBus.RegisterFirstTime.class};
 
-    static final Class[] TEST_CLASSES_OTTO = {PerfTestOtto.Post.class,//
+    private static final Class[] TEST_CLASSES_OTTO = {PerfTestOtto.Post.class,//
             PerfTestOtto.RegisterOneByOne.class,//
             PerfTestOtto.RegisterAll.class, //
             PerfTestOtto.RegisterFirstTime.class};
@@ -99,9 +100,9 @@ public class TestSetupActivity extends Activity {
         startActivity(intent);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "StatementWithEmptyBody"})
     private ArrayList<Class<? extends Test>> initTestClasses(int testPos) {
-        ArrayList<Class<? extends Test>> testClasses = new ArrayList<Class<? extends Test>>();
+        ArrayList<Class<? extends Test>> testClasses = new ArrayList<>();
         // the attributes are putted in the intent (eventbus, otto, broadcast, local broadcast)
         final CheckBox checkBoxEventBus = (CheckBox) findViewById(R.id.checkBoxEventBus);
         final CheckBox checkBoxOtto = (CheckBox) findViewById(R.id.checkBoxOtto);

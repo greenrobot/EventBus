@@ -27,14 +27,15 @@ import java.util.List;
 /**
  * This thread initialize all selected tests and runs them through. Also the thread skips the tests, when it is canceled
  */
-public class TestRunner extends Thread {
-    private List<Test> tests;
+@SuppressWarnings("UnusedAssignment")
+class TestRunner extends Thread {
+    private final List<Test> tests;
     private volatile boolean canceled;
     private final EventBus controlBus;
 
-    public TestRunner(Context context, TestParams testParams, EventBus controlBus) {
+    TestRunner(Context context, TestParams testParams, EventBus controlBus) {
         this.controlBus = controlBus;
-        tests = new ArrayList<Test>();
+        tests = new ArrayList<>();
         for (Class<? extends Test> testClazz : testParams.getTestClasses()) {
             try {
                 Constructor<?>[] constructors = testClazz.getConstructors();
@@ -57,7 +58,7 @@ public class TestRunner extends Thread {
                 Thread.sleep(300);
                 System.gc();
                 Thread.sleep(300);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
 
             test.prepareTest();

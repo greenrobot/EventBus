@@ -16,6 +16,8 @@
 package org.greenrobot.eventbus.meta;
 
 import org.greenrobot.eventbus.EventBusException;
+import org.greenrobot.eventbus.GeneratedSubscriberMethod;
+import org.greenrobot.eventbus.ReflectiveSubscriberMethod;
 import org.greenrobot.eventbus.SubscriberMethod;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -58,23 +60,5 @@ public abstract class AbstractSubscriberInfo implements SubscriberInfo {
         return shouldCheckSuperclass;
     }
 
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType) {
-        return createSubscriberMethod(methodName, eventType, ThreadMode.POSTING, 0, false);
-    }
-
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode) {
-        return createSubscriberMethod(methodName, eventType, threadMode, 0, false);
-    }
-
-    protected SubscriberMethod createSubscriberMethod(String methodName, Class<?> eventType, ThreadMode threadMode,
-                                                      int priority, boolean sticky) {
-        try {
-            Method method = subscriberClass.getDeclaredMethod(methodName, eventType);
-            return new SubscriberMethod(method, eventType, threadMode, priority, sticky);
-        } catch (NoSuchMethodException e) {
-            throw new EventBusException("Could not find subscriber method in " + subscriberClass +
-                    ". Maybe a missing ProGuard rule?", e);
-        }
-    }
 
 }
