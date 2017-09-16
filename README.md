@@ -1,6 +1,6 @@
 EventBus
 ========
-EventBus is a publish/subscribe event bus optimized for Android.<br/>
+EventBus is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
 
 EventBus...
@@ -62,7 +62,7 @@ Add EventBus to your project
 
 Via Gradle:
 ```gradle
-compile 'org.greenrobot:eventbus:3.0.0'
+compile 'org.greenrobot:eventbus:3.1.0-RC'
 ```
 
 Via Maven:
@@ -70,7 +70,7 @@ Via Maven:
 <dependency>
     <groupId>org.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0-RC</version>
 </dependency>
 ```
 
@@ -94,12 +94,14 @@ How does EventBus compare to other solutions, like Otto from Square? Check this 
 
 License
 -------
-Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+Copyright (C) 2012-2017 Markus Junginger, greenrobot (http://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 
 More Open Source by greenrobot
 ==============================
+[__ObjectBox__](https://github.com/objectbox/objectbox-java) is a new superfast object-oriented database for mobile.
+
 [__greenrobot-common__](https://github.com/greenrobot/greenrobot-common) is a set of utility classes and hash functions for Android & Java projects.
 
 [__greenDAO__](https://github.com/greenrobot/greenDAO) is an ORM optimized for Android: it maps database tables to Java objects and uses code generation for optimal speed.
