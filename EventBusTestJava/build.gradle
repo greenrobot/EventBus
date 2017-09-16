@@ -7,15 +7,9 @@ repositories {
 }
 
 dependencies {
-    compile project(':EventBus')
+    compile(project(':EventBus')) {
+        exclude group: "com.google.android" // Does not seem to work...
+    }
     compile 'junit:junit:4.12'
 }
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src'
-            // exclude 'de/greenrobot/event/util/**'
-        }
-    }
-}
