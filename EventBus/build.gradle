@@ -5,7 +5,7 @@ apply plugin: 'idea'
 
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
-version = '3.1.0-SNAPSHOT'
+version = '3.1.0-RC'
 sourceCompatibility = 1.7
 
 def isSnapshot = version.endsWith('-SNAPSHOT')
