@@ -36,7 +36,7 @@ public class ExceptionToResourceMapping {
     public final Map<Class<? extends Throwable>, Integer> throwableToMsgIdMap;
 
     public ExceptionToResourceMapping() {
-        throwableToMsgIdMap = new HashMap<Class<? extends Throwable>, Integer>();
+        throwableToMsgIdMap = new HashMap<>();
     }
 
     /** Looks at the exception and its causes trying to find an ID. */
@@ -52,7 +52,7 @@ public class ExceptionToResourceMapping {
                 throwableToCheck = throwableToCheck.getCause();
                 depthToGo--;
                 if (depthToGo <= 0 || throwableToCheck == throwable || throwableToCheck == null) {
-                    Log.d(EventBus.TAG, "No specific message ressource ID found for " + throwable);
+                    Log.d(EventBus.TAG, "No specific message resource ID found for " + throwable);
                     // return config.defaultErrorMsgId;
                     return null;
                 }
