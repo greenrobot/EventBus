@@ -30,7 +30,7 @@ apt {
 
 android {
     buildToolsVersion '25.0.3' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 19
+    compileSdkVersion 25
 
     sourceSets {
         main {
