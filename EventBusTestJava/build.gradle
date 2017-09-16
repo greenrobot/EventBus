@@ -1,0 +1,21 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile project(':EventBus')
+    compile 'junit:junit:4.12'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+            // exclude 'de/greenrobot/event/util/**'
+        }
+    }
+}

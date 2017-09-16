@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusMultithreadedTest extends AbstractEventBusTest {
+public class EventBusMultithreadedTest extends AbstractAndroidEventBusTest {
 
     private static final int COUNT = LONG_TESTS ? 100000 : 1000;
 

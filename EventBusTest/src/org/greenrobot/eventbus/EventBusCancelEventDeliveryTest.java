@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
+public class EventBusCancelEventDeliveryTest extends AbstractAndroidEventBusTest {
 
     private Throwable failed;
 

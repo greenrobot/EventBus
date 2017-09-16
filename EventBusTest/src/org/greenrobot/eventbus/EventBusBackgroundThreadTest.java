@@ -25,7 +25,7 @@ import static org.junit.Assert.assertFalse;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusBackgroundThreadTest extends AbstractEventBusTest {
+public class EventBusBackgroundThreadTest extends AbstractAndroidEventBusTest {
 
     @Test
     public void testPostInCurrentThread() throws InterruptedException {

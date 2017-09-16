@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusMainThreadTest extends AbstractEventBusTest {
+public class EventBusMainThreadTest extends AbstractAndroidEventBusTest {
 
     private BackgroundPoster backgroundPoster;
 

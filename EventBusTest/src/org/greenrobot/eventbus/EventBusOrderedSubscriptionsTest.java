@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
+public class EventBusOrderedSubscriptionsTest extends AbstractAndroidEventBusTest {
 
     int lastPrio = Integer.MAX_VALUE;
     final List<PrioSubscriber> registered = new ArrayList<PrioSubscriber>();

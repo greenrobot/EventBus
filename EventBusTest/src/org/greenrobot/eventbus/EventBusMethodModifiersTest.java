@@ -25,7 +25,7 @@ import static org.junit.Assert.assertSame;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusMethodModifiersTest extends AbstractEventBusTest {
+public class EventBusMethodModifiersTest extends AbstractAndroidEventBusTest {
 
     @Test
     public void testRegisterForEventTypeAndPost() throws InterruptedException {

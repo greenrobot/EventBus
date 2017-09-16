@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusBuilderTest extends AbstractEventBusTest {
+public class EventBusBuilderTest extends AbstractAndroidEventBusTest {
 
     @Test
     public void testThrowSubscriberException() {

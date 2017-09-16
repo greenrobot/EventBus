@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusSubscriberLegalTest extends AbstractEventBusTest {
+public class EventBusSubscriberLegalTest extends AbstractAndroidEventBusTest {
 
     @Test
     public void testSubscriberLegal() {

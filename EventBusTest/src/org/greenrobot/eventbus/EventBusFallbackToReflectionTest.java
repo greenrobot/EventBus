@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
+public class EventBusFallbackToReflectionTest extends AbstractAndroidEventBusTest {
     private class PrivateEvent {
     }
 

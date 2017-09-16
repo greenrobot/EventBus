@@ -23,7 +23,7 @@ import static org.junit.Assert.assertSame;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
+public class EventBusNoSubscriberEventTest extends AbstractAndroidEventBusTest {
 
     @Test
     public void testNoSubscriberEvent() {
