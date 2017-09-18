@@ -9,6 +9,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+// plugin to make it easier/safer to use EventBus annotation processor
 apply plugin: 'net.ltgt.apt-idea'
 
 sourceCompatibility = 1.7
