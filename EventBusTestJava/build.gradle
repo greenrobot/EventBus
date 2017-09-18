@@ -6,6 +6,16 @@ repositories {
     jcenter()
 }
 
+// we have tests in the main source set so they can be shared with the Android test module
+// to make Gradle pick them up, add the dir to the test source set
+sourceSets {
+    test {
+        java {
+            srcDirs += ['src/main/java']
+        }
+    }
+}
+
 dependencies {
     compile(project(':EventBus')) {
         exclude group: "com.google.android" // Does not seem to work...
