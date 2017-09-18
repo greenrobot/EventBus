@@ -90,7 +90,7 @@ public class EventBusInheritanceTest {
 
     @Test
     public void testSubscriberClassHierarchy() {
-        SubscriberExtended subscriber = new SubscriberExtended();
+        EventBusInheritanceSubclassTest subscriber = new EventBusInheritanceSubclassTest();
         eventBus.register(subscriber);
 
         eventBus.post("Hello");
@@ -110,7 +110,8 @@ public class EventBusInheritanceTest {
 
     @Test
     public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
-        SubscriberExtendedWithoutNewSubscriberMethod subscriber = new SubscriberExtendedWithoutNewSubscriberMethod();
+        EventBusInheritanceSubclassNoMethodTest
+                subscriber = new EventBusInheritanceSubclassNoMethodTest();
         eventBus.register(subscriber);
 
         eventBus.post("Hello");
@@ -161,18 +162,6 @@ public class EventBusInheritanceTest {
     }
 
     public static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
-    }
-
-    public static class SubscriberExtended extends EventBusInheritanceTest {
-        private int countMyEventOverwritten;
-
-        @Subscribe
-        public void onEvent(MyEvent event) {
-            countMyEventOverwritten++;
-        }
-    }
-
-    public static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
     }
 
     public class StickySubscriber {
