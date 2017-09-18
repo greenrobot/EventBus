@@ -422,6 +422,9 @@ public class EventBus {
                     mainThreadPoster.enqueue(subscription, event);
                 }
                 break;
+            case MAIN_ASYNC:
+                mainThreadPoster.enqueue(subscription, event);
+                break;
             case BACKGROUND:
                 if (isMainThread) {
                     backgroundPoster.enqueue(subscription, event);
