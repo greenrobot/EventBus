@@ -172,7 +172,7 @@ public class EventBusInheritanceTest {
         }
     }
 
-    static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
+    public static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
     }
 
     public class StickySubscriber {
