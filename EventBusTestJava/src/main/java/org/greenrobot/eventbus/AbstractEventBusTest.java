@@ -112,4 +112,8 @@ public abstract class AbstractEventBusTest {
         eventBus.getLogger().log(Level.FINE, msg);
     }
 
+    protected void log(String msg, Throwable e) {
+        eventBus.getLogger().log(Level.FINE, msg, e);
+    }
+
 }
