@@ -17,10 +17,15 @@
 package org.greenrobot.eventbus.indexed;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBusJavaTestsIndex;
 import org.greenrobot.eventbus.EventBusTestsIndex;
 
 public class Indexed {
     static EventBus build() {
-        return EventBus.builder().addIndex(new EventBusTestsIndex()).build();
+        // TODO ut: remove index of this module once all tests moved to Java module
+        return EventBus.builder()
+                .addIndex(new EventBusTestsIndex())
+                .addIndex(new EventBusJavaTestsIndex())
+                .build();
     }
 }

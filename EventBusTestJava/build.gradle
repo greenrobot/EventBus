@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.12"
+    }
+}
+
 apply plugin: 'java'
+apply plugin: 'net.ltgt.apt-idea'
 
 sourceCompatibility = 1.7
 
@@ -21,6 +32,10 @@ dependencies {
     compile(project(':EventBus')) {
         exclude group: "com.google.android" // Does not seem to work...
     }
+    apt project(':EventBusAnnotationProcessor')
     compile 'junit:junit:4.12'
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs += [ "-AeventBusIndex=org.greenrobot.eventbus.EventBusJavaTestsIndex" ]
+}
