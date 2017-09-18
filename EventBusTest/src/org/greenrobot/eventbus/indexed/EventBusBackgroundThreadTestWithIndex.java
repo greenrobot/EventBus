@@ -30,6 +30,6 @@ public class EventBusBackgroundThreadTestWithIndex extends EventBusBackgroundThr
 
     @Test
     public void testIndex() {
-        assertTrue(eventBus.toString().contains("indexCount=1"));
+        assertTrue(eventBus.toString().contains("indexCount=2"));
     }
 }

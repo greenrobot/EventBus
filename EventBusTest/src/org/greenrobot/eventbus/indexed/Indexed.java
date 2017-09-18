@@ -22,7 +22,6 @@ import org.greenrobot.eventbus.EventBusTestsIndex;
 
 public class Indexed {
     static EventBus build() {
-        // TODO ut: remove index of this module once all tests moved to Java module
         return EventBus.builder()
                 .addIndex(new EventBusTestsIndex())
                 .addIndex(new EventBusJavaTestsIndex())
