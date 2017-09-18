@@ -18,7 +18,7 @@ package org.greenrobot.eventbus;
 
 import org.junit.Test;
 
-public class EventBusGenericsTest extends AbstractAndroidEventBusTest {
+public class EventBusGenericsTest extends AbstractEventBusTest {
     public static class GenericEvent<T> {
         T value;
     }

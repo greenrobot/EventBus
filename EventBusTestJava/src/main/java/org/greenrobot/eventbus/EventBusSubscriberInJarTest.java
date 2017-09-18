@@ -16,15 +16,10 @@
 
 package org.greenrobot.eventbus;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.greenrobot.eventbus.EventBus;
+import org.junit.Assert;
 import org.junit.Test;
 
-import org.greenrobot.eventbus.SubscriberInJar;
-
-public class EventBusSubscriberInJarTest extends TestCase {
+public class EventBusSubscriberInJarTest {
     protected EventBus eventBus = EventBus.builder().build();
 
     @Test

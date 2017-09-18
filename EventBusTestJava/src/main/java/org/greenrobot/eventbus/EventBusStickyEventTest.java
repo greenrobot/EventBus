@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusStickyEventTest extends AbstractAndroidEventBusTest {
+public class EventBusStickyEventTest extends AbstractEventBusTest {
 
     @Test
     public void testPostSticky() throws InterruptedException {

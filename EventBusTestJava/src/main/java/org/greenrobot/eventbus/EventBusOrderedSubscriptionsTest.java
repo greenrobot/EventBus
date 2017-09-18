@@ -15,8 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.util.Log;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusOrderedSubscriptionsTest extends AbstractAndroidEventBusTest {
+public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
 
     int lastPrio = Integer.MAX_VALUE;
     final List<PrioSubscriber> registered = new ArrayList<PrioSubscriber>();
@@ -137,7 +135,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractAndroidEventBusTes
             }
             lastPrio = prio;
 
-            Log.d(EventBus.TAG, "Subscriber " + prio + " got: " + event);
+            log("Subscriber " + prio + " got: " + event);
             trackEvent(event);
         }
 
@@ -206,7 +204,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractAndroidEventBusTes
             }
             lastPrio = prio;
 
-            Log.d(EventBus.TAG, "Subscriber " + prio + " got: " + event);
+            log("Subscriber " + prio + " got: " + event);
             trackEvent(event);
         }
 

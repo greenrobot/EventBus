@@ -15,14 +15,15 @@
  */
 package org.greenrobot.eventbus;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
 import org.junit.Test;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusInheritanceTest extends TestCase {
+public class EventBusInheritanceDisabledTest {
 
     protected EventBus eventBus;
 
@@ -32,9 +33,9 @@ public class EventBusInheritanceTest extends TestCase {
     private int countMyEventInterface;
     private int countMyEventInterfaceExtended;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        eventBus = new EventBus();
+    @Before
+    public void setUp() throws Exception {
+        eventBus = EventBus.builder().eventInheritance(false).build();
     }
 
     @Test
@@ -42,15 +43,15 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.register(this);
 
         eventBus.post("Hello");
-        assertEquals(1, countObjectEvent);
+        assertEquals(0, countObjectEvent);
 
         eventBus.post(new MyEvent());
-        assertEquals(2, countObjectEvent);
+        assertEquals(0, countObjectEvent);
         assertEquals(1, countMyEvent);
 
         eventBus.post(new MyEventExtended());
-        assertEquals(3, countObjectEvent);
-        assertEquals(2, countMyEvent);
+        assertEquals(0, countObjectEvent);
+        assertEquals(1, countMyEvent);
         assertEquals(1, countMyEventExtended);
     }
 
@@ -61,8 +62,8 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.postSticky(new MyEventExtended());
         eventBus.register(new StickySubscriber());
         assertEquals(1, countMyEventExtended);
-        assertEquals(2, countMyEvent);
-        assertEquals(3, countObjectEvent);
+        assertEquals(1, countMyEvent);
+        assertEquals(0, countObjectEvent);
     }
 
     @Test
@@ -70,11 +71,11 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.register(this);
 
         eventBus.post(new MyEvent());
-        assertEquals(1, countMyEventInterface);
+        assertEquals(0, countMyEventInterface);
 
         eventBus.post(new MyEventExtended());
-        assertEquals(2, countMyEventInterface);
-        assertEquals(1, countMyEventInterfaceExtended);
+        assertEquals(0, countMyEventInterface);
+        assertEquals(0, countMyEventInterfaceExtended);
     }
 
     @Test
@@ -83,8 +84,8 @@ public class EventBusInheritanceTest extends TestCase {
 
         eventBus.post(new MyEventInterfaceExtended() {
         });
-        assertEquals(1, countMyEventInterface);
-        assertEquals(1, countMyEventInterfaceExtended);
+        assertEquals(0, countMyEventInterface);
+        assertEquals(0, countMyEventInterfaceExtended);
     }
 
     @Test
@@ -93,18 +94,18 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.register(subscriber);
 
         eventBus.post("Hello");
-        assertEquals(1, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countObjectEvent);
 
         eventBus.post(new MyEvent());
-        assertEquals(2, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countObjectEvent);
         assertEquals(0, subscriber.countMyEvent);
         assertEquals(1, subscriber.countMyEventOverwritten);
 
         eventBus.post(new MyEventExtended());
-        assertEquals(3, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countObjectEvent);
         assertEquals(0, subscriber.countMyEvent);
         assertEquals(1, subscriber.countMyEventExtended);
-        assertEquals(2, subscriber.countMyEventOverwritten);
+        assertEquals(1, subscriber.countMyEventOverwritten);
     }
 
     @Test
@@ -113,15 +114,15 @@ public class EventBusInheritanceTest extends TestCase {
         eventBus.register(subscriber);
 
         eventBus.post("Hello");
-        assertEquals(1, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countObjectEvent);
 
         eventBus.post(new MyEvent());
-        assertEquals(2, subscriber.countObjectEvent);
+        assertEquals(0, subscriber.countObjectEvent);
         assertEquals(1, subscriber.countMyEvent);
 
         eventBus.post(new MyEventExtended());
-        assertEquals(3, subscriber.countObjectEvent);
-        assertEquals(2, subscriber.countMyEvent);
+        assertEquals(0, subscriber.countObjectEvent);
+        assertEquals(1, subscriber.countMyEvent);
         assertEquals(1, subscriber.countMyEventExtended);
     }
 
@@ -162,7 +163,7 @@ public class EventBusInheritanceTest extends TestCase {
     public static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
     }
 
-    public static class SubscriberExtended extends EventBusInheritanceTest {
+    public static class SubscriberExtended extends EventBusInheritanceDisabledTest {
         private int countMyEventOverwritten;
 
         @Subscribe
@@ -171,7 +172,7 @@ public class EventBusInheritanceTest extends TestCase {
         }
     }
 
-    static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
+    static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceDisabledTest {
     }
 
     public class StickySubscriber {

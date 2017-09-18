@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusRegistrationRacingTest extends AbstractAndroidEventBusTest {
+public class EventBusRegistrationRacingTest extends AbstractEventBusTest {
 
     // On a Nexus 5, bad synchronization always failed on the first iteration or went well completely.
     // So a high number of iterations do not guarantee a better probability of finding bugs.

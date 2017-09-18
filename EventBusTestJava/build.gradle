@@ -17,6 +17,7 @@ sourceSets {
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')
     compile(project(':EventBus')) {
         exclude group: "com.google.android" // Does not seem to work...
     }
