@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.3.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -22,13 +22,13 @@ dependencies {
     androidTestApt project(':EventBusAnnotationProcessor')
     androidTestCompile project(':EventBus')
     compile fileTree(dir: 'libs', include: '*.jar')
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
 }
 
 android {
-    buildToolsVersion '23.0.2' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 19
+    buildToolsVersion '25.0.3' // When updating, don't forget to adjust .travis.yml
+    compileSdkVersion 25
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
@@ -48,6 +48,14 @@ android {
     defaultConfig {
         testApplicationId "de.greenrobot.event.test"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    lintOptions {
+        // To see problems right away, also nice for Travis CI
+        textOutput 'stdout'
+
+        // TODO FIXME: Travis only error
+        abortOnError false
     }
 }
 
