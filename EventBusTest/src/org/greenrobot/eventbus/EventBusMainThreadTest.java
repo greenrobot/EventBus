@@ -17,8 +17,6 @@ package org.greenrobot.eventbus;
 
 import android.os.Looper;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 
@@ -28,20 +26,6 @@ import static org.junit.Assert.assertEquals;
  * @author Markus Junginger, greenrobot
  */
 public class EventBusMainThreadTest extends AbstractAndroidEventBusTest {
-
-    private TestBackgroundPoster backgroundPoster;
-
-    @Before
-    public void setUp() throws Exception {
-        backgroundPoster = new TestBackgroundPoster(eventBus);
-        backgroundPoster.start();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        backgroundPoster.shutdown();
-        backgroundPoster.join();
-    }
 
     @Test
     public void testPost() throws InterruptedException {
@@ -55,11 +39,17 @@ public class EventBusMainThreadTest extends AbstractAndroidEventBusTest {
 
     @Test
     public void testPostInBackgroundThread() throws InterruptedException {
+        TestBackgroundPoster backgroundPoster = new TestBackgroundPoster(eventBus);
+        backgroundPoster.start();
+
         eventBus.register(this);
         backgroundPoster.post("Hello");
         waitForEventCount(1, 1000);
         assertEquals("Hello", lastEvent);
         assertEquals(Looper.getMainLooper().getThread(), lastThread);
+
+        backgroundPoster.shutdown();
+        backgroundPoster.join();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
