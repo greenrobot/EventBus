@@ -436,7 +436,7 @@ public class EventBus {
                     mainThreadPoster.enqueue(subscription, event);
                 }
                 break;
-            case MAIN_ASYNC:
+            case MAIN_ORDERED:
                 mainThreadPoster.enqueue(subscription, event);
                 break;
             case BACKGROUND:
