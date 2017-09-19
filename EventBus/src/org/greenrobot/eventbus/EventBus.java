@@ -437,7 +437,12 @@ public class EventBus {
                 }
                 break;
             case MAIN_ORDERED:
-                mainThreadPoster.enqueue(subscription, event);
+                if (mainThreadPoster != null) {
+                    mainThreadPoster.enqueue(subscription, event);
+                } else {
+                    // temporary: technically not correct as poster not decoupled from subscriber
+                    invokeSubscriber(subscription, event);
+                }
                 break;
             case BACKGROUND:
                 if (isMainThread) {
