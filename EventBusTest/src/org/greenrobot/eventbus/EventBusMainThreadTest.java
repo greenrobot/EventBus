@@ -21,8 +21,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,11 +29,11 @@ import static org.junit.Assert.assertEquals;
  */
 public class EventBusMainThreadTest extends AbstractAndroidEventBusTest {
 
-    private BackgroundPoster backgroundPoster;
+    private TestBackgroundPoster backgroundPoster;
 
     @Before
     public void setUp() throws Exception {
-        backgroundPoster = new BackgroundPoster();
+        backgroundPoster = new TestBackgroundPoster(eventBus);
         backgroundPoster.start();
     }
 
@@ -67,70 +65,6 @@ public class EventBusMainThreadTest extends AbstractAndroidEventBusTest {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(String event) {
         trackEvent(event);
-    }
-
-    class BackgroundPoster extends Thread {
-        volatile boolean running = true;
-        private final List<Object> eventQ = new ArrayList<Object>();
-        private final List<Object> eventsDone = new ArrayList<Object>();
-
-        public BackgroundPoster() {
-            super("BackgroundPoster");
-        }
-
-        @Override
-        public void run() {
-            while (running) {
-                Object event = pollEvent();
-                if (event != null) {
-                    eventBus.post(event);
-                    synchronized (eventsDone) {
-                        eventsDone.add(event);
-                        eventsDone.notifyAll();
-                    }
-                }
-            }
-        }
-
-        private synchronized Object pollEvent() {
-            Object event = null;
-            synchronized (eventQ) {
-                if (eventQ.isEmpty()) {
-                    try {
-                        eventQ.wait(1000);
-                    } catch (InterruptedException e) {
-                    }
-                }
-                if(!eventQ.isEmpty()) {
-                    event = eventQ.remove(0);
-                }
-            }
-            return event;
-        }
-
-        void shutdown() {
-            running = false;
-            synchronized (eventQ) {
-                eventQ.notifyAll();
-            }
-        }
-
-        void post(Object event) {
-            synchronized (eventQ) {
-                eventQ.add(event);
-                eventQ.notifyAll();
-            }
-            synchronized (eventsDone) {
-                while (!eventsDone.remove(event)) {
-                    try {
-                        eventsDone.wait();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
-
     }
 
 }
