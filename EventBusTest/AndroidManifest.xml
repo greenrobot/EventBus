@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.greenrobot.event.testapp"
-    android:versionCode="1"
-    android:versionName="1.0" >
-
-    <uses-sdk android:minSdkVersion="8" />
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.greenrobot.eventbus">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="false"
-        android:label="EventBus Test" >
+        android:label="EventBus Test"
+        tools:ignore="GoogleAppIndexingWarning,MissingApplicationIcon">
     </application>
 
 </manifest>

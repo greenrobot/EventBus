@@ -47,6 +47,11 @@ android {
     }
 
     defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+
         testApplicationId "de.greenrobot.event.test"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
