@@ -12,6 +12,7 @@ apply plugin: 'com.android.application'
 
 repositories {
     jcenter()
+    google()
 }
 
 dependencies {
@@ -19,8 +20,8 @@ dependencies {
     androidTestCompile project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':EventBusAnnotationProcessor')
     compile fileTree(dir: 'libs', include: '*.jar')
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
+    androidTestCompile 'com.android.support.test:rules:1.0.1'
 }
 
 android {
@@ -43,7 +44,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
