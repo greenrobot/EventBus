@@ -5,12 +5,10 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 
 repositories {
     jcenter()
@@ -18,14 +16,8 @@ repositories {
 
 dependencies {
     compile project(':EventBus')
-    apt project(':EventBusAnnotationProcessor')
+    annotationProcessor project(':EventBusAnnotationProcessor')
     compile 'com.squareup:otto:1.3.8'
-}
-
-apt {
-    arguments {
-        eventBusIndex "org.greenrobot.eventbusperf.MyEventBusIndex"
-    }
 }
 
 android {
@@ -40,4 +32,11 @@ android {
         }
     }
 
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [eventBusIndex: 'org.greenrobot.eventbusperf.MyEventBusIndex']
+            }
+        }
+    }
 }
