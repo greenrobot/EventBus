@@ -64,7 +64,7 @@ Add EventBus to your project
 
 Via Gradle:
 ```gradle
-compile 'org.greenrobot:eventbus:3.1.0-RC'
+compile 'org.greenrobot:eventbus:3.1.1'
 ```
 
 Via Maven:
@@ -72,7 +72,7 @@ Via Maven:
 <dependency>
     <groupId>org.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>3.1.0-RC</version>
+    <version>3.1.1</version>
 </dependency>
 ```
 
