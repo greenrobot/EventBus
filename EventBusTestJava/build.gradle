@@ -30,10 +30,10 @@ sourceSets {
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    compile(project(':EventBus')) {
+    compile(project(':eventbus')) {
         exclude group: "com.google.android" // Does not seem to work...
     }
-    apt project(':EventBusAnnotationProcessor')
+    apt project(':eventbus-annotation-processor')
     compile 'junit:junit:4.12'
 }
 

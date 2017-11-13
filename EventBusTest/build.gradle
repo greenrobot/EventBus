@@ -16,9 +16,9 @@ repositories {
 }
 
 dependencies {
-    androidTestCompile project(':EventBus')
+    androidTestCompile project(':eventbus')
     androidTestCompile project(':EventBusTestJava')
-    androidTestAnnotationProcessor project(':EventBusAnnotationProcessor')
+    androidTestAnnotationProcessor project(':eventbus-annotation-processor')
     compile fileTree(dir: 'libs', include: '*.jar')
     androidTestCompile 'com.android.support.test:runner:1.0.1'
     androidTestCompile 'com.android.support.test:rules:1.0.1'

@@ -13,8 +13,8 @@ configurations {
 }
 
 dependencies {
-    compile project(':EventBus')
-    provided project(':EventBusAnnotationProcessor')
+    compile project(':eventbus')
+    provided project(':eventbus-annotation-processor')
 }
 
 sourceSets {

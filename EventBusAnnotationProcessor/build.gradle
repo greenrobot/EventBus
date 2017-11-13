@@ -28,7 +28,7 @@ configurations {
 }
 
 dependencies {
-    compile project(':EventBus')
+    compile project(':eventbus')
     compile 'de.greenrobot:java-common:2.3.1'
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
@@ -79,7 +79,11 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            if (project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
+            if (project.hasProperty('preferedRepo')) println "preferedRepo = $preferedRepo"
+            if (project.hasProperty('preferedRepo') && preferedRepo == 'local') {
+                println "Deploying to local repo (aka install)..."
+                repository url: repositories.mavenLocal().url
+            } else if (project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
                     && project.hasProperty('preferedPassword')) {
                 configuration = configurations.deployerJars
                 repository(url: preferedRepo) {

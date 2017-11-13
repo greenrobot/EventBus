@@ -87,7 +87,11 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            if(project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername') 
+            if (project.hasProperty('preferedRepo')) println "preferedRepo = $preferedRepo"
+            if (project.hasProperty('preferedRepo') && preferedRepo == 'local') {
+                println "Deploying to local repo (aka install)..."
+                repository url: repositories.mavenLocal().url
+            } else if(project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
                 && project.hasProperty('preferedPassword')) {
                 configuration = configurations.deployerJars
                 repository(url: preferedRepo) {

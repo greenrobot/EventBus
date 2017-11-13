@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    compile project(':EventBus')
-    annotationProcessor project(':EventBusAnnotationProcessor')
+    compile project(':eventbus')
+    annotationProcessor project(':eventbus-annotation-processor')
     compile 'com.squareup:otto:1.3.8'
 }
 
