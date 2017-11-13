@@ -15,6 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
+import android.arch.lifecycle.LifecycleOwner;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,6 +127,16 @@ public class EventBus {
         throwSubscriberException = builder.throwSubscriberException;
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
+    }
+
+    /**
+     * Adds an observer to the given {@link LifecycleOwner}s lifecycle to register EventBus when
+     * started and unregister when stopped.
+     * <p>
+     * Requires dependency on Android Architecture Components Lifecycle package.
+     */
+    public void observe(LifecycleOwner lifecycleOwner) {
+        lifecycleOwner.getLifecycle().addObserver(new EventBusLifecycleObserver(lifecycleOwner, this));
     }
 
     /**

@@ -1,7 +1,18 @@
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath "net.ltgt.gradle:gradle-apt-plugin:0.13"
+    }
+}
+
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
+apply plugin: 'net.ltgt.apt-idea'
 
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
@@ -18,6 +29,7 @@ if(isSnapshot) {
 
 repositories {
     mavenCentral()
+    google()
 }
 
 // Still unsupported, see http://issues.gradle.org/browse/GRADLE-784
@@ -32,6 +44,8 @@ dependencies {
     provided 'com.google.android:android-test:4.1.1.4'
     provided 'com.google.android:annotations:4.1.1.4'
     provided 'com.google.android:support-v4:r7'
+    provided "android.arch.lifecycle:runtime:1.0.3"
+    apt "android.arch.lifecycle:compiler:1.0.0"
     // deployerJars 'org.apache.maven.wagon:wagon-webdav-jackrabbit:2.4'
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
