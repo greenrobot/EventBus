@@ -21,6 +21,7 @@
     <string-array name="spinnerThreadModes">
         <item>POSTING</item>
         <item>MAIN</item>
+        <item>MAIN_ORDERED</item>
         <item>BACKGROUND</item>
         <item>ASYNC</item>
     </string-array>
