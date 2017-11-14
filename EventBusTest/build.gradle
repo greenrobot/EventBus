@@ -19,14 +19,16 @@ dependencies {
     androidTestCompile project(':eventbus')
     androidTestCompile project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':eventbus-annotation-processor')
+    // Trying to repro bug:
+//    androidTestAnnotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.0'
     compile fileTree(dir: 'libs', include: '*.jar')
     androidTestCompile 'com.android.support.test:runner:1.0.1'
     androidTestCompile 'com.android.support.test:rules:1.0.1'
 }
 
 android {
-    buildToolsVersion '25.0.3' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 25
+    buildToolsVersion '26.0.3' // When updating, don't forget to adjust .travis.yml
+    compileSdkVersion 26
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
@@ -45,7 +47,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
