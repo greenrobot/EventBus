@@ -6,12 +6,12 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 
-public class EventBusLifecycleObserver implements LifecycleObserver {
+public class EventBusStartStopObserver implements LifecycleObserver {
 
     private final LifecycleOwner lifecycleOwner;
     private final EventBus eventBus;
 
-    public EventBusLifecycleObserver(LifecycleOwner lifecycleOwner, EventBus eventBus) {
+    public EventBusStartStopObserver(LifecycleOwner lifecycleOwner, EventBus eventBus) {
         this.lifecycleOwner = lifecycleOwner;
         this.eventBus = eventBus;
     }

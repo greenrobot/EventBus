@@ -130,13 +130,29 @@ public class EventBus {
     }
 
     /**
-     * Adds an observer to the given {@link LifecycleOwner}s lifecycle to register EventBus when
-     * started and unregister when stopped.
+     * Adds an observer to the given {@link LifecycleOwner}s lifecycle to automatically register
+     * EventBus during an onCreated event and unregister during an onDestroy event.
      * <p>
      * Requires dependency on Android Architecture Components Lifecycle package.
+     *
+     * @see #register(Object)
+     * @see #unregister(Object)
      */
-    public void observe(LifecycleOwner lifecycleOwner) {
-        lifecycleOwner.getLifecycle().addObserver(new EventBusLifecycleObserver(lifecycleOwner, this));
+    public void observeCreateDestroy(LifecycleOwner lifecycleOwner) {
+        lifecycleOwner.getLifecycle().addObserver(new EventBusCreateDestroyObserver(lifecycleOwner, this));
+    }
+
+    /**
+     * Adds an observer to the given {@link LifecycleOwner}s lifecycle to automatically register
+     * EventBus during an onStart event and unregister during an onStop event.
+     * <p>
+     * Requires dependency on Android Architecture Components Lifecycle package.
+     *
+     * @see #register(Object)
+     * @see #unregister(Object)
+     */
+    public void observeStartStop(LifecycleOwner lifecycleOwner) {
+        lifecycleOwner.getLifecycle().addObserver(new EventBusStartStopObserver(lifecycleOwner, this));
     }
 
     /**
