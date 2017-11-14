@@ -4,10 +4,6 @@ group = 'de.greenrobot'
 version = '3.0.0'
 sourceCompatibility = 1.7
 
-repositories {
-    jcenter()
-}
-
 configurations {
     provided
 }

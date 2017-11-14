@@ -10,11 +10,6 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-repositories {
-    jcenter()
-    google()
-}
-
 dependencies {
     androidTestCompile project(':eventbus')
     androidTestCompile project(':EventBusTestJava')

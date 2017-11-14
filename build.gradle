@@ -5,6 +5,14 @@ buildscript {
     }
 }
 
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+        google()
+    }
+}
+
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {

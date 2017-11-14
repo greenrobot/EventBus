@@ -10,10 +10,6 @@ buildscript {
 
 apply plugin: 'com.android.application'
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile project(':eventbus')
     annotationProcessor project(':eventbus-annotation-processor')

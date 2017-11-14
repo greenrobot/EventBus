@@ -14,10 +14,6 @@ apply plugin: 'net.ltgt.apt-idea'
 
 sourceCompatibility = 1.7
 
-repositories {
-    jcenter()
-}
-
 // we have tests in the main source set so they can be shared with the Android test module
 // to make Gradle pick them up, add the dir to the test source set
 sourceSets {
