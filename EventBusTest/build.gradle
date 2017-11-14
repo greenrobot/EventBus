@@ -27,8 +27,8 @@ dependencies {
 }
 
 android {
-    buildToolsVersion '26.0.3' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 26
+    buildToolsVersion _buildToolsVersion
+    compileSdkVersion _compileSdkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7

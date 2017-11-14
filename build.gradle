@@ -1,3 +1,10 @@
+buildscript {
+    ext {
+        _buildToolsVersion = '26.0.2' // When updating, don't forget to adjust .travis.yml
+        _compileSdkVersion = 26
+    }
+}
+
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {

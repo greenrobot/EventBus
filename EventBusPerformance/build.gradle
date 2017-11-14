@@ -21,8 +21,8 @@ dependencies {
 }
 
 android {
-    buildToolsVersion '25.0.3' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 25
+    buildToolsVersion _buildToolsVersion
+    compileSdkVersion _compileSdkVersion
 
     sourceSets {
         main {
