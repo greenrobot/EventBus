@@ -1,9 +1,11 @@
-package org.greenrobot.eventbus;
+package org.greenrobot.eventbus.android.lifecycle;
 
 import android.arch.lifecycle.Lifecycle.Event;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 
 public class EventBusStartStopObserver implements LifecycleObserver {

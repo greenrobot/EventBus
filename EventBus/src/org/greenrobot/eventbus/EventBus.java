@@ -140,7 +140,7 @@ public class EventBus {
      * @see #unregister(Object)
      */
     public void observeCreateDestroy(LifecycleOwner lifecycleOwner) {
-        createAndAddObserver(lifecycleOwner, "org.greenrobot.eventbus.EventBusCreateDestroyObserver");
+        createAndAddObserver(lifecycleOwner, "org.greenrobot.eventbus.android.lifecycle.EventBusCreateDestroyObserver");
     }
 
     /**
@@ -153,7 +153,7 @@ public class EventBus {
      * @see #unregister(Object)
      */
     public void observeStartStop(LifecycleOwner lifecycleOwner) {
-        createAndAddObserver(lifecycleOwner, "org.greenrobot.eventbus.EventBusStartStopObserver");
+        createAndAddObserver(lifecycleOwner, "org.greenrobot.eventbus.android.lifecycle.EventBusStartStopObserver");
     }
 
     private void createAndAddObserver(LifecycleOwner lifecycleOwner, String className) {
