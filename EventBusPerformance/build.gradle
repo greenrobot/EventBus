@@ -1,19 +1,19 @@
 buildscript {
     repositories {
-        google()
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':eventbus')
+    compile project(':eventbus')
     annotationProcessor project(':eventbus-annotation-processor')
-    implementation 'com.squareup:otto:1.3.8'
+    compile 'com.squareup:otto:1.3.8'
 }
 
 android {

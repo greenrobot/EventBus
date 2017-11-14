@@ -1,22 +1,24 @@
 buildscript {
     repositories {
-        google()
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 
 apply plugin: 'com.android.application'
 
 dependencies {
-    androidTestImplementation project(':eventbus')
-    androidTestImplementation project(':EventBusTestJava')
+    androidTestCompile project(':eventbus')
+    androidTestCompile project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':eventbus-annotation-processor')
-    implementation fileTree(dir: 'libs', include: '*.jar')
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    // Trying to repro bug:
+//    androidTestAnnotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.0'
+    compile fileTree(dir: 'libs', include: '*.jar')
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
+    androidTestCompile 'com.android.support.test:rules:1.0.1'
 }
 
 android {
