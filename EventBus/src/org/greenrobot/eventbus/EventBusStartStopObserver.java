@@ -17,12 +17,12 @@ public class EventBusStartStopObserver implements LifecycleObserver {
     }
 
     @OnLifecycleEvent(Event.ON_START)
-    void start() {
+    void register() {
         eventBus.register(lifecycleOwner);
     }
 
     @OnLifecycleEvent(Event.ON_STOP)
-    void stop() {
+    void unregister() {
         eventBus.unregister(lifecycleOwner);
     }
 
