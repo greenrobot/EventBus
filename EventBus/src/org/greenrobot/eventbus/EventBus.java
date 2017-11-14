@@ -15,6 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 
 import java.lang.reflect.InvocationTargetException;
@@ -139,7 +140,7 @@ public class EventBus {
      * @see #unregister(Object)
      */
     public void observeCreateDestroy(LifecycleOwner lifecycleOwner) {
-        lifecycleOwner.getLifecycle().addObserver(new EventBusCreateDestroyObserver(lifecycleOwner, this));
+        createAndAddObserver(lifecycleOwner, "org.greenrobot.eventbus.EventBusCreateDestroyObserver");
     }
 
     /**
@@ -152,7 +153,20 @@ public class EventBus {
      * @see #unregister(Object)
      */
     public void observeStartStop(LifecycleOwner lifecycleOwner) {
-        lifecycleOwner.getLifecycle().addObserver(new EventBusStartStopObserver(lifecycleOwner, this));
+        createAndAddObserver(lifecycleOwner, "org.greenrobot.eventbus.EventBusStartStopObserver");
+    }
+
+    private void createAndAddObserver(LifecycleOwner lifecycleOwner, String className) {
+        try {
+            Class<?> observer = Class.forName(className);
+            LifecycleObserver instance = (LifecycleObserver) observer
+                    .getDeclaredConstructor(LifecycleOwner.class, EventBus.class)
+                    .newInstance(lifecycleOwner, this);
+            lifecycleOwner.getLifecycle().addObserver(instance);
+        } catch (Exception e) {
+            throw new EventBusException("Failed to create LifecycleObserver. " +
+                    "Do you have a dependency on Android Architecture Components Lifecycles?", e);
+        }
     }
 
     /**
