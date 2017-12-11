@@ -78,14 +78,16 @@ public class EventBus {
 
     /** Convenience singleton for apps using a process-wide EventBus instance. */
     public static EventBus getDefault() {
-        if (defaultInstance == null) {
+        EventBus instance = defaultInstance;
+        if (instance == null) {
             synchronized (EventBus.class) {
-                if (defaultInstance == null) {
-                    defaultInstance = new EventBus();
+                instance = EventBus.defaultInstance;
+                if (instance == null) {
+                    instance = EventBus.defaultInstance = new EventBus();
                 }
             }
         }
-        return defaultInstance;
+        return instance;
     }
 
     public static EventBusBuilder builder() {
