@@ -64,7 +64,24 @@ Add EventBus to your project
 
 Via Gradle:
 ```gradle
-compile 'org.greenrobot:eventbus:3.1.1'
+implementation 'org.greenrobot:eventbus:3.1.1'
+annotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.1'
+```
+If you want to use EventBus within Kotlin code, you need to use kapt  instead of annotationProcessor :
+
+```gradle
+apply plugin: 'kotlin-kapt' // ensure kapt plugin is applied
+
+dependencies {
+    compile 'org.greenrobot:eventbus:3.1.1'
+    kapt 'org.greenrobot:eventbus-annotation-processor:3.1.1'
+}
+
+kapt {
+    arguments {
+        arg('eventBusIndex', 'com.example.myapp.MyEventBusIndex')
+    }
+}
 ```
 
 Via Maven:
