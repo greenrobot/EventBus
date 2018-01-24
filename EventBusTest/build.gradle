@@ -4,31 +4,26 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-
-sourceCompatibility = 1.7
-
-repositories {
-    jcenter()
-}
 
 dependencies {
-    androidTestApt project(':EventBusAnnotationProcessor')
-    androidTestCompile project(':EventBus')
+    androidTestCompile project(':eventbus')
+    androidTestCompile project(':EventBusTestJava')
+    androidTestAnnotationProcessor project(':eventbus-annotation-processor')
+    // Trying to repro bug:
+//    androidTestAnnotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.0'
     compile fileTree(dir: 'libs', include: '*.jar')
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
-    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
+    androidTestCompile 'com.android.support.test:rules:1.0.1'
 }
 
 android {
-    buildToolsVersion '23.0.2' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 19
+    buildToolsVersion _buildToolsVersion
+    compileSdkVersion _compileSdkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
@@ -46,14 +41,26 @@ android {
     }
 
     defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+
         testApplicationId "de.greenrobot.event.test"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [ eventBusIndex : 'org.greenrobot.eventbus.EventBusTestsIndex' ]
+            }
+        }
+    }
+
+    lintOptions {
+        // To see problems right away, also nice for Travis CI
+        textOutput 'stdout'
+
+        // TODO FIXME: Travis only error
+        abortOnError false
     }
 }
-
-apt {
-    arguments {
-        eventBusIndex "org.greenrobot.eventbus.EventBusTestsIndex"
-    }
-}
-

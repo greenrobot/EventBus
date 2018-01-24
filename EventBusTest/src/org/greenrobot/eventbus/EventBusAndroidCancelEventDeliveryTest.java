@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.greenrobot.eventbus.EventBus;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import org.greenrobot.eventbus.SubscriberInJar;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.UiThreadTest;
 
-public class EventBusSubscriberInJarTest extends TestCase {
-    protected EventBus eventBus = EventBus.builder().build();
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+@RunWith(AndroidJUnit4.class)
+public class EventBusAndroidCancelEventDeliveryTest extends EventBusCancelEventDeliveryTest {
+
+    @UiThreadTest
     @Test
-    public void testSubscriberInJar() {
-        SubscriberInJar subscriber = new SubscriberInJar();
+    public void testCancelInMainThread() {
+        SubscriberMainThread subscriber = new SubscriberMainThread();
         eventBus.register(subscriber);
-        eventBus.post("Hi Jar");
-        eventBus.post(42);
-        Assert.assertEquals(1, subscriber.getCollectedStrings().size());
-        Assert.assertEquals("Hi Jar", subscriber.getCollectedStrings().get(0));
+        eventBus.post("42");
+        awaitLatch(subscriber.done, 10);
+        assertEquals(0, eventCount.intValue());
+        assertNotNull(failed);
     }
+
 }

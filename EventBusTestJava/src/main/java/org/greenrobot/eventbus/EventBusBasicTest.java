@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ * Copyright (C) 2012-2017 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,35 +15,28 @@
  */
 package org.greenrobot.eventbus;
 
-import android.app.Activity;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.rule.UiThreadTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
-
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-@RunWith(AndroidJUnit4.class)
-public class EventBusBasicTest {
+@SuppressWarnings({"WeakerAccess", "UnusedParameters", "unused"})
+public class EventBusBasicTest extends AbstractEventBusTest {
 
     public static class WithIndex extends EventBusBasicTest {
         @Test
-        public void dummy() {}
+        public void dummy() {
+        }
 
     }
 
-    @Rule
-    public final UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
-
-    protected EventBus eventBus;
     private String lastStringEvent;
     private int countStringEvent;
     private int countIntEvent;
@@ -52,26 +45,20 @@ public class EventBusBasicTest {
     private int countMyEvent;
     private int countMyEvent2;
 
-    @Before
-    public void setUp() throws Exception {
-        eventBus = new EventBus();
-    }
-
     @Test
-    @UiThreadTest
     public void testRegisterAndPost() {
         // Use an activity to test real life performance
-        TestActivity testActivity = new TestActivity();
+        StringEventSubscriber stringEventSubscriber = new StringEventSubscriber();
         String event = "Hello";
 
         long start = System.currentTimeMillis();
-        eventBus.register(testActivity);
+        eventBus.register(stringEventSubscriber);
         long time = System.currentTimeMillis() - start;
-        Log.d(EventBus.TAG, "Registered in " + time + "ms");
+        log("Registered in " + time + "ms");
 
         eventBus.post(event);
 
-        assertEquals(event, testActivity.lastStringEvent);
+        assertEquals(event, stringEventSubscriber.lastStringEvent);
     }
 
     @Test
@@ -90,12 +77,13 @@ public class EventBusBasicTest {
     public void testUnregisterNotLeaking() {
         int heapMBytes = (int) (Runtime.getRuntime().maxMemory() / (1024L * 1024L));
         for (int i = 0; i < heapMBytes * 2; i++) {
+            @SuppressWarnings("unused")
             EventBusBasicTest subscriber = new EventBusBasicTest() {
                 byte[] expensiveObject = new byte[1024 * 1024];
             };
             eventBus.register(subscriber);
             eventBus.unregister(subscriber);
-            Log.d("Test", "Iteration " + i + " / max heap: " + heapMBytes);
+            log("Iteration " + i + " / max heap: " + heapMBytes);
         }
     }
 
@@ -142,7 +130,7 @@ public class EventBusBasicTest {
         }
         // Debug.stopMethodTracing();
         long time = System.currentTimeMillis() - start;
-        Log.d(EventBus.TAG, "Posted " + count + " events in " + time + "ms");
+        log("Posted " + count + " events in " + time + "ms");
         assertEquals(count, countMyEvent);
     }
 
@@ -268,7 +256,7 @@ public class EventBusBasicTest {
         countMyEventExtended++;
     }
 
-    public static class TestActivity extends Activity {
+    public static class StringEventSubscriber {
         public String lastStringEvent;
 
         @Subscribe

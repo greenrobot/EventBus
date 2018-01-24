@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package org.greenrobot.eventbus.indexed;
+package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.EventBusJavaTestsIndex;
-import org.greenrobot.eventbus.EventBusTestsIndex;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Indexed {
-    static EventBus build() {
-        return EventBus.builder()
-                .addIndex(new EventBusTestsIndex())
-                .addIndex(new EventBusJavaTestsIndex())
-                .build();
+public class EventBusSubscriberInJarTest {
+    protected EventBus eventBus = EventBus.builder().build();
+
+    @Test
+    public void testSubscriberInJar() {
+        SubscriberInJar subscriber = new SubscriberInJar();
+        eventBus.register(subscriber);
+        eventBus.post("Hi Jar");
+        eventBus.post(42);
+        Assert.assertEquals(1, subscriber.getCollectedStrings().size());
+        Assert.assertEquals("Hi Jar", subscriber.getCollectedStrings().get(0));
     }
 }

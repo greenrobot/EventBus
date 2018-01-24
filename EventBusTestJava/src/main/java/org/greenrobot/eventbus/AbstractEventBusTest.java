@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ * Copyright (C) 2012-2017 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,23 @@
  */
 package org.greenrobot.eventbus;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.support.test.runner.AndroidJUnit4;
-
-import org.greenrobot.eventbus.EventBus;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-@RunWith(AndroidJUnit4.class)
 public abstract class AbstractEventBusTest {
     /** Activates long(er) running tests e.g. testing multi-threading more thoroughly.  */
     protected static final boolean LONG_TESTS = false;
@@ -48,8 +43,6 @@ public abstract class AbstractEventBusTest {
 
     protected volatile Object lastEvent;
     protected volatile Thread lastThread;
-
-    private EventPostHandler mainPoster;
 
     public AbstractEventBusTest() {
         this(false);
@@ -67,12 +60,6 @@ public abstract class AbstractEventBusTest {
     public void setUpBase() throws Exception {
         EventBus.clearCaches();
         eventBus = new EventBus();
-        mainPoster = new EventPostHandler(Looper.getMainLooper());
-        assertFalse(Looper.getMainLooper().getThread().equals(Thread.currentThread()));
-    }
-
-    protected void postInMainThread(Object event) {
-        mainPoster.post(event);
     }
 
     protected void waitForEventCount(int expectedCount, int maxMillis) {
@@ -104,23 +91,6 @@ public abstract class AbstractEventBusTest {
         eventCount.incrementAndGet();
     }
 
-    @SuppressLint("HandlerLeak")
-    class EventPostHandler extends Handler {
-        public EventPostHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            eventBus.post(msg.obj);
-        }
-
-        void post(Object event) {
-            sendMessage(obtainMessage(0, event));
-        }
-
-    }
-    
     protected void assertEventCount(int expectedEventCount) {
         assertEquals(expectedEventCount, eventCount.intValue());
     }
@@ -136,6 +106,14 @@ public abstract class AbstractEventBusTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void log(String msg) {
+        eventBus.getLogger().log(Level.FINE, msg);
+    }
+
+    protected void log(String msg, Throwable e) {
+        eventBus.getLogger().log(Level.FINE, msg, e);
     }
 
 }

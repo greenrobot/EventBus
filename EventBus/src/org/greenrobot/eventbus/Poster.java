@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.greenrobot.eventbus;
 
-package org.greenrobot.eventbus.indexed;
+/**
+ * Posts events.
+ *
+ * @author William Ferguson
+ */
+interface Poster {
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.EventBusJavaTestsIndex;
-import org.greenrobot.eventbus.EventBusTestsIndex;
-
-public class Indexed {
-    static EventBus build() {
-        return EventBus.builder()
-                .addIndex(new EventBusTestsIndex())
-                .addIndex(new EventBusJavaTestsIndex())
-                .build();
-    }
+    /**
+     * Enqueue an event to be posted for a particular subscription.
+     *
+     * @param subscription Subscription which will receive the event.
+     * @param event        Event that will be posted to subscribers.
+     */
+    void enqueue(Subscription subscription, Object event);
 }

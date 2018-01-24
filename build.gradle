@@ -1,3 +1,18 @@
+buildscript {
+    ext {
+        _buildToolsVersion = '26.0.3' // When updating, don't forget to adjust .travis.yml
+        _compileSdkVersion = 26
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+        google()
+    }
+}
+
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {
@@ -7,5 +22,6 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+    gradleVersion = '4.1'
+    distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }

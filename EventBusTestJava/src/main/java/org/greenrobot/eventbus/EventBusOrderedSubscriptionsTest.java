@@ -15,8 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.util.Log;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -137,7 +135,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
             }
             lastPrio = prio;
 
-            Log.d(EventBus.TAG, "Subscriber " + prio + " got: " + event);
+            log("Subscriber " + prio + " got: " + event);
             trackEvent(event);
         }
 
@@ -206,7 +204,7 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
             }
             lastPrio = prio;
 
-            Log.d(EventBus.TAG, "Subscriber " + prio + " got: " + event);
+            log("Subscriber " + prio + " got: " + event);
             trackEvent(event);
         }
 

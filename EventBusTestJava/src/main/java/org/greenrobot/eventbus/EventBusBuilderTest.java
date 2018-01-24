@@ -15,6 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -61,7 +62,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
         try {
             // Either this should throw when another unit test got the default event bus...
             eventBus = builder.installDefaultEventBus();
-            assertEquals(eventBus, EventBus.getDefault());
+            Assert.assertEquals(eventBus, EventBus.getDefault());
 
             // ...or this should throw
             eventBus = builder.installDefaultEventBus();

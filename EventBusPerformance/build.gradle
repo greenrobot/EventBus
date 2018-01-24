@@ -4,33 +4,21 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-
-repositories {
-    jcenter()
-}
 
 dependencies {
-    compile project(':EventBus')
-    apt project(':EventBusAnnotationProcessor')
+    compile project(':eventbus')
+    annotationProcessor project(':eventbus-annotation-processor')
     compile 'com.squareup:otto:1.3.8'
 }
 
-apt {
-    arguments {
-        eventBusIndex "org.greenrobot.eventbusperf.MyEventBusIndex"
-    }
-}
-
 android {
-    buildToolsVersion '23.0.2' // When updating, don't forget to adjust .travis.yml
-    compileSdkVersion 19
+    buildToolsVersion _buildToolsVersion
+    compileSdkVersion _compileSdkVersion
 
     sourceSets {
         main {
@@ -40,4 +28,11 @@ android {
         }
     }
 
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [eventBusIndex: 'org.greenrobot.eventbusperf.MyEventBusIndex']
+            }
+        }
+    }
 }

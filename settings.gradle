@@ -1,5 +1,9 @@
-include 'EventBus'
-include 'EventBusAnnotationProcessor'
-include 'EventBusTest'
-include 'EventBusTestSubscriberInJar'
-include 'EventBusPerformance'
+include ':EventBus'
+include ':EventBusAnnotationProcessor'
+include ':EventBusTestJava'
+include ':EventBusTest'
+include ':EventBusTestSubscriberInJar'
+include ':EventBusPerformance'
+
+project(":EventBus").name = "eventbus"
+project(":EventBusAnnotationProcessor").name = "eventbus-annotation-processor"

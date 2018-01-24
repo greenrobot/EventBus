@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 archivesBaseName = 'eventbus-annotation-processor'
 group = 'org.greenrobot'
-version = '3.0.1'
+version = '3.1.0'
 
 sourceCompatibility = 1.7
 
@@ -16,10 +16,6 @@ if (isSnapshot) {
     sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 }
 
-repositories {
-    mavenCentral()
-}
-
 // Still unsupported, see http://issues.gradle.org/browse/GRADLE-784
 // Like this, it won't appear at all in the POM
 configurations {
@@ -28,7 +24,7 @@ configurations {
 }
 
 dependencies {
-    compile project(':EventBus')
+    compile project(':eventbus')
     compile 'de.greenrobot:java-common:2.3.1'
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
@@ -79,7 +75,11 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            if (project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
+            if (project.hasProperty('preferedRepo')) println "preferedRepo = $preferedRepo"
+            if (project.hasProperty('preferedRepo') && preferedRepo == 'local') {
+                println "Deploying to local repo (aka install)..."
+                repository url: repositories.mavenLocal().url
+            } else if (project.hasProperty('preferedRepo') && project.hasProperty('preferedUsername')
                     && project.hasProperty('preferedPassword')) {
                 configuration = configurations.deployerJars
                 repository(url: preferedRepo) {

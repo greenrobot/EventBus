@@ -4,17 +4,13 @@ group = 'de.greenrobot'
 version = '3.0.0'
 sourceCompatibility = 1.7
 
-repositories {
-    jcenter()
-}
-
 configurations {
     provided
 }
 
 dependencies {
-    compile project(':EventBus')
-    provided project(':EventBusAnnotationProcessor')
+    compile project(':eventbus')
+    provided project(':eventbus-annotation-processor')
 }
 
 sourceSets {

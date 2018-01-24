@@ -50,7 +50,7 @@ public class TestSetupActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setuptests);
 
-        Spinner spinnerRun = (Spinner) findViewById(R.id.spinnerTestToRun);
+        Spinner spinnerRun = findViewById(R.id.spinnerTestToRun);
         spinnerRun.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             public void onItemSelected(AdapterView<?> adapter, View v, int pos, long lng) {
@@ -65,15 +65,15 @@ public class TestSetupActivity extends Activity {
     }
 
     public void checkEventBus(View v) {
-        Spinner spinnerThread = (Spinner) findViewById(R.id.spinnerThread);
-        CheckBox checkBoxEventBus = (CheckBox) findViewById(R.id.checkBoxEventBus);
+        Spinner spinnerThread = findViewById(R.id.spinnerThread);
+        CheckBox checkBoxEventBus = findViewById(R.id.checkBoxEventBus);
         int visibility = checkBoxEventBus.isChecked() ? View.VISIBLE : View.GONE;
         spinnerThread.setVisibility(visibility);
     }
 
     public void startClick(View v) {
         TestParams params = new TestParams();
-        Spinner spinnerThread = (Spinner) findViewById(R.id.spinnerThread);
+        Spinner spinnerThread = findViewById(R.id.spinnerThread);
         String threadModeStr = spinnerThread.getSelectedItem().toString();
         ThreadMode threadMode = ThreadMode.valueOf(threadModeStr);
         params.setThreadMode(threadMode);
@@ -81,13 +81,13 @@ public class TestSetupActivity extends Activity {
         params.setEventInheritance(((CheckBox) findViewById(R.id.checkBoxEventBusEventHierarchy)).isChecked());
         params.setIgnoreGeneratedIndex(((CheckBox) findViewById(R.id.checkBoxEventBusIgnoreGeneratedIndex)).isChecked());
 
-        EditText editTextEvent = (EditText) findViewById(R.id.editTextEvent);
+        EditText editTextEvent = findViewById(R.id.editTextEvent);
         params.setEventCount(Integer.parseInt(editTextEvent.getText().toString()));
 
-        EditText editTextSubscriber = (EditText) findViewById(R.id.editTextSubscribe);
+        EditText editTextSubscriber = findViewById(R.id.editTextSubscribe);
         params.setSubscriberCount(Integer.parseInt(editTextSubscriber.getText().toString()));
 
-        Spinner spinnerTestToRun = (Spinner) findViewById(R.id.spinnerTestToRun);
+        Spinner spinnerTestToRun = findViewById(R.id.spinnerTestToRun);
         int testPos = spinnerTestToRun.getSelectedItemPosition();
         params.setTestNumber(testPos + 1);
         ArrayList<Class<? extends Test>> testClasses = initTestClasses(testPos);
@@ -103,10 +103,10 @@ public class TestSetupActivity extends Activity {
     private ArrayList<Class<? extends Test>> initTestClasses(int testPos) {
         ArrayList<Class<? extends Test>> testClasses = new ArrayList<Class<? extends Test>>();
         // the attributes are putted in the intent (eventbus, otto, broadcast, local broadcast)
-        final CheckBox checkBoxEventBus = (CheckBox) findViewById(R.id.checkBoxEventBus);
-        final CheckBox checkBoxOtto = (CheckBox) findViewById(R.id.checkBoxOtto);
-        final CheckBox checkBoxBroadcast = (CheckBox) findViewById(R.id.checkBoxBroadcast);
-        final CheckBox checkBoxLocalBroadcast = (CheckBox) findViewById(R.id.checkBoxLocalBroadcast);
+        final CheckBox checkBoxEventBus = findViewById(R.id.checkBoxEventBus);
+        final CheckBox checkBoxOtto = findViewById(R.id.checkBoxOtto);
+        final CheckBox checkBoxBroadcast = findViewById(R.id.checkBoxBroadcast);
+        final CheckBox checkBoxLocalBroadcast = findViewById(R.id.checkBoxLocalBroadcast);
         if (checkBoxEventBus.isChecked()) {
             testClasses.add(TEST_CLASSES_EVENTBUS[testPos]);
         }

@@ -21,7 +21,7 @@ package org.greenrobot.eventbus;
  * 
  * @author Markus
  */
-class AsyncPoster implements Runnable {
+class AsyncPoster implements Runnable, Poster {
 
     private final PendingPostQueue queue;
     private final EventBus eventBus;

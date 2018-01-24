@@ -15,14 +15,15 @@
  */
 package org.greenrobot.eventbus;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Markus Junginger, greenrobot
  */
-public class EventBusInheritanceTest extends TestCase {
+public class EventBusInheritanceTest {
 
     protected EventBus eventBus;
 
@@ -32,8 +33,8 @@ public class EventBusInheritanceTest extends TestCase {
     private int countMyEventInterface;
     private int countMyEventInterfaceExtended;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         eventBus = new EventBus();
     }
 
@@ -89,7 +90,7 @@ public class EventBusInheritanceTest extends TestCase {
 
     @Test
     public void testSubscriberClassHierarchy() {
-        SubscriberExtended subscriber = new SubscriberExtended();
+        EventBusInheritanceSubclassTest subscriber = new EventBusInheritanceSubclassTest();
         eventBus.register(subscriber);
 
         eventBus.post("Hello");
@@ -109,7 +110,8 @@ public class EventBusInheritanceTest extends TestCase {
 
     @Test
     public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
-        SubscriberExtendedWithoutNewSubscriberMethod subscriber = new SubscriberExtendedWithoutNewSubscriberMethod();
+        EventBusInheritanceSubclassNoMethodTest
+                subscriber = new EventBusInheritanceSubclassNoMethodTest();
         eventBus.register(subscriber);
 
         eventBus.post("Hello");
@@ -160,18 +162,6 @@ public class EventBusInheritanceTest extends TestCase {
     }
 
     public static class MyEventExtended extends MyEvent implements MyEventInterfaceExtended {
-    }
-
-    public static class SubscriberExtended extends EventBusInheritanceTest {
-        private int countMyEventOverwritten;
-
-        @Subscribe
-        public void onEvent(MyEvent event) {
-            countMyEventOverwritten++;
-        }
-    }
-
-    static class SubscriberExtendedWithoutNewSubscriberMethod extends EventBusInheritanceTest {
     }
 
     public class StickySubscriber {

@@ -15,20 +15,17 @@
  */
 package org.greenrobot.eventbus;
 
-import android.test.UiThreadTest;
-
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
-/**
- * @author Markus Junginger, greenrobot
- */
 public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
 
-    private Throwable failed;
+    Throwable failed;
 
     @Test
     public void testCancel() {
@@ -67,17 +64,6 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     public void testCancelWrongEvent() {
         eventBus.register(new SubscriberCancelOtherEvent());
         eventBus.post("42");
-        assertEquals(0, eventCount.intValue());
-        assertNotNull(failed);
-    }
-
-    @UiThreadTest
-    @Test
-    public void testCancelInMainThread() {
-        SubscriberMainThread subscriber = new SubscriberMainThread();
-        eventBus.register(subscriber);
-        eventBus.post("42");
-        awaitLatch(subscriber.done, 10);
         assertEquals(0, eventCount.intValue());
         assertNotNull(failed);
     }
