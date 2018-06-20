@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -111,7 +112,7 @@ public class EventBus {
     EventBus(EventBusBuilder builder) {
         logger = builder.getLogger();
         subscriptionsByEventType = new HashMap<>();
-        typesBySubscriber = new HashMap<>();
+        typesBySubscriber = new WeakHashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
         mainThreadSupport = builder.getMainThreadSupport();
         mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
