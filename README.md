@@ -60,11 +60,11 @@ Read the full [getting started guide](http://greenrobot.org/eventbus/documentati
 
 Add EventBus to your project
 ----------------------------
-<a href="https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.greenrobot%22%20AND%20a%3A%22eventbus%22"><img src="https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg"></a>
+<a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus"><img src="https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg"></a>
 
 Via Gradle:
 ```gradle
-compile 'org.greenrobot:eventbus:3.1.1'
+implementation 'org.greenrobot:eventbus:3.1.1'
 ```
 
 Via Maven:
