@@ -138,7 +138,9 @@ public class EventBus {
      * ThreadMode} and priority.
      */
     public void register(Object subscriber) {
+        //获取了订阅者的class对象
         Class<?> subscriberClass = subscriber.getClass();
+        //找出注册的类中所有订阅的方法
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         synchronized (this) {
             for (SubscriberMethod subscriberMethod : subscriberMethods) {
@@ -151,7 +153,9 @@ public class EventBus {
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
         Class<?> eventType = subscriberMethod.eventType;
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
+
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
+
         if (subscriptions == null) {
             subscriptions = new CopyOnWriteArrayList<>();
             subscriptionsByEventType.put(eventType, subscriptions);
@@ -163,6 +167,7 @@ public class EventBus {
         }
 
         int size = subscriptions.size();
+        //将优先级高的家在前面
         for (int i = 0; i <= size; i++) {
             if (i == size || subscriberMethod.priority > subscriptions.get(i).subscriberMethod.priority) {
                 subscriptions.add(i, newSubscription);
@@ -171,13 +176,16 @@ public class EventBus {
         }
 
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
+
         if (subscribedEvents == null) {
             subscribedEvents = new ArrayList<>();
             typesBySubscriber.put(subscriber, subscribedEvents);
         }
+
         subscribedEvents.add(eventType);
 
         if (subscriberMethod.sticky) {
+            //初始化时默认eventInheritance=true
             if (eventInheritance) {
                 // Existing sticky events of all subclasses of eventType have to be considered.
                 // Note: Iterating over all events may be inefficient with lots of sticky events,
@@ -442,6 +450,7 @@ public class EventBus {
                 if (mainThreadPoster != null) {
                     mainThreadPoster.enqueue(subscription, event);
                 } else {
+                    //如果mainThreadPoster==null即在非主线程中，就会直接调用注册的方法
                     // temporary: technically not correct as poster not decoupled from subscriber
                     invokeSubscriber(subscription, event);
                 }

@@ -53,16 +53,19 @@ class SubscriberMethodFinder {
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
+        //先从缓存池中获取，METHOD_CACHE是一个数组
         List<SubscriberMethod> subscriberMethods = METHOD_CACHE.get(subscriberClass);
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-
+        //默认为false
         if (ignoreGeneratedIndex) {
             subscriberMethods = findUsingReflection(subscriberClass);
         } else {
+            //默认执行这里
             subscriberMethods = findUsingInfo(subscriberClass);
         }
+
         if (subscriberMethods.isEmpty()) {
             throw new EventBusException("Subscriber " + subscriberClass
                     + " and its super classes have no public methods with the @Subscribe annotation");
@@ -73,8 +76,9 @@ class SubscriberMethodFinder {
     }
 
     private List<SubscriberMethod> findUsingInfo(Class<?> subscriberClass) {
-        FindState findState = prepareFindState();
+        FindState findState = prepareFindState();//与subscriberMethods一样，先从缓存获取，没有就创建
         findState.initForSubscriber(subscriberClass);
+
         while (findState.clazz != null) {
             findState.subscriberInfo = getSubscriberInfo(findState);
             if (findState.subscriberInfo != null) {
@@ -87,8 +91,10 @@ class SubscriberMethodFinder {
             } else {
                 findUsingReflectionInSingleClass(findState);
             }
+            //当skipSuperClasses=true或遇到系统相关的类时clazz = null，退出循环;
             findState.moveToSuperclass();
         }
+        //将findState添加至FIND_STATE_POOL，并返回findState。
         return getMethodsAndRelease(findState);
     }
 
@@ -119,6 +125,7 @@ class SubscriberMethodFinder {
         return new FindState();
     }
 
+    //初始化的时候，findState.subscriberInfo和subscriberInfoIndexes为空，所以这里直接返回null
     private SubscriberInfo getSubscriberInfo(FindState findState) {
         if (findState.subscriberInfo != null && findState.subscriberInfo.getSuperSubscriberInfo() != null) {
             SubscriberInfo superclassInfo = findState.subscriberInfo.getSuperSubscriberInfo();
@@ -147,16 +154,18 @@ class SubscriberMethodFinder {
         return getMethodsAndRelease(findState);
     }
 
+    //通过反射或methods，找到有相关注解的方法.
     private void findUsingReflectionInSingleClass(FindState findState) {
         Method[] methods;
         try {
             // This is faster than getMethods, especially when subscribers are fat classes like Activities
-            methods = findState.clazz.getDeclaredMethods();
+            methods = findState.clazz.getDeclaredMethods();//获得所有方法，但不包括继承的方法（执行速度快）
         } catch (Throwable th) {
             // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
-            methods = findState.clazz.getMethods();
+            methods = findState.clazz.getMethods();//获取所有公有方法，包括所有继承的。（继承层次深，速度就慢）
             findState.skipSuperClasses = true;
         }
+
         for (Method method : methods) {
             int modifiers = method.getModifiers();
             if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
@@ -164,9 +173,10 @@ class SubscriberMethodFinder {
                 if (parameterTypes.length == 1) {
                     Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
                     if (subscribeAnnotation != null) {
-                        Class<?> eventType = parameterTypes[0];
+                        Class<?> eventType = parameterTypes[0];//方法注册的Class
                         if (findState.checkAdd(method, eventType)) {
-                            ThreadMode threadMode = subscribeAnnotation.threadMode();
+                            ThreadMode threadMode = subscribeAnnotation.threadMode();//获取线程模式
+                            //构建SubscriberMethod并添加至findState
                             findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
                                     subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
                         }
