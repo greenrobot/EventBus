@@ -90,6 +90,10 @@ public class EventBus {
         return instance;
     }
 
+    public static void setDefault(EventBus instance) {
+        EventBus.defaultInstance = instance;
+    }
+
     public static EventBusBuilder builder() {
         return new EventBusBuilder();
     }
