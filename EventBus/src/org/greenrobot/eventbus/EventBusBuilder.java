@@ -15,11 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
-
 import org.greenrobot.eventbus.android.AndroidLogger;
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
