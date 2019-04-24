@@ -18,6 +18,7 @@ package org.greenrobot.eventbus;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -542,7 +543,7 @@ public class EventBus {
 
     /** For ThreadLocal, much faster to set (and get multiple values). */
     final static class PostingThreadState {
-        final List<Object> eventQueue = new ArrayList<>();
+        final List<Object> eventQueue = new LinkedList<>();
         boolean isPosting;
         boolean isMainThread;
         Subscription subscription;
