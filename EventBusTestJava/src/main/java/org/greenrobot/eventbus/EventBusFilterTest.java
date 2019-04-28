@@ -3,32 +3,34 @@ package org.greenrobot.eventbus;
 import org.junit.Test;
 
 /**
- * Created by t54 on 2019/4/28.
+ * @author miqt
  */
 
 public class EventBusFilterTest extends AbstractEventBusTest {
     @Test
-    public void test() {
+    public void testFilter() {
         eventBus.register(this);
+
         eventBus.post("hello", filter);
         eventBus.post("no filter hello");
 
         eventBus.postSticky("hello Sticky", filter);
         eventBus.postSticky("no filter hello Sticky");
+
         eventBus.unregister(this);
     }
 
     @Subscribe
-    public void goodDay(String hello) {
-        System.out.println(EventBus.TAG + ":goodDay:" + hello);
+    public void goodDay(String str) {
+        System.out.println(EventBus.TAG + ":goodDay:" + str);
     }
 
     @Subscribe
-    public void badDay(String hello) {
-        System.out.println(EventBus.TAG + ":badDay:" + hello);
+    public void badDay(String str) {
+        System.out.println(EventBus.TAG + ":badDay:" + str);
     }
 
-    Filter filter = new Filter() {
+    private Filter filter = new Filter() {
         @Override
         public boolean allow(Subscription subscription) {
             return subscription.getSubscriberMethod().method.getName().equals("goodDay");
