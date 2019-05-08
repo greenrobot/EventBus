@@ -345,7 +345,7 @@ public class EventBus {
      */
     public <T> T removeStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
-            return eventType.cast(stickyEvents.remove(eventType));
+            return eventType.cast(stickyEvents.remove(eventType)[0]);
         }
     }
 
@@ -357,8 +357,8 @@ public class EventBus {
     public boolean removeStickyEvent(Object event) {
         synchronized (stickyEvents) {
             Class<?> eventType = event.getClass();
-            Object existingEvent = stickyEvents.get(eventType);
-            if (event.equals(existingEvent)) {
+            Object[] existingEvent = stickyEvents.get(eventType);
+            if (existingEvent != null && event.equals(existingEvent[0])) {
                 stickyEvents.remove(eventType);
                 return true;
             } else {
