@@ -260,7 +260,7 @@ class SubscriberMethodFinder {
                 clazz = clazz.getSuperclass();
                 String clazzName = clazz.getName();
                 /** Skip system classes, this just degrades performance. */
-                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
+                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.") || clazzName.startsWith("androidx.")) {
                     clazz = null;
                 }
             }
