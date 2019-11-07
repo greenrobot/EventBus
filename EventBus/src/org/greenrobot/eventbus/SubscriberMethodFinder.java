@@ -228,9 +228,9 @@ class SubscriberMethodFinder {
                         // Paranoia check
                         throw new IllegalStateException();
                     }
-                    // Put any non-Method object to "consume" the existing Method
-                    anyMethodByEventType.put(eventType, this);
                 }
+                // Put any non-Method object to "consume" the existing Method
+                anyMethodByEventType.put(eventType, this);
                 return checkAddWithMethodSignature(method, eventType);
             }
         }
