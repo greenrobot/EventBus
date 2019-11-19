@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 17
+        targetSdkVersion 26
         versionCode 1
         versionName "2.0.0"
         javaCompileOptions {
