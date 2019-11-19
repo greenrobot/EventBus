@@ -6,11 +6,10 @@ jdk:
 # http://docs.travis-ci.com/user/languages/android/
 android:
   components:
-    - tools
-    - build-tools-26.0.3
-    - android-10
+    - build-tools-28.0.3
     - android-26
-    - extra-android-m2repository
+  licenses:
+    - 'android-sdk-license-.+'
 
 before_script:
   - chmod +x gradlew
@@ -25,3 +24,12 @@ before_script:
 
 script:
     - TERM=dumb ./gradlew check
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache

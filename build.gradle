@@ -1,7 +1,6 @@
 buildscript {
     ext {
-        _buildToolsVersion = '26.0.3' // When updating, don't forget to adjust .travis.yml
-        _compileSdkVersion = 26
+        _compileSdkVersion = 26 // When updating, don't forget to adjust .travis.yml.
     }
 }
 
@@ -21,7 +20,6 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.1'
+wrapper {
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }

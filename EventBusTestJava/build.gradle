@@ -1,16 +1,4 @@
-buildscript {
-    repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.12"
-    }
-}
-
 apply plugin: 'java'
-// plugin to make it easier/safer to use EventBus annotation processor
-apply plugin: 'net.ltgt.apt-idea'
 
 sourceCompatibility = 1.7
 
@@ -29,7 +17,7 @@ dependencies {
     compile(project(':eventbus')) {
         exclude group: "com.google.android" // Does not seem to work...
     }
-    apt project(':eventbus-annotation-processor')
+    annotationProcessor project(':eventbus-annotation-processor')
     compile 'junit:junit:4.12'
 }
 
