@@ -6,11 +6,10 @@ jdk:
 # http://docs.travis-ci.com/user/languages/android/
 android:
   components:
-    - tools
-    - build-tools-26.0.3
-    - android-10
+    - build-tools-28.0.3
     - android-26
-    - extra-android-m2repository
+  licenses:
+    - 'android-sdk-license-.+'
 
 before_script:
   - chmod +x gradlew
