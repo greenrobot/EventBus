@@ -21,7 +21,6 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.1'
+wrapper {
     distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 }
