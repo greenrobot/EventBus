@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.greenrobot.eventbusperf"
-    android:versionCode="1"
-    android:versionName="2.0.0" >
-
-    <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="17" />
+    package="org.greenrobot.eventbusperf">
 
     <uses-feature
         android:name="android.hardware.touchscreen"
