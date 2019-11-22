@@ -62,10 +62,6 @@ class SubscriberMethodFinder {
             subscriberMethods = findUsingReflection(subscriberClass);
         } else {
             subscriberMethods = findUsingInfo(subscriberClass);
-        }
-        if (subscriberMethods.isEmpty()) {
-            throw new EventBusException("Subscriber " + subscriberClass
-                    + " and its super classes have no public methods with the @Subscribe annotation");
         } else {
             METHOD_CACHE.put(subscriberClass, subscriberMethods);
             return subscriberMethods;
