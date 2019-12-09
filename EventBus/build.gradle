@@ -1,27 +1,19 @@
 apply plugin: 'java'
-apply plugin: 'idea'
 
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
 version = '3.1.1'
 sourceCompatibility = 1.7
 
-// Still unsupported, see http://issues.gradle.org/browse/GRADLE-784
-// Like this, it won't appear at all in the POM
-configurations {
-    provided
-}
-
 dependencies {
-    provided 'com.google.android:android:4.1.1.4'
-    provided 'com.google.android:android-test:4.1.1.4'
-    provided 'com.google.android:annotations:4.1.1.4'
-    provided 'com.google.android:support-v4:r7'
+    compileOnly 'com.google.android:android:4.1.1.4'
+    compileOnly 'com.google.android:android-test:4.1.1.4'
+    compileOnly 'com.google.android:annotations:4.1.1.4'
+    compileOnly 'com.google.android:support-v4:r7'
 }
 
 sourceSets {
     main {
-        compileClasspath += configurations.provided
         java {
             srcDir 'src'
             // exclude 'de/greenrobot/event/util/**'
@@ -29,17 +21,10 @@ sourceSets {
     }
 }
 
-idea {
-    module {
-        scopes.PROVIDED.plus += [configurations.provided]
-    }
-}
-
 apply from: rootProject.file("gradle/publish.gradle")
 
 javadoc {
     failOnError = false
-    classpath += configurations.provided
     title = "EventBus ${version} API"
 	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2017 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }

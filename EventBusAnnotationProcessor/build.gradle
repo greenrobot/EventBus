@@ -6,20 +6,13 @@ version = '3.1.0'
 
 sourceCompatibility = 1.7
 
-// Still unsupported, see http://issues.gradle.org/browse/GRADLE-784
-// Like this, it won't appear at all in the POM
-configurations {
-    provided
-}
-
 dependencies {
-    compile project(':eventbus')
-    compile 'de.greenrobot:java-common:2.3.1'
+    implementation project(':eventbus')
+    implementation 'de.greenrobot:java-common:2.3.1'
 }
 
 sourceSets {
     main {
-        compileClasspath += configurations.provided
         java {
             srcDir 'src'
         }
@@ -32,7 +25,6 @@ sourceSets {
 apply from: rootProject.file("gradle/publish.gradle")
 
 javadoc {
-    classpath += configurations.provided
     title = "EventBus Annotation Processor ${version} API"
 	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2016 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
