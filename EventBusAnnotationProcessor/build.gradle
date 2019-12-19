@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 archivesBaseName = 'eventbus-annotation-processor'
 group = 'org.greenrobot'
-version = '3.1.0'
+version = _version
 
 sourceCompatibility = 1.7
 
