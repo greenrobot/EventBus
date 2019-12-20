@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.os.Looper;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.runner.AndroidJUnit4;
 
 import java.util.ArrayList;
 import java.util.List;

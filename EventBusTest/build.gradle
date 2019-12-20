@@ -18,8 +18,8 @@ dependencies {
     // Trying to repro bug:
 //    androidTestAnnotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.0'
     implementation fileTree(dir: 'libs', include: '*.jar')
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
 }
 
 android {
@@ -47,7 +47,7 @@ android {
         versionName "1.0"
 
         testApplicationId "de.greenrobot.event.test"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {
