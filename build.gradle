@@ -1,6 +1,16 @@
 buildscript {
     ext {
-        _compileSdkVersion = 26 // When updating, don't forget to adjust .travis.yml.
+        _compileSdkVersion = 29 // When updating, don't forget to adjust .travis.yml.
+        _buildToolsVersion = '29.0.2'
+        _version = '4.0.0'
+        _versionCode = 40000
+    }
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.5.2'
     }
 }
 

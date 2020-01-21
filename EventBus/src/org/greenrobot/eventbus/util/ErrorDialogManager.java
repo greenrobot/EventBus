@@ -21,10 +21,10 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import android.util.Log;
 
 import org.greenrobot.eventbus.EventBus;
@@ -93,7 +93,7 @@ public class ErrorDialogManager {
                 existingFragment.dismiss();
             }
 
-            android.support.v4.app.DialogFragment errorFragment = (android.support.v4.app.DialogFragment) factory
+            androidx.fragment.app.DialogFragment errorFragment = (androidx.fragment.app.DialogFragment) factory
                     .prepareErrorFragment(event, finishAfterDialog, argumentsForErrorDialog);
             if (errorFragment != null) {
                 errorFragment.show(fm, TAG_ERROR_DIALOG);
@@ -220,7 +220,7 @@ public class ErrorDialogManager {
                 throw new RuntimeException("Illegal activity type: " + activity.getClass());
             }
             String name = c.getName();
-            if (name.equals("android.support.v4.app.FragmentActivity")) {
+            if (name.equals("androidx.fragment.app.FragmentActivity")) {
                 isSupport = true;
                 break;
             } else if (name.startsWith("com.actionbarsherlock.app")
@@ -230,7 +230,7 @@ public class ErrorDialogManager {
             } else if (name.equals("android.app.Activity")) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                     throw new RuntimeException(
-                            "Illegal activity without fragment support. Either use Android 3.0+ or android.support.v4.app.FragmentActivity.");
+                            "Illegal activity without fragment support. Either use Android 3.0+ or androidx.fragment.app.FragmentActivity.");
                 }
                 break;
             }

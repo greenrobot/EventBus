@@ -4,7 +4,7 @@ apply plugin: 'signing'
 
 archivesBaseName = 'eventbus-annotation-processor'
 group = 'org.greenrobot'
-version = '3.1.0'
+version = _version
 
 sourceCompatibility = 1.7
 
@@ -24,8 +24,8 @@ configurations {
 }
 
 dependencies {
-    compile project(':eventbus')
-    compile 'de.greenrobot:java-common:2.3.1'
+    implementation project(':eventbus')
+    implementation 'de.greenrobot:java-common:2.3.1'
     deployerJars 'org.apache.maven.wagon:wagon-webdav:1.0-beta-2'
 }
 

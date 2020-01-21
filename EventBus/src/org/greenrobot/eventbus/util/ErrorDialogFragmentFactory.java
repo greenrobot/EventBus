@@ -19,7 +19,7 @@ package org.greenrobot.eventbus.util;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 /**
  * Factory to allow injecting a more complex exception mapping; typically you would subclass one of {@link Honeycomb} or
