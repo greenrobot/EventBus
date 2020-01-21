@@ -78,6 +78,24 @@ Via Maven:
 
 Or download [the latest JAR](https://search.maven.org/remote_content?g=org.greenrobot&a=eventbus&v=LATEST) from Maven Central.
 
+R8, ProGuard
+------------
+
+If your project uses R8 or ProGuard add the following rules:
+
+```bash
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
+ 
+# And if you use AsyncExecutor:
+-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
+```
+
 Homepage, Documentation, Links
 ------------------------------
 For more details please check the [EventBus website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
@@ -85,8 +103,6 @@ For more details please check the [EventBus website](http://greenrobot.org/event
 [Features](http://greenrobot.org/eventbus/features/)
 
 [Documentation](http://greenrobot.org/eventbus/documentation/)
-
-[ProGuard](http://greenrobot.org/eventbus/documentation/proguard)
 
 [Changelog](http://greenrobot.org/eventbus/changelog/)
 
