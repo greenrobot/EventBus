@@ -58,6 +58,8 @@ EventBus in 3 steps
 
 Read the full [getting started guide](http://greenrobot.org/eventbus/documentation/how-to-get-started/).
 
+There are also some [examples](https://github.com/greenrobot-team/greenrobot-examples).
+
 Add EventBus to your project
 ----------------------------
 <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus"><img src="https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg"></a>
