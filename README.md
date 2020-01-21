@@ -62,6 +62,8 @@ Add EventBus to your project
 ----------------------------
 <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus"><img src="https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg"></a>
 
+Available on <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus">Maven Central</a>.
+
 Via Gradle:
 ```gradle
 implementation 'org.greenrobot:eventbus:3.1.1'
@@ -75,8 +77,6 @@ Via Maven:
     <version>3.1.1</version>
 </dependency>
 ```
-
-Or download [the latest JAR](https://search.maven.org/remote_content?g=org.greenrobot&a=eventbus&v=LATEST) from Maven Central.
 
 R8, ProGuard
 ------------
