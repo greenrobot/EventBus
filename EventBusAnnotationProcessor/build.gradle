@@ -9,6 +9,11 @@ sourceCompatibility = 1.7
 dependencies {
     implementation project(':eventbus')
     implementation 'de.greenrobot:java-common:2.3.1'
+
+    // Generates the required META-INF descriptor to make the processor incremental.
+    def incap = '0.2'
+    compileOnly "net.ltgt.gradle.incap:incap:$incap"
+    annotationProcessor "net.ltgt.gradle.incap:incap-processor:$incap"
 }
 
 sourceSets {

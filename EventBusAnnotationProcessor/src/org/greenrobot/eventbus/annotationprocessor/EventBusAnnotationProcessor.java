@@ -15,6 +15,8 @@
  */
 package org.greenrobot.eventbus.annotationprocessor;
 
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor;
+
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -46,8 +48,16 @@ import javax.tools.JavaFileObject;
 
 import de.greenrobot.common.ListMap;
 
+
+import static net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING;
+
+/**
+ * Is an aggregating processor as it writes a single file, the subscriber index file,
+ * based on found elements with the @Subscriber annotation.
+ */
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
 @SupportedOptions(value = {"eventBusIndex", "verbose"})
+@IncrementalAnnotationProcessor(AGGREGATING)
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
     public static final String OPTION_VERBOSE = "verbose";
