@@ -29,10 +29,10 @@ import java.util.logging.Level;
 /**
  * EventBus is a central publish/subscribe event system for Android. Events are posted ({@link #post(Object)}) to the
  * bus, which delivers it to subscribers that have a matching handler method for the event type. To receive events,
- * subscribers must register themselves to the bus using {@link #register(Object)}. Once registered, subscribers
- * receive events until {@link #unregister(Object)} is called. Event handling methods must be annotated by
- * {@link Subscribe}, must be public, return nothing (void), and have exactly one parameter
- * (the event).
+ * subscribers must register themselves to the bus using {@link #register(Object)} or {@link #register(Object, Class<?>)}.
+ * Once registered, subscribers receive events until {@link #unregister(Object)} or {@link #unregister(Object, Class<?>)}
+ * is called. Event handling methods must be annotated by {@link Subscribe}, must be public, return nothing (void),
+ * and have exactly one parameter (the event).
  *
  * @author Markus Junginger, greenrobot
  */
@@ -129,20 +129,31 @@ public class EventBus {
         executorService = builder.executorService;
     }
 
+    /** Registers the given subscriber to receive events.
+     * See more information in {@link #register(Object, Class<?>)}.
+     */
+    public void register(Object subscriber) {
+        register(subscriber, null);
+    }
+
+
     /**
-     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they
-     * are no longer interested in receiving events.
+     * Registers the given subscriber to receive the event specified or all if none specified.
+     * Subscribers must call {@link #unregister(Object, Class<?>)} once they are
+     * no longer interested in receiving events.
      * <p/>
      * Subscribers have event handling methods that must be annotated by {@link Subscribe}.
      * The {@link Subscribe} annotation also allows configuration like {@link
      * ThreadMode} and priority.
      */
-    public void register(Object subscriber) {
+    public void register(Object subscriber, Class<?> eventType) {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         synchronized (this) {
             for (SubscriberMethod subscriberMethod : subscriberMethods) {
-                subscribe(subscriber, subscriberMethod);
+                if (eventType == null || eventType.equals(subscriberMethod.eventType)) {
+                    subscribe(subscriber, subscriberMethod);
+                }
             }
         }
     }
@@ -239,12 +250,29 @@ public class EventBus {
 
     /** Unregisters the given subscriber from all event classes. */
     public synchronized void unregister(Object subscriber) {
-        List<Class<?>> subscribedTypes = typesBySubscriber.get(subscriber);
-        if (subscribedTypes != null) {
-            for (Class<?> eventType : subscribedTypes) {
-                unsubscribeByEventType(subscriber, eventType);
+        unregister(unsubscriber, null);
+    }
+
+    /** Unregisters the given subscriber from the event class specified, or all events if none specified. */
+    public synchronized void unregister(Object subscriber, Class<?> eventType) {
+        List<Class<?>> typesToUnsubscribe = subscribedTypes != null ? new ArrayList<>(subscribedTypes) : null;
+        if (eventType != null) {
+            if (typesToUnsubscribe != null && typesToUnsubscribe.contains(eventType)) {
+                typesToUnsubscribe.clear();
+                typesToUnsubscribe.add(eventType);
+            } else {
+                Log.w(TAG, "Subscriber " + subscriber.getClass() + " was not registered before for event: " + eventType);
+                return;
             }
-            typesBySubscriber.remove(subscriber);
+        }
+        if (typesToUnsubscribe != null) {
+            for (Class<?> subscribedType : typesToUnsubscribe) {
+                unsubscribeByEventType(subscriber, subscribedType);
+                subscribedTypes.remove(subscribedType);
+            }
+            if (subscribedTypes.isEmpty()) {
+                typesBySubscriber.remove(subscriber);
+            }
         } else {
             logger.log(Level.WARNING, "Subscriber to unregister was not registered before: " + subscriber.getClass());
         }
