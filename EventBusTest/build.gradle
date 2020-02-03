@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
@@ -18,8 +18,8 @@ dependencies {
     // Trying to repro bug:
 //    androidTestAnnotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.1.0'
     implementation fileTree(dir: 'libs', include: '*.jar')
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test:rules:1.0.1'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
 }
 
 android {

@@ -1,5 +1,3 @@
-Hey, do have a minute for a [quick survey](https://docs.google.com/forms/d/e/1FAIpQLSePA8NqA9Jlbvh28xcFVbmIGUzHW3dnsxuxi23-ZDPPfkWMSQ/viewform) on how we are doing with EventBus? 
-
 EventBus
 ========
 EventBus is a publish/subscribe event bus for Android and Java.<br/>
@@ -114,7 +112,7 @@ How does EventBus compare to other solutions, like Otto from Square? Check this 
 
 License
 -------
-Copyright (C) 2012-2017 Markus Junginger, greenrobot (http://greenrobot.org)
+Copyright (C) 2012-2020 Markus Junginger, greenrobot (http://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 

@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 archivesBaseName = 'eventbus-annotation-processor'
 group = 'org.greenrobot'
-version = '3.1.0'
+version = '3.1.2-RC'
 
 sourceCompatibility = 1.7
 
@@ -31,7 +31,7 @@ apply from: rootProject.file("gradle/publish.gradle")
 
 javadoc {
     title = "EventBus Annotation Processor ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2016 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2020 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

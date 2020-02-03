@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
-version = '3.1.1'
+version = '3.1.2-RC'
 sourceCompatibility = 1.7
 
 dependencies {
@@ -26,7 +26,7 @@ apply from: rootProject.file("gradle/publish.gradle")
 javadoc {
     failOnError = false
     title = "EventBus ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2017 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2012-2020 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

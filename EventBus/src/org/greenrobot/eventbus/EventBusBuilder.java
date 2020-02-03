@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ * Copyright (C) 2012-2020 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
  * Creates EventBus instances with custom parameters and also allows to install a custom default EventBus instance.
  * Create a new builder using {@link EventBus#builder()}.
  */
+@SuppressWarnings("unused")
 public class EventBusBuilder {
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
@@ -88,7 +89,7 @@ public class EventBusBuilder {
      * By default, EventBus considers the event class hierarchy (subscribers to super classes will be notified).
      * Switching this feature off will improve posting of events. For simple event classes extending Object directly,
      * we measured a speed up of 20% for event posting. For more complex event hierarchies, the speed up should be
-     * >20%.
+     * greater than 20%.
      * <p/>
      * However, keep in mind that event posting usually consumes just a small proportion of CPU time inside an app,
      * unless it is posting at high rates, e.g. hundreds/thousands of events per second.
