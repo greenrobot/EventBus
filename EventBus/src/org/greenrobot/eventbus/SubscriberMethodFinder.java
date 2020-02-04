@@ -15,7 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import android.annotation.TargetApi;
 import org.greenrobot.eventbus.meta.SubscriberInfo;
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
 
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 class SubscriberMethodFinder {
     /*
@@ -159,10 +157,13 @@ class SubscriberMethodFinder {
             try {
                 methods = findState.clazz.getMethods();
             } catch (LinkageError error) { // super class of NoClassDefFoundError to be a bit more broad...
-                String msg = "Could not inspect methods of " + findState.clazz.getName() +
-                        ". Please consider using EventBus annotation processor to avoid reflection.";
-                throwLinkageError(error, msg);
-                return;
+                String msg = "Could not inspect methods of " + findState.clazz.getName();
+                if (ignoreGeneratedIndex) {
+                    msg += ". Please consider using EventBus annotation processor to avoid reflection.";
+                } else {
+                    msg += ". Please make this class visible to EventBus annotation processor to avoid reflection.";
+                }
+                throw new EventBusException(msg, error);
             }
             findState.skipSuperClasses = true;
         }
@@ -191,16 +192,6 @@ class SubscriberMethodFinder {
                         " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
             }
         }
-    }
-
-    @TargetApi(19)
-    private void throwLinkageError(LinkageError error, String msg) {
-        try {
-            error = new LinkageError(msg, error);  // Wrapping only works with Java 7 / Android API 19
-        } catch (Throwable ex) {
-            Logger.Default.get().log(Level.SEVERE, msg); // Can not wrap, log additional info
-        }
-        throw error;
     }
 
     static void clearCaches() {
