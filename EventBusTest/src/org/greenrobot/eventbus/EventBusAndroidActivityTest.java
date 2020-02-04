@@ -16,8 +16,8 @@
 package org.greenrobot.eventbus;
 
 import android.app.Activity;
-import android.support.test.annotation.UiThreadTest;
-import android.support.test.rule.UiThreadTestRule;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.rule.UiThreadTestRule;
 import android.util.Log;
 
 import org.junit.Rule;
