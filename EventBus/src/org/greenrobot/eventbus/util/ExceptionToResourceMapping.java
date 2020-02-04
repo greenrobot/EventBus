@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ * Copyright (C) 2012-2020 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 
 package org.greenrobot.eventbus.util;
 
-import android.util.Log;
+import org.greenrobot.eventbus.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
 
 
 /**
@@ -50,7 +51,8 @@ public class ExceptionToResourceMapping {
                 throwableToCheck = throwableToCheck.getCause();
                 depthToGo--;
                 if (depthToGo <= 0 || throwableToCheck == throwable || throwableToCheck == null) {
-                    Log.d("EventBus", "No specific message resource ID found for " + throwable);
+                    Logger logger = Logger.Default.get();  // No EventBus instance here
+                    logger.log(Level.FINE, "No specific message resource ID found for " + throwable);
                     // return config.defaultErrorMsgId;
                     return null;
                 }

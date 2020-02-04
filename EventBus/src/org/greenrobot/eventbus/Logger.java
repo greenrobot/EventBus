@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Markus Junginger, greenrobot (http://greenrobot.org)
+ * Copyright (C) 2012-2020 Markus Junginger, greenrobot (http://greenrobot.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package org.greenrobot.eventbus;
 
+import android.os.Looper;
+import org.greenrobot.eventbus.android.AndroidLogger;
+
 import java.util.logging.Level;
 
 public interface Logger {
@@ -23,7 +26,7 @@ public interface Logger {
 
     void log(Level level, String msg, Throwable th);
 
-    public static class JavaLogger implements Logger {
+    class JavaLogger implements Logger {
         protected final java.util.logging.Logger logger;
 
         public JavaLogger(String tag) {
@@ -44,7 +47,7 @@ public interface Logger {
 
     }
 
-    public static class SystemOutLogger implements Logger {
+    class SystemOutLogger implements Logger {
 
         @Override
         public void log(Level level, String msg) {
@@ -57,6 +60,24 @@ public interface Logger {
             th.printStackTrace(System.out);
         }
 
+    }
+
+    class Default {
+        public static Logger get() {
+            // also check main looper to see if we have "good" Android classes (not Stubs etc.)
+            return AndroidLogger.isAndroidLogAvailable() && getAndroidMainLooperOrNull() != null
+                    ? new AndroidLogger("EventBus") :
+                    new Logger.SystemOutLogger();
+        }
+
+        static Object getAndroidMainLooperOrNull() {
+            try {
+                return Looper.getMainLooper();
+            } catch (RuntimeException e) {
+                // Not really a functional Android (e.g. "Stub!" maven dependencies)
+                return null;
+            }
+        }
     }
 
 }

@@ -158,13 +158,9 @@ public class EventBusBuilder {
         if (logger != null) {
             return logger;
         } else {
-            // also check main looper to see if we have "good" Android classes (not Stubs etc.)
-            return AndroidLogger.isAndroidLogAvailable() && getAndroidMainLooperOrNull() != null
-                    ? new AndroidLogger("EventBus") :
-                    new Logger.SystemOutLogger();
+            return Logger.Default.get();
         }
     }
-
 
     MainThreadSupport getMainThreadSupport() {
         if (mainThreadSupport != null) {
@@ -178,7 +174,7 @@ public class EventBusBuilder {
         }
     }
 
-    Object getAndroidMainLooperOrNull() {
+    static Object getAndroidMainLooperOrNull() {
         try {
             return Looper.getMainLooper();
         } catch (RuntimeException e) {

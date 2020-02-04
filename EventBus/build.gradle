@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
-version = '3.1.2-RC'
+version = '3.2.0-SNAPSHOT'
 sourceCompatibility = 1.7
 
 dependencies {
