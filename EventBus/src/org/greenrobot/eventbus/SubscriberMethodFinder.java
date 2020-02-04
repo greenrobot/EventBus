@@ -259,8 +259,12 @@ class SubscriberMethodFinder {
             } else {
                 clazz = clazz.getSuperclass();
                 String clazzName = clazz.getName();
-                /** Skip system classes, this just degrades performance. */
-                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
+                /* Skip system classes, improves performance and avoids java.lang.NoClassDefFoundError
+                 if e.g. AndroidX classes use new API. https://github.com/greenrobot/EventBus/issues/608 */
+                if (clazzName.startsWith("java.")
+                        || clazzName.startsWith("javax.")
+                        || clazzName.startsWith("android.")
+                        || clazzName.startsWith("androidx.")) {
                     clazz = null;
                 }
             }
