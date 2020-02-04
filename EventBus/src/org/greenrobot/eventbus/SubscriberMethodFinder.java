@@ -160,21 +160,21 @@ class SubscriberMethodFinder {
         for (Method method : methods) {
             int modifiers = method.getModifiers();
             if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
-                    if (subscribeAnnotation != null) {
+                Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
+                if (subscribeAnnotation != null) {
+                    Class<?>[] parameterTypes = method.getParameterTypes();
+                    if (parameterTypes.length == 1) {
                         Class<?> eventType = parameterTypes[0];
                         if (findState.checkAdd(method, eventType)) {
                             ThreadMode threadMode = subscribeAnnotation.threadMode();
                             findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
                                     subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
                         }
+                    } else if (strictMethodVerification) {
+                        String methodName = method.getDeclaringClass().getName() + "." + method.getName();
+                        throw new EventBusException("@Subscribe method " + methodName +
+                                "must have exactly 1 parameter but has " + parameterTypes.length);
                     }
-                } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
-                    String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                    throw new EventBusException("@Subscribe method " + methodName +
-                            "must have exactly 1 parameter but has " + parameterTypes.length);
                 }
             } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
                 String methodName = method.getDeclaringClass().getName() + "." + method.getName();
@@ -258,13 +258,15 @@ class SubscriberMethodFinder {
                 clazz = null;
             } else {
                 clazz = clazz.getSuperclass();
-                String clazzName = clazz.getName();
-                /** Skip system classes, this just degrades performance. */
-                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
-                    clazz = null;
+                if (clazz != null) {
+                    String clazzName = clazz.getName();
+                    // Skip system classes, this just degrades performance.
+                    if (clazzName.startsWith("java.") || clazzName.startsWith("javax.")
+                            || clazzName.startsWith("android.") || clazzName.startsWith("androidx.")) {
+                        clazz = null;
+                    }
                 }
             }
         }
     }
-
 }
