@@ -259,8 +259,10 @@ class SubscriberMethodFinder {
             } else {
                 clazz = clazz.getSuperclass();
                 String clazzName = clazz.getName();
-                /** Skip system classes, this just degrades performance. */
-                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.")) {
+                // Skip system classes, this degrades performance.
+                // Also we might avoid some ClassNotFoundException (see FAQ for background).
+                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") ||
+                        clazzName.startsWith("android.") || clazzName.startsWith("androidx.")) {
                     clazz = null;
                 }
             }
