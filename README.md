@@ -1,7 +1,10 @@
 EventBus
 ========
-EventBus is a publish/subscribe event bus for Android and Java.<br/>
+[EventBus](http://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
+
+[![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
+[![Follow greenrobot on Twitter](https://img.shields.io/twitter/follow/greenrobot_de.svg?style=flat-square&logo=twitter)](https://twitter.com/greenrobot_de)
 
 EventBus...
 
@@ -11,11 +14,10 @@ EventBus...
     * avoids complex and error-prone dependencies and life cycle issues
  * makes your code simpler
  * is fast
- * is tiny (~50k jar)
- * is proven in practice by apps with 100,000,000+ installs
+ * is tiny (~60k jar)
+ * is proven in practice by apps with 1,000,000,000+ installs
  * has advanced features like delivery threads, subscriber priorities, etc.
 
- [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 
 EventBus in 3 steps
 -------------------
@@ -66,7 +68,7 @@ Available on <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%2
 
 Via Gradle:
 ```gradle
-implementation 'org.greenrobot:eventbus:3.1.1'
+implementation 'org.greenrobot:eventbus:3.2.0'
 ```
 
 Via Maven:
@@ -74,7 +76,7 @@ Via Maven:
 <dependency>
     <groupId>org.greenrobot</groupId>
     <artifactId>eventbus</artifactId>
-    <version>3.1.1</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 
@@ -116,9 +118,9 @@ Copyright (C) 2012-2020 Markus Junginger, greenrobot (http://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 
-More Open Source by greenrobot
-==============================
-[__ObjectBox__](https://objectbox.io/) ([GitHub](https://github.com/objectbox/objectbox-java)) is a new superfast object-oriented database for mobile.
+Other projects by greenrobot
+============================
+[__ObjectBox__](https://objectbox.io/) ([GitHub](https://github.com/objectbox/objectbox-java)) is a new superfast object-oriented database.
 
 [__Essentials__](https://github.com/greenrobot/essentials) is a set of utility classes and hash functions for Android & Java projects.
 
