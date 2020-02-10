@@ -56,7 +56,7 @@ afterEvaluate { project ->
                 // Common properties, projects still need to set name and description.
                 pom.project {
                     packaging 'jar'
-                    url 'http://greenrobot.org/eventbus/'
+                    url 'https://greenrobot.org/eventbus/'
 
                     scm {
                         url 'https://github.com/greenrobot/EventBus'
@@ -86,7 +86,7 @@ afterEvaluate { project ->
 
                     organization {
                         name 'greenrobot'
-                        url 'http://greenrobot.org'
+                        url 'https://greenrobot.org'
                     }
                 }
             }

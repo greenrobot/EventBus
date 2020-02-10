@@ -31,7 +31,7 @@ apply from: rootProject.file("gradle/publish.gradle")
 
 javadoc {
     title = "EventBus Annotation Processor ${version} API"
-	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2020 <a href="http://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
+	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2020 <a href="https://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

@@ -1,6 +1,6 @@
 EventBus
 ========
-[EventBus](http://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
+[EventBus](https://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
 
 [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
@@ -28,7 +28,7 @@ EventBus in 3 steps
     ```
 
 2. Prepare subscribers:
-    Declare and annotate your subscribing method, optionally specify a [thread mode](http://greenrobot.org/eventbus/documentation/delivery-threads-threadmode/):  
+    Declare and annotate your subscribing method, optionally specify a [thread mode](https://greenrobot.org/eventbus/documentation/delivery-threads-threadmode/):  
 
     ```java
     @Subscribe(threadMode = ThreadMode.MAIN)  
@@ -56,7 +56,7 @@ EventBus in 3 steps
     EventBus.getDefault().post(new MessageEvent());
     ```
 
-Read the full [getting started guide](http://greenrobot.org/eventbus/documentation/how-to-get-started/).
+Read the full [getting started guide](https://greenrobot.org/eventbus/documentation/how-to-get-started/).
 
 There are also some [examples](https://github.com/greenrobot-team/greenrobot-examples).
 
@@ -100,21 +100,21 @@ If your project uses R8 or ProGuard add the following rules:
 
 Homepage, Documentation, Links
 ------------------------------
-For more details please check the [EventBus website](http://greenrobot.org/eventbus). Here are some direct links you may find useful:
+For more details please check the [EventBus website](https://greenrobot.org/eventbus). Here are some direct links you may find useful:
 
-[Features](http://greenrobot.org/eventbus/features/)
+[Features](https://greenrobot.org/eventbus/features/)
 
-[Documentation](http://greenrobot.org/eventbus/documentation/)
+[Documentation](https://greenrobot.org/eventbus/documentation/)
 
-[Changelog](http://greenrobot.org/eventbus/changelog/)
+[Changelog](https://greenrobot.org/eventbus/changelog/)
 
-[FAQ](http://greenrobot.org/eventbus/documentation/faq/)
+[FAQ](https://greenrobot.org/eventbus/documentation/faq/)
 
 How does EventBus compare to other solutions, like Otto from Square? Check this [comparison](COMPARISON.md).
 
 License
 -------
-Copyright (C) 2012-2020 Markus Junginger, greenrobot (http://greenrobot.org)
+Copyright (C) 2012-2020 Markus Junginger, greenrobot (https://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 
