@@ -18,7 +18,6 @@ EventBus...
  * is proven in practice by apps with 1,000,000,000+ installs
  * has advanced features like delivery threads, subscriber priorities, etc.
 
-
 EventBus in 3 steps
 -------------------
 1. Define events:
@@ -59,6 +58,9 @@ EventBus in 3 steps
 Read the full [getting started guide](https://greenrobot.org/eventbus/documentation/how-to-get-started/).
 
 There are also some [examples](https://github.com/greenrobot-team/greenrobot-examples).
+
+**Note:** we highly recommend the [EventBus annotation processor with its subscriber index](https://greenrobot.org/eventbus/documentation/subscriber-index/).
+This will avoid some reflection related problems seen in the wild.  
 
 Add EventBus to your project
 ----------------------------
