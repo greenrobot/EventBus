@@ -172,14 +172,17 @@ class SubscriberMethodFinder {
             if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes.length == 1) {
-                    Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
-                    if (subscribeAnnotation != null) {
-                        Class<?> eventType = parameterTypes[0];
-                        if (findState.checkAdd(method, eventType)) {
-                            ThreadMode threadMode = subscribeAnnotation.threadMode();
-                            findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
-                                    subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
+                    try {
+                        Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
+                        if (subscribeAnnotation != null) {
+                            Class<?> eventType = parameterTypes[0];
+                            if (findState.checkAdd(method, eventType)) {
+                                ThreadMode threadMode = subscribeAnnotation.threadMode();
+                                findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
+                                        subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
+                            }
                         }
+                    } catch (NoClassDefFoundError e) {                    
                     }
                 } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
                     String methodName = method.getDeclaringClass().getName() + "." + method.getName();
