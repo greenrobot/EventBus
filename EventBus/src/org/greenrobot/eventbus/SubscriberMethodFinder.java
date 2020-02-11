@@ -84,7 +84,7 @@ class SubscriberMethodFinder {
                         findState.subscriberMethods.add(subscriberMethod);
                     }
                 }
-            } else {
+            } else if (subscriberInfoIndexes == null) {
                 findUsingReflectionInSingleClass(findState);
             }
             findState.moveToSuperclass();
