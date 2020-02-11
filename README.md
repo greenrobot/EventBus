@@ -1,4 +1,4 @@
-EventBus
+EventBus  [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus) [![Maven Central](https://img.shields.io/maven-central/v/org.greenrobot/eventbus.svg)]()
 ========
 [EventBus](https://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
