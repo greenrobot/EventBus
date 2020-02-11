@@ -49,7 +49,7 @@ public class EventBus {
 
     private final Map<Class<?>, CopyOnWriteArrayList<Subscription>> subscriptionsByEventType;
     private final Map<Object, List<Class<?>>> typesBySubscriber;
-    private final Map<Class<?>, Object> stickyEvents;
+    private final Map<Class<?>, Object[]> stickyEvents;
 
     private final ThreadLocal<PostingThreadState> currentPostingThreadState = new ThreadLocal<PostingThreadState>() {
         @Override
@@ -184,26 +184,26 @@ public class EventBus {
                 // Note: Iterating over all events may be inefficient with lots of sticky events,
                 // thus data structure should be changed to allow a more efficient lookup
                 // (e.g. an additional map storing sub classes of super classes: Class -> List<Class>).
-                Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
-                for (Map.Entry<Class<?>, Object> entry : entries) {
+                Set<Map.Entry<Class<?>, Object[]>> entries = stickyEvents.entrySet();
+                for (Map.Entry<Class<?>, Object[]> entry : entries) {
                     Class<?> candidateEventType = entry.getKey();
                     if (eventType.isAssignableFrom(candidateEventType)) {
-                        Object stickyEvent = entry.getValue();
-                        checkPostStickyEventToSubscription(newSubscription, stickyEvent);
+                        Object[] stickyEvent = entry.getValue();
+                        checkPostStickyEventToSubscription(newSubscription, stickyEvent[0], (Filter) stickyEvent[1]);
                     }
                 }
             } else {
-                Object stickyEvent = stickyEvents.get(eventType);
-                checkPostStickyEventToSubscription(newSubscription, stickyEvent);
+                Object[] stickyEvent = stickyEvents.get(eventType);
+                checkPostStickyEventToSubscription(newSubscription, stickyEvent[0], (Filter) stickyEvent[1]);
             }
         }
     }
 
-    private void checkPostStickyEventToSubscription(Subscription newSubscription, Object stickyEvent) {
+    private void checkPostStickyEventToSubscription(Subscription newSubscription, Object stickyEvent, Filter filter) {
         if (stickyEvent != null) {
             // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
             // --> Strange corner case, which we don't take care of here.
-            postToSubscription(newSubscription, stickyEvent, isMainThread());
+            postToSubscription(newSubscription, stickyEvent, isMainThread(), filter);
         }
     }
 
@@ -253,6 +253,23 @@ public class EventBus {
 
     /** Posts the given event to the event bus. */
     public void post(Object event) {
+        post(event, null);
+    }
+
+    /**
+     * Posts the given event to the event bus and holds on to the event (because it is sticky). The most recent sticky
+     * event of an event's type is kept in memory for future access by subscribers using {@link Subscribe#sticky()}.
+     */
+    public void postSticky(Object event) {
+        postSticky(event, null);
+    }
+
+    /**
+     * Posts the given event to the event bus.
+     *
+     * @param filter Set the filter to not call some methods
+     */
+    public void post(Object event, Filter filter) {
         PostingThreadState postingState = currentPostingThreadState.get();
         List<Object> eventQueue = postingState.eventQueue;
         eventQueue.add(event);
@@ -265,7 +282,7 @@ public class EventBus {
             }
             try {
                 while (!eventQueue.isEmpty()) {
-                    postSingleEvent(eventQueue.remove(0), postingState);
+                    postSingleEvent(eventQueue.remove(0), postingState, filter);
                 }
             } finally {
                 postingState.isPosting = false;
@@ -300,19 +317,21 @@ public class EventBus {
     /**
      * Posts the given event to the event bus and holds on to the event (because it is sticky). The most recent sticky
      * event of an event's type is kept in memory for future access by subscribers using {@link Subscribe#sticky()}.
+     *
+     * @param filter Set the filter to not call some methods
      */
-    public void postSticky(Object event) {
+    public void postSticky(Object event, Filter filter) {
         synchronized (stickyEvents) {
-            stickyEvents.put(event.getClass(), event);
+            stickyEvents.put(event.getClass(), new Object[]{event, filter});
         }
         // Should be posted after it is putted, in case the subscriber wants to remove immediately
-        post(event);
+        post(event, filter);
     }
 
     /**
      * Gets the most recent sticky event for the given type.
      *
-     * @see #postSticky(Object)
+     * @see #postSticky(Object, Filter)
      */
     public <T> T getStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
@@ -323,11 +342,11 @@ public class EventBus {
     /**
      * Remove and gets the recent sticky event for the given event type.
      *
-     * @see #postSticky(Object)
+     * @see #postSticky(Object, Filter)
      */
     public <T> T removeStickyEvent(Class<T> eventType) {
         synchronized (stickyEvents) {
-            return eventType.cast(stickyEvents.remove(eventType));
+            return eventType.cast(stickyEvents.remove(eventType)[0]);
         }
     }
 
@@ -339,8 +358,8 @@ public class EventBus {
     public boolean removeStickyEvent(Object event) {
         synchronized (stickyEvents) {
             Class<?> eventType = event.getClass();
-            Object existingEvent = stickyEvents.get(eventType);
-            if (event.equals(existingEvent)) {
+            Object[] existingEvent = stickyEvents.get(eventType);
+            if (existingEvent != null && event.equals(existingEvent[0])) {
                 stickyEvents.remove(eventType);
                 return true;
             } else {
@@ -376,7 +395,7 @@ public class EventBus {
         return false;
     }
 
-    private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
+    private void postSingleEvent(Object event, PostingThreadState postingState, Filter filter) throws Error {
         Class<?> eventClass = event.getClass();
         boolean subscriptionFound = false;
         if (eventInheritance) {
@@ -384,10 +403,10 @@ public class EventBus {
             int countTypes = eventTypes.size();
             for (int h = 0; h < countTypes; h++) {
                 Class<?> clazz = eventTypes.get(h);
-                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
+                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz, filter);
             }
         } else {
-            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
+            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass, filter);
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
@@ -395,12 +414,12 @@ public class EventBus {
             }
             if (sendNoSubscriberEvent && eventClass != NoSubscriberEvent.class &&
                     eventClass != SubscriberExceptionEvent.class) {
-                post(new NoSubscriberEvent(this, event));
+                post(new NoSubscriberEvent(this, event), null);
             }
         }
     }
 
-    private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass) {
+    private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass, Filter filter) {
         CopyOnWriteArrayList<Subscription> subscriptions;
         synchronized (this) {
             subscriptions = subscriptionsByEventType.get(eventClass);
@@ -411,7 +430,7 @@ public class EventBus {
                 postingState.subscription = subscription;
                 boolean aborted;
                 try {
-                    postToSubscription(subscription, event, postingState.isMainThread);
+                    postToSubscription(subscription, event, postingState.isMainThread, filter);
                     aborted = postingState.canceled;
                 } finally {
                     postingState.event = null;
@@ -427,7 +446,10 @@ public class EventBus {
         return false;
     }
 
-    private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
+    private void postToSubscription(Subscription subscription, Object event, boolean isMainThread, Filter filter) {
+        if (filter != null && !filter.allow(subscription)) {
+            return;
+        }
         switch (subscription.subscriberMethod.threadMode) {
             case POSTING:
                 invokeSubscriber(subscription, event);
@@ -536,7 +558,7 @@ public class EventBus {
             if (sendSubscriberExceptionEvent) {
                 SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
                         subscription.subscriber);
-                post(exEvent);
+                post(exEvent, null);
             }
         }
     }

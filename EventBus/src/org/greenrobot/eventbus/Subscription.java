@@ -15,7 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
-final class Subscription {
+public final class Subscription {
     final Object subscriber;
     final SubscriberMethod subscriberMethod;
     /**
@@ -23,6 +23,14 @@ final class Subscription {
      * {@link EventBus#invokeSubscriber(PendingPost)} to prevent race conditions.
      */
     volatile boolean active;
+
+    public Object getSubscriber() {
+        return subscriber;
+    }
+
+    public SubscriberMethod getSubscriberMethod() {
+        return subscriberMethod;
+    }
 
     Subscription(Object subscriber, SubscriberMethod subscriberMethod) {
         this.subscriber = subscriber;

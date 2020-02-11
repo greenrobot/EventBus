@@ -65,4 +65,24 @@ public class SubscriberMethod {
     public int hashCode() {
         return method.hashCode();
     }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public ThreadMode getThreadMode() {
+        return threadMode;
+    }
+
+    public Class<?> getEventType() {
+        return eventType;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public boolean isSticky() {
+        return sticky;
+    }
 }
