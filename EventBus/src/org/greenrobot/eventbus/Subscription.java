@@ -15,14 +15,34 @@
  */
 package org.greenrobot.eventbus;
 
-final class Subscription {
-    final Object subscriber;
-    final SubscriberMethod subscriberMethod;
+final class Subscription implements ISubscription {
+    private final Object subscriber;
+    private final SubscriberMethod subscriberMethod;
     /**
      * Becomes false as soon as {@link EventBus#unregister(Object)} is called, which is checked by queued event delivery
      * {@link EventBus#invokeSubscriber(PendingPost)} to prevent race conditions.
      */
-    volatile boolean active;
+    private volatile boolean active;
+
+    @Override
+    public Object getSubscriber() {
+        return subscriber;
+    }
+
+    @Override
+    public SubscriberMethod getSubscriberMethod() {
+        return subscriberMethod;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
+    }
+
+    @Override
+    public void setIsActive(boolean isActive) {
+        this.active = isActive;
+    }
 
     Subscription(Object subscriber, SubscriberMethod subscriberMethod) {
         this.subscriber = subscriber;
@@ -32,10 +52,10 @@ final class Subscription {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof Subscription) {
-            Subscription otherSubscription = (Subscription) other;
-            return subscriber == otherSubscription.subscriber
-                    && subscriberMethod.equals(otherSubscription.subscriberMethod);
+        if (other instanceof ISubscription) {
+            ISubscription otherSubscription = (ISubscription) other;
+            return subscriber == otherSubscription.getSubscriber()
+                    && subscriberMethod.equals(otherSubscription.getSubscriberMethod());
         } else {
             return false;
         }
