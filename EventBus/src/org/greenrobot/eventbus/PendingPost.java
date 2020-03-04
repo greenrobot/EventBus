@@ -22,15 +22,15 @@ final class PendingPost {
     private final static List<PendingPost> pendingPostPool = new ArrayList<PendingPost>();
 
     Object event;
-    Subscription subscription;
+    ISubscription subscription;
     PendingPost next;
 
-    private PendingPost(Object event, Subscription subscription) {
+    private PendingPost(Object event, ISubscription subscription) {
         this.event = event;
         this.subscription = subscription;
     }
 
-    static PendingPost obtainPendingPost(Subscription subscription, Object event) {
+    static PendingPost obtainPendingPost(ISubscription subscription, Object event) {
         synchronized (pendingPostPool) {
             int size = pendingPostPool.size();
             if (size > 0) {
