@@ -22,6 +22,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.lang.reflect.Method;
 
 /** Base class for generated subscriber meta info classes created by annotation processing. */
+@SuppressWarnings({ "rawtypes", "TryWithIdenticalCatches", "unchecked" })
 public abstract class AbstractSubscriberInfo implements SubscriberInfo {
     private final Class subscriberClass;
     private final Class<? extends SubscriberInfo> superSubscriberInfoClass;

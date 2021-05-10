@@ -15,21 +15,22 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
+import org.greenrobot.eventbus.android.AndroidSDK;
 
-public class HandlerPoster extends Handler implements Poster {
+public class HandlerPoster extends AndroidSDK.Handler implements Poster {
 
     private final PendingPostQueue queue;
     private final int maxMillisInsideHandleMessage;
+    private final AndroidSDK.SystemClock systemClock;
     private final EventBus eventBus;
     private boolean handlerActive;
 
-    protected HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
+    protected HandlerPoster(EventBus eventBus, AndroidSDK.Looper looper,
+            AndroidSDK.SystemClock systemClock,
+            int maxMillisInsideHandleMessage) {
         super(looper);
         this.eventBus = eventBus;
+        this.systemClock = systemClock;
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
         queue = new PendingPostQueue();
     }
@@ -48,10 +49,10 @@ public class HandlerPoster extends Handler implements Poster {
     }
 
     @Override
-    public void handleMessage(Message msg) {
+    public void handleMessage(AndroidSDK.Message msg) {
         boolean rescheduled = false;
         try {
-            long started = SystemClock.uptimeMillis();
+            long started = systemClock.uptimeMillis();
             while (true) {
                 PendingPost pendingPost = queue.poll();
                 if (pendingPost == null) {
@@ -65,7 +66,7 @@ public class HandlerPoster extends Handler implements Poster {
                     }
                 }
                 eventBus.invokeSubscriber(pendingPost);
-                long timeInMethod = SystemClock.uptimeMillis() - started;
+                long timeInMethod = systemClock.uptimeMillis() - started;
                 if (timeInMethod >= maxMillisInsideHandleMessage) {
                     if (!sendMessage(obtainMessage())) {
                         throw new EventBusException("Could not send handler message");

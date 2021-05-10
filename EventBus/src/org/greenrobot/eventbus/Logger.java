@@ -15,9 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
-import android.os.Looper;
 import org.greenrobot.eventbus.android.AndroidLogger;
-
+import org.greenrobot.eventbus.android.AndroidSDK;
 import java.util.logging.Level;
 
 public interface Logger {
@@ -64,19 +63,11 @@ public interface Logger {
 
     class Default {
         public static Logger get() {
-            // also check main looper to see if we have "good" Android classes (not Stubs etc.)
-            return AndroidLogger.isAndroidLogAvailable() && getAndroidMainLooperOrNull() != null
-                    ? new AndroidLogger("EventBus") :
-                    new Logger.SystemOutLogger();
-        }
-
-        static Object getAndroidMainLooperOrNull() {
-            try {
-                return Looper.getMainLooper();
-            } catch (RuntimeException e) {
-                // Not really a functional Android (e.g. "Stub!" maven dependencies)
-                return null;
+            if (AndroidSDK.isAvailable()) {
+                return new AndroidLogger(AndroidSDK.get(), "EventBus");
             }
+
+            return new SystemOutLogger();
         }
     }
 

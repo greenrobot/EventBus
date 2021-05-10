@@ -15,47 +15,30 @@
  */
 package org.greenrobot.eventbus.android;
 
-import android.util.Log;
-
 import org.greenrobot.eventbus.Logger;
-
+import org.greenrobot.eventbus.util.ExceptionStackTraceUtils;
 import java.util.logging.Level;
 
 public class AndroidLogger implements Logger {
 
-    private static final boolean ANDROID_LOG_AVAILABLE;
-
-    static {
-        boolean android = false;
-        try {
-            android = Class.forName("android.util.Log") != null;
-        } catch (ClassNotFoundException e) {
-            // OK
-        }
-        ANDROID_LOG_AVAILABLE = android;
-    }
-
-    public static boolean isAndroidLogAvailable() {
-        return ANDROID_LOG_AVAILABLE;
-    }
-
-
+    private final AndroidSDK androidSDK;
     private final String tag;
 
-    public AndroidLogger(String tag) {
+    public AndroidLogger(AndroidSDK androidSDK, String tag) {
+        this.androidSDK = androidSDK;
         this.tag = tag;
     }
 
     public void log(Level level, String msg) {
         if (level != Level.OFF) {
-            Log.println(mapLevel(level), tag, msg);
+            androidSDK.log.println(mapLevel(level), tag, msg);
         }
     }
 
     public void log(Level level, String msg, Throwable th) {
         if (level != Level.OFF) {
             // That's how Log does it internally
-            Log.println(mapLevel(level), tag, msg + "\n" + Log.getStackTraceString(th));
+            androidSDK.log.println(mapLevel(level), tag, msg + "\n" + ExceptionStackTraceUtils.getStackTraceAsString(th));
         }
     }
 
@@ -63,16 +46,16 @@ public class AndroidLogger implements Logger {
         int value = level.intValue();
         if (value < 800) { // below INFO
             if (value < 500) { // below FINE
-                return Log.VERBOSE;
+                return androidSDK.log.getLogLevels().verbose;
             } else {
-                return Log.DEBUG;
+                return androidSDK.log.getLogLevels().debug;
             }
         } else if (value < 900) { // below WARNING
-            return Log.INFO;
+            return androidSDK.log.getLogLevels().info;
         } else if (value < 1000) { // below ERROR
-            return Log.WARN;
+            return androidSDK.log.getLogLevels().warn;
         } else {
-            return Log.ERROR;
+            return androidSDK.log.getLogLevels().error;
         }
     }
 }
