@@ -3,7 +3,8 @@ apply plugin: 'java'
 archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
 version = '3.2.0'
-sourceCompatibility = 1.7
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
     compileOnly 'com.google.android:android:4.1.1.4'
