@@ -22,10 +22,12 @@ public class AndroidDependenciesDetector {
         return false;
     }
 
-    public static boolean isAndroidSDKProxyImplAvailable() {
+    private static final String ANDROID_COMPONENTS_IMPLEMENTATION_CLASS_NAME = "org.greenrobot.eventbus.android.AndroidComponentsImpl";
+
+    public static boolean areAndroidComponentsAvailable() {
 
         try {
-            Class.forName("org.greenrobot.eventbus.android.AndroidSDKProxyImpl");
+            Class.forName(ANDROID_COMPONENTS_IMPLEMENTATION_CLASS_NAME);
             return true;
         }
         catch (ClassNotFoundException ex) {
@@ -33,11 +35,11 @@ public class AndroidDependenciesDetector {
         }
     }
 
-    public static AndroidSDKProxy instantiateAndroidSDKProxy() {
+    public static AndroidComponents instantiateAndroidComponents() {
 
         try {
-            Class<?> impl = Class.forName("org.greenrobot.eventbus.android.AndroidSDKProxyImpl");
-            return (AndroidSDKProxy) impl.getConstructor().newInstance();
+            Class<?> impl = Class.forName(ANDROID_COMPONENTS_IMPLEMENTATION_CLASS_NAME);
+            return (AndroidComponents) impl.getConstructor().newInstance();
         }
         catch (Throwable ex) {
             return null;

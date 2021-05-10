@@ -15,30 +15,29 @@
  */
 package org.greenrobot.eventbus.android;
 
+import android.util.Log;
 import org.greenrobot.eventbus.Logger;
 import org.greenrobot.eventbus.util.ExceptionStackTraceUtils;
 import java.util.logging.Level;
 
 public class AndroidLogger implements Logger {
 
-    private final AndroidSDKProxy androidSDK;
     private final String tag;
 
-    public AndroidLogger(AndroidSDKProxy androidSDK, String tag) {
-        this.androidSDK = androidSDK;
+    public AndroidLogger(String tag) {
         this.tag = tag;
     }
 
     public void log(Level level, String msg) {
         if (level != Level.OFF) {
-            androidSDK.log.println(mapLevel(level), tag, msg);
+            Log.println(mapLevel(level), tag, msg);
         }
     }
 
     public void log(Level level, String msg, Throwable th) {
         if (level != Level.OFF) {
             // That's how Log does it internally
-            androidSDK.log.println(mapLevel(level), tag, msg + "\n" + ExceptionStackTraceUtils.getStackTraceAsString(th));
+            Log.println(mapLevel(level), tag, msg + "\n" + ExceptionStackTraceUtils.getStackTraceAsString(th));
         }
     }
 
@@ -46,16 +45,16 @@ public class AndroidLogger implements Logger {
         int value = level.intValue();
         if (value < 800) { // below INFO
             if (value < 500) { // below FINE
-                return androidSDK.log.getVerboseLevelId();
+                return Log.VERBOSE;
             } else {
-                return androidSDK.log.getDebugLevelId();
+                return Log.DEBUG;
             }
         } else if (value < 900) { // below WARNING
-            return androidSDK.log.getInfoLevelId();
+            return Log.INFO;
         } else if (value < 1000) { // below ERROR
-            return androidSDK.log.getWarnLevelId();
+            return Log.WARN;
         } else {
-            return androidSDK.log.getErrorLevelId();
+            return Log.ERROR;
         }
     }
 }

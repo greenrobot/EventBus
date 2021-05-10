@@ -141,7 +141,7 @@ public class EventBus {
      */
     public void register(Object subscriber) {
 
-        if (AndroidDependenciesDetector.isAndroidSDKAvailable() && !AndroidDependenciesDetector.isAndroidSDKProxyImplAvailable()) {
+        if (AndroidDependenciesDetector.isAndroidSDKAvailable() && !AndroidDependenciesDetector.areAndroidComponentsAvailable()) {
             //should crash user's app if the user (developer) has not imported the android compatibility library
             throw new RuntimeException("Looks like you are using the latest version of EventBus on Android " +
                 "without importing the EventBus for Android compatibility library. Please import it on app/build.gradle!");
