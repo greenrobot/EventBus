@@ -15,8 +15,6 @@
  */
 package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.android.AndroidSDK;
-
 /**
  * Interface to the "main" thread, which can be whatever you like. Typically on Android, Android's main thread is used.
  */
@@ -25,26 +23,4 @@ public interface MainThreadSupport {
     boolean isMainThread();
 
     Poster createPoster(EventBus eventBus);
-
-    class AndroidHandlerMainThreadSupport implements MainThreadSupport {
-
-        private final AndroidSDK.Looper looper;
-        private final AndroidSDK.SystemClock systemClock;
-
-        public AndroidHandlerMainThreadSupport(AndroidSDK.Looper looper, AndroidSDK.SystemClock systemClock) {
-            this.looper = looper;
-            this.systemClock = systemClock;
-        }
-
-        @Override
-        public boolean isMainThread() {
-            return looper == AndroidSDK.Looper.myLooper();
-        }
-
-        @Override
-        public Poster createPoster(EventBus eventBus) {
-            return new HandlerPoster(eventBus, looper, systemClock, 10);
-        }
-    }
-
 }

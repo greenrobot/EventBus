@@ -13,6 +13,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     androidTestImplementation project(':eventbus')
+    androidTestImplementation project(':eventbus-android')
     androidTestImplementation project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':eventbus-annotation-processor')
     // Trying to repro bug:

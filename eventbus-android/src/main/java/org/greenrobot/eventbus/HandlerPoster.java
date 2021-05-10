@@ -15,22 +15,21 @@
  */
 package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.android.AndroidSDK;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.SystemClock;
 
-public class HandlerPoster extends AndroidSDK.Handler implements Poster {
+public class HandlerPoster extends Handler implements Poster {
 
     private final PendingPostQueue queue;
     private final int maxMillisInsideHandleMessage;
-    private final AndroidSDK.SystemClock systemClock;
     private final EventBus eventBus;
     private boolean handlerActive;
 
-    protected HandlerPoster(EventBus eventBus, AndroidSDK.Looper looper,
-            AndroidSDK.SystemClock systemClock,
-            int maxMillisInsideHandleMessage) {
+    public HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
         super(looper);
         this.eventBus = eventBus;
-        this.systemClock = systemClock;
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
         queue = new PendingPostQueue();
     }
@@ -49,10 +48,10 @@ public class HandlerPoster extends AndroidSDK.Handler implements Poster {
     }
 
     @Override
-    public void handleMessage(AndroidSDK.Message msg) {
+    public void handleMessage(Message msg) {
         boolean rescheduled = false;
         try {
-            long started = systemClock.uptimeMillis();
+            long started = SystemClock.uptimeMillis();
             while (true) {
                 PendingPost pendingPost = queue.poll();
                 if (pendingPost == null) {
@@ -66,7 +65,7 @@ public class HandlerPoster extends AndroidSDK.Handler implements Poster {
                     }
                 }
                 eventBus.invokeSubscriber(pendingPost);
-                long timeInMethod = systemClock.uptimeMillis() - started;
+                long timeInMethod = SystemClock.uptimeMillis() - started;
                 if (timeInMethod >= maxMillisInsideHandleMessage) {
                     if (!sendMessage(obtainMessage())) {
                         throw new EventBusException("Could not send handler message");

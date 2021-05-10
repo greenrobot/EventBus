@@ -21,10 +21,10 @@ import java.util.logging.Level;
 
 public class AndroidLogger implements Logger {
 
-    private final AndroidSDK androidSDK;
+    private final AndroidSDKProxy androidSDK;
     private final String tag;
 
-    public AndroidLogger(AndroidSDK androidSDK, String tag) {
+    public AndroidLogger(AndroidSDKProxy androidSDK, String tag) {
         this.androidSDK = androidSDK;
         this.tag = tag;
     }
@@ -46,16 +46,16 @@ public class AndroidLogger implements Logger {
         int value = level.intValue();
         if (value < 800) { // below INFO
             if (value < 500) { // below FINE
-                return androidSDK.log.getLogLevels().verbose;
+                return androidSDK.log.getVerboseLevelId();
             } else {
-                return androidSDK.log.getLogLevels().debug;
+                return androidSDK.log.getDebugLevelId();
             }
         } else if (value < 900) { // below WARNING
-            return androidSDK.log.getLogLevels().info;
+            return androidSDK.log.getInfoLevelId();
         } else if (value < 1000) { // below ERROR
-            return androidSDK.log.getLogLevels().warn;
+            return androidSDK.log.getWarnLevelId();
         } else {
-            return androidSDK.log.getLogLevels().error;
+            return androidSDK.log.getErrorLevelId();
         }
     }
 }

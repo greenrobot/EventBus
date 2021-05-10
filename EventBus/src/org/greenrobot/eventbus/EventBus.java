@@ -15,6 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
+import org.greenrobot.eventbus.android.AndroidDependenciesDetector;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,6 +140,13 @@ public class EventBus {
      * ThreadMode} and priority.
      */
     public void register(Object subscriber) {
+
+        if (AndroidDependenciesDetector.isAndroidSDKAvailable() && !AndroidDependenciesDetector.isAndroidSDKProxyImplAvailable()) {
+            //should crash user's app if the user (developer) has not imported the android compatibility library
+            throw new RuntimeException("Looks like you are using the latest version of EventBus on Android " +
+                "without importing the EventBus for Android compatibility library. Please import it on app/build.gradle!");
+        }
+
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         synchronized (this) {

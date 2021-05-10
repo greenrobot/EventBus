@@ -15,7 +15,7 @@
  */
 package org.greenrobot.eventbus;
 
-import org.greenrobot.eventbus.android.AndroidSDK;
+import org.greenrobot.eventbus.android.AndroidSDKProxy;
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
 import java.util.ArrayList;
 import java.util.List;
@@ -162,9 +162,8 @@ public class EventBusBuilder {
     MainThreadSupport getMainThreadSupport() {
         if (mainThreadSupport != null) {
             return mainThreadSupport;
-        } else if (AndroidSDK.isAvailable()) {
-            return new MainThreadSupport.AndroidHandlerMainThreadSupport(
-                    AndroidSDK.get().looper, AndroidSDK.get().systemClock);
+        } else if (AndroidSDKProxy.isAvailable()) {
+            return AndroidSDKProxy.get().defaultMainThreadSupport;
         } else {
             return null;
         }

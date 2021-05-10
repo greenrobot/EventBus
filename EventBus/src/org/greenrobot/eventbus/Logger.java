@@ -16,7 +16,7 @@
 package org.greenrobot.eventbus;
 
 import org.greenrobot.eventbus.android.AndroidLogger;
-import org.greenrobot.eventbus.android.AndroidSDK;
+import org.greenrobot.eventbus.android.AndroidSDKProxy;
 import java.util.logging.Level;
 
 public interface Logger {
@@ -63,8 +63,8 @@ public interface Logger {
 
     class Default {
         public static Logger get() {
-            if (AndroidSDK.isAvailable()) {
-                return new AndroidLogger(AndroidSDK.get(), "EventBus");
+            if (AndroidSDKProxy.isAvailable()) {
+                return new AndroidLogger(AndroidSDKProxy.get(), "EventBus");
             }
 
             return new SystemOutLogger();
