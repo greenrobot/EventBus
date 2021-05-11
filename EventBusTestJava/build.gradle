@@ -1,6 +1,7 @@
 apply plugin: 'java'
 
-sourceCompatibility = 1.7
+java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.targetCompatibility = JavaVersion.VERSION_1_8
 
 // we have tests in the main source set so they can be shared with the Android test module
 // to make Gradle pick them up, add the dir to the test source set

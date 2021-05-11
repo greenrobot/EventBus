@@ -16,29 +16,11 @@
 package org.greenrobot.eventbus.android;
 
 import android.util.Log;
-
 import org.greenrobot.eventbus.Logger;
-
+import org.greenrobot.eventbus.util.ExceptionStackTraceUtils;
 import java.util.logging.Level;
 
 public class AndroidLogger implements Logger {
-
-    private static final boolean ANDROID_LOG_AVAILABLE;
-
-    static {
-        boolean android = false;
-        try {
-            android = Class.forName("android.util.Log") != null;
-        } catch (ClassNotFoundException e) {
-            // OK
-        }
-        ANDROID_LOG_AVAILABLE = android;
-    }
-
-    public static boolean isAndroidLogAvailable() {
-        return ANDROID_LOG_AVAILABLE;
-    }
-
 
     private final String tag;
 
@@ -55,7 +37,7 @@ public class AndroidLogger implements Logger {
     public void log(Level level, String msg, Throwable th) {
         if (level != Level.OFF) {
             // That's how Log does it internally
-            Log.println(mapLevel(level), tag, msg + "\n" + Log.getStackTraceString(th));
+            Log.println(mapLevel(level), tag, msg + "\n" + ExceptionStackTraceUtils.getStackTraceAsString(th));
         }
     }
 

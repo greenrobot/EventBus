@@ -27,7 +27,7 @@ public class HandlerPoster extends Handler implements Poster {
     private final EventBus eventBus;
     private boolean handlerActive;
 
-    protected HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
+    public HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
         super(looper);
         this.eventBus = eventBus;
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;

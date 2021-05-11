@@ -6,7 +6,6 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -21,5 +20,5 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 wrapper {
-    distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.ALL
 }
