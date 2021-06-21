@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        _compileSdkVersion = 26 // When updating, don't forget to adjust .travis.yml.
+        _compileSdkVersion = 30 // Android 11 (R)
     }
 }
 

@@ -13,11 +13,11 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion _compileSdkVersion
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 30
+        targetSdkVersion 30 // Android 11 (R)
 
         consumerProguardFiles "consumer-rules.pro"
     }
