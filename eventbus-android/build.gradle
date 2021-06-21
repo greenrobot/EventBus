@@ -18,6 +18,8 @@ android {
     defaultConfig {
         minSdkVersion 7
         targetSdkVersion 30
+
+        consumerProguardFiles "consumer-rules.pro"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
