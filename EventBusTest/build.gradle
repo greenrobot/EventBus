@@ -5,7 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        // Note: IntelliJ IDEA 2021.1 only supports up to version 4.1
+        classpath 'com.android.tools.build:gradle:4.1.3'
     }
 }
 
