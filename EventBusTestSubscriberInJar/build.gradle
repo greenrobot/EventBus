@@ -1,7 +1,7 @@
-apply plugin: 'java'
+apply plugin: "java-library"
 
-group = 'de.greenrobot'
-version = '3.0.0'
+group = "de.greenrobot"
+version = "3.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 java.targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -10,20 +10,20 @@ configurations {
 }
 
 dependencies {
-    compile project(':eventbus-java')
-    provided project(':eventbus-annotation-processor')
+    implementation project(":eventbus-java")
+    annotationProcessor project(":eventbus-annotation-processor")
 }
 
 sourceSets {
     main {
         compileClasspath += configurations.provided
         java {
-            srcDir 'src'
+            srcDir "src"
         }
     }
 }
 
 compileJava {
-    options.compilerArgs << '-AeventBusIndex=org.greenrobot.eventbus.InJarIndex'
+    options.compilerArgs << "-AeventBusIndex=org.greenrobot.eventbus.InJarIndex"
     options.fork = true
 }

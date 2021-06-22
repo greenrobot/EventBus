@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: "java-library"
 
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 java.targetCompatibility = JavaVersion.VERSION_1_8
@@ -8,18 +8,16 @@ java.targetCompatibility = JavaVersion.VERSION_1_8
 sourceSets {
     test {
         java {
-            srcDirs += ['src/main/java']
+            srcDirs += ["src/main/java"]
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile(project(':eventbus-java')) {
-        exclude group: "com.google.android" // Does not seem to work...
-    }
-    annotationProcessor project(':eventbus-annotation-processor')
-    compile 'junit:junit:4.12'
+    implementation fileTree(dir: "libs", include: "*.jar")
+    implementation(project(":eventbus-java"))
+    annotationProcessor project(":eventbus-annotation-processor")
+    implementation "junit:junit:4.13.2"
 }
 
 tasks.withType(JavaCompile) {
