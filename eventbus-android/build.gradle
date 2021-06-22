@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    implementation project(":eventbus")
+    api project(":eventbus")
 }
 
 task sourcesJar(type: Jar) {
