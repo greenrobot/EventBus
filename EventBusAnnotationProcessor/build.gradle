@@ -1,6 +1,5 @@
 apply plugin: 'java'
 
-archivesBaseName = 'eventbus-annotation-processor'
 group = 'org.greenrobot'
 version = '3.2.0'
 
@@ -28,37 +27,35 @@ sourceSets {
     }
 }
 
-apply from: rootProject.file("gradle/publish.gradle")
-
 javadoc {
     title = "EventBus Annotation Processor ${version} API"
 	options.bottom = 'Available under the Apache License, Version 2.0 - <i>Copyright &#169; 2015-2020 <a href="https://greenrobot.org">greenrobot.org</a>. All Rights Reserved.</i>'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
+    archiveClassifier.set("sources")
     from sourceSets.main.allSource
-    classifier = 'sources'
 }
 
-artifacts {
-    archives jar
-    archives javadocJar
-    archives sourcesJar
-}
+apply from: rootProject.file("gradle/publish.gradle")
+// Set project-specific properties
+afterEvaluate {
+    publishing.publications {
+        mavenJava(MavenPublication) {
+            artifactId = "eventbus-annotation-processor"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            // Common setup is defined in publish.gradle.
-
-            pom.project {
-                name 'EventBus Annotation Processor'
-                description 'Precompiler for EventBus Annotations.'
+            from components.java
+            artifact javadocJar
+            artifact sourcesJar
+            pom {
+                name = "EventBus Annotation Processor"
+                description = "Precompiler for EventBus Annotations."
+                packaging = "jar"
             }
         }
     }

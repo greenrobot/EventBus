@@ -12,6 +12,9 @@ buildscript {
 
 apply plugin: 'com.android.library'
 
+group = 'org.greenrobot'
+version = '3.2.0'
+
 android {
     compileSdkVersion _compileSdkVersion
 
@@ -29,4 +32,29 @@ android {
 
 dependencies {
     implementation project(":eventbus")
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set("sources")
+}
+
+apply from: rootProject.file("gradle/publish.gradle")
+// Set project-specific properties
+// https://developer.android.com/studio/build/maven-publish-plugin
+afterEvaluate {
+    publishing.publications {
+        mavenJava(MavenPublication) {
+            artifactId = "eventbus"
+
+            from components.release
+            artifact sourcesJar
+
+            pom {
+                name = "EventBus"
+                description = "EventBus is a publish/subscribe event bus optimized for Android."
+                packaging = "aar"
+            }
+        }
+    }
 }

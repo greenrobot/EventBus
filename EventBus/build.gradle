@@ -1,6 +1,5 @@
 apply plugin: 'java'
 
-archivesBaseName = 'eventbus'
 group = 'org.greenrobot'
 version = '3.2.0'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -15,8 +14,6 @@ sourceSets {
     }
 }
 
-apply from: rootProject.file("gradle/publish.gradle")
-
 javadoc {
     failOnError = false
     title = "EventBus ${version} API"
@@ -24,30 +21,30 @@ javadoc {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set("javadoc")
     from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
+    archiveClassifier.set("sources")
     from sourceSets.main.allSource
-    classifier = 'sources'
 }
 
-artifacts {
-    archives jar
-    archives javadocJar
-    archives sourcesJar
-}
+apply from: rootProject.file("gradle/publish.gradle")
+// Set project-specific properties
+afterEvaluate {
+    publishing.publications {
+        mavenJava(MavenPublication) {
+            artifactId = "eventbus-java"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            // Common setup is defined in publish.gradle.
-
-            pom.project {
-               name 'EventBus'
-               description 'EventBus is a publish/subscribe event bus optimized for Android.'
-           }
+            from components.java
+            artifact javadocJar
+            artifact sourcesJar
+            pom {
+                name = "EventBus"
+                description = "EventBus is a publish/subscribe event bus optimized for Android."
+                packaging = "jar"
+            }
         }
     }
 }
