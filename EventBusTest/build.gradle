@@ -57,6 +57,8 @@ android {
         }
     }
 
+    useLibrary 'android.test.base'
+
     lintOptions {
         // To see problems right away, also nice for Travis CI
         textOutput 'stdout'
