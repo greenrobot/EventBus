@@ -13,7 +13,6 @@ buildscript {
 apply plugin: 'com.android.application'
 
 dependencies {
-    androidTestImplementation project(':eventbus-java')
     androidTestImplementation project(':eventbus-android')
     androidTestImplementation project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':eventbus-annotation-processor')
