@@ -140,11 +140,10 @@ public class EventBus {
      * ThreadMode} and priority.
      */
     public void register(Object subscriber) {
-
         if (AndroidDependenciesDetector.isAndroidSDKAvailable() && !AndroidDependenciesDetector.areAndroidComponentsAvailable()) {
-            //should crash user's app if the user (developer) has not imported the android compatibility library
-            throw new RuntimeException("Looks like you are using the latest version of EventBus on Android " +
-                "without importing the EventBus for Android compatibility library. Please import it on app/build.gradle!");
+            // Crash if the user (developer) has not imported the Android compatibility library.
+            throw new RuntimeException("It looks like you are using EventBus on Android, " +
+                    "make sure to add the \"eventbus\" Android library to your dependencies.");
         }
 
         Class<?> subscriberClass = subscriber.getClass();

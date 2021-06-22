@@ -42,7 +42,7 @@ afterEvaluate {
             artifact sourcesJar
             pom {
                 name = "EventBus"
-                description = "EventBus is a publish/subscribe event bus optimized for Android."
+                description = "EventBus is a publish/subscribe event bus."
                 packaging = "jar"
             }
         }

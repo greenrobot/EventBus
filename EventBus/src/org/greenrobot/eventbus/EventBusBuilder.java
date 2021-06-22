@@ -143,8 +143,7 @@ public class EventBusBuilder {
     /**
      * Set a specific log handler for all EventBus logging.
      * <p/>
-     * By default all logging is via {@link android.util.Log} but if you want to use EventBus
-     * outside the Android environment then you will need to provide another log target.
+     * By default, all logging is via {@code android.util.Log} on Android or System.out on JVM.
      */
     public EventBusBuilder logger(Logger logger) {
         this.logger = logger;
