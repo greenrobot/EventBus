@@ -7,7 +7,7 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 java.targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    implementation project(':eventbus')
+    implementation project(':eventbus-java')
     implementation 'de.greenrobot:java-common:2.3.1'
 
     // Generates the required META-INF descriptor to make the processor incremental.

@@ -10,7 +10,7 @@ configurations {
 }
 
 dependencies {
-    compile project(':eventbus')
+    compile project(':eventbus-java')
     provided project(':eventbus-annotation-processor')
 }
 
