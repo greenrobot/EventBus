@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'com.android.library'
 
 group = 'org.greenrobot'
-version = '3.2.0'
+version = '3.3.0-SNAPSHOT'
 
 android {
     compileSdkVersion _compileSdkVersion
