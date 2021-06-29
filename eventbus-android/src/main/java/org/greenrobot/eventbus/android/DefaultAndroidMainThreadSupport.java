@@ -10,7 +10,7 @@ public class DefaultAndroidMainThreadSupport implements MainThreadSupport {
 
     @Override
     public boolean isMainThread() {
-        return true;
+        return Looper.getMainLooper() == Looper.myLooper();
     }
 
     @Override
