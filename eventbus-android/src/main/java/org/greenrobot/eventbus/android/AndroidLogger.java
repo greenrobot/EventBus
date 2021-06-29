@@ -17,7 +17,7 @@ package org.greenrobot.eventbus.android;
 
 import android.util.Log;
 import org.greenrobot.eventbus.Logger;
-import org.greenrobot.eventbus.util.ExceptionStackTraceUtils;
+
 import java.util.logging.Level;
 
 public class AndroidLogger implements Logger {
@@ -37,7 +37,7 @@ public class AndroidLogger implements Logger {
     public void log(Level level, String msg, Throwable th) {
         if (level != Level.OFF) {
             // That's how Log does it internally
-            Log.println(mapLevel(level), tag, msg + "\n" + ExceptionStackTraceUtils.getStackTraceAsString(th));
+            Log.println(mapLevel(level), tag, msg + "\n" + Log.getStackTraceString(th));
         }
     }
 
