@@ -1,17 +1,7 @@
 // Configures common publishing settings.
 
-apply plugin: "maven"
+apply plugin: "maven-publish"
 apply plugin: "signing"
-
-configurations {
-    deployerJars
-}
-
-dependencies {
-    // Using an older version to remain compatible with Wagon API used by Gradle/Maven.
-    deployerJars 'org.apache.maven.wagon:wagon-webdav-jackrabbit:3.2.0'
-    deployerJars 'org.apache.maven.wagon:wagon-ftp:3.3.2'
-}
 
 signing {
     if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') &&
@@ -22,71 +12,46 @@ signing {
     }
 }
 
-// Use afterEvaluate or dependencies might be lost in the generated POM.
-afterEvaluate { project ->
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                def preferredRepo = project.findProperty('preferredRepo')
-                println "preferredRepo=$preferredRepo"
-
-                if (preferredRepo == 'local') {
-                    repository url: repositories.mavenLocal().url
-                } else if (preferredRepo != null
-                        && project.hasProperty('preferredUsername')
-                        && project.hasProperty('preferredPassword')) {
-                    configuration = configurations.deployerJars
-                    repository(url: repositoryUrl) {
-                        authentication(userName: preferredUsername, password: preferredPassword)
-                    }
-                } else if (project.hasProperty('sonatypeUsername')
-                        && project.hasProperty('sonatypePassword')) {
-                    beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-                    def isSnapshot = version.endsWith('-SNAPSHOT')
-                    def sonatypeRepositoryUrl = isSnapshot
-                            ? "https://oss.sonatype.org/content/repositories/snapshots/"
-                            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                    repository(url: sonatypeRepositoryUrl) {
-                        authentication(userName: sonatypeUsername, password: sonatypePassword)
-                    }
-                } else {
-                    println "Deployment settings missing/incomplete for ${project.name}."
-                }
-
-                // Common properties, projects still need to set name and description.
-                pom.project {
-                    packaging 'jar'
-                    url 'https://greenrobot.org/eventbus/'
+// https://developer.android.com/studio/build/maven-publish-plugin
+// Because the Android components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing {
+        publications {
+            // Note: Sonatype repo created by publish-plugin, see root build.gradle.
+            mavenJava(MavenPublication) {
+                pom {
+                    url = "https://greenrobot.org/eventbus/"
 
                     scm {
-                        url 'https://github.com/greenrobot/EventBus'
-                        connection 'scm:git@github.com:greenrobot/EventBus.git'
-                        developerConnection 'scm:git@github.com:greenrobot/EventBus.git'
+                        connection = "scm:git@github.com:greenrobot/EventBus.git"
+                        developerConnection = "scm:git@github.com:greenrobot/EventBus.git"
+                        url = "https://github.com/greenrobot/EventBus"
                     }
 
                     licenses {
                         license {
-                            name 'The Apache Software License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                            distribution 'repo'
+                            name = "The Apache Software License, Version 2.0"
+                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                            distribution = "repo"
                         }
                     }
 
                     developers {
                         developer {
-                            id 'greenrobot'
-                            name 'greenrobot'
+                            id = "greenrobot"
+                            name = "greenrobot"
                         }
                     }
 
                     issueManagement {
-                        system 'GitHub Issues'
-                        url 'https://github.com/greenrobot/EventBus/issues'
+                        system = "https://github.com/greenrobot/EventBus/issues"
+                        url = "https://github.com/greenrobot/EventBus/issues"
                     }
 
                     organization {
-                        name 'greenrobot'
-                        url 'https://greenrobot.org'
+                        name = "greenrobot"
+                        url = "https://greenrobot.org"
                     }
                 }
             }
