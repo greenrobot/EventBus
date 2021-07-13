@@ -8,3 +8,6 @@
 -keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
 }
+
+# Accessed via reflection, avoid renaming or removal
+-keep class org.greenrobot.eventbus.android.AndroidComponentsImpl
