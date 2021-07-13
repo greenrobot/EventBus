@@ -68,16 +68,19 @@ Add EventBus to your project
 
 Available on <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus">Maven Central</a>.
 
-Via Gradle:
-```gradle
-implementation 'org.greenrobot:eventbus:3.2.0'
+Android projects:
+```groovy
+implementation("org.greenrobot:eventbus:3.2.0")
 ```
 
-Via Maven:
+Java projects:
+```groovy
+implementation("org.greenrobot:eventbus-java:3.2.0")
+```
 ```xml
 <dependency>
     <groupId>org.greenrobot</groupId>
-    <artifactId>eventbus</artifactId>
+    <artifactId>eventbus-java</artifactId>
     <version>3.2.0</version>
 </dependency>
 ```
@@ -85,20 +88,7 @@ Via Maven:
 R8, ProGuard
 ------------
 
-If your project uses R8 or ProGuard add the following rules:
-
-```bash
--keepattributes *Annotation*
--keepclassmembers class * {
-    @org.greenrobot.eventbus.Subscribe <methods>;
-}
--keep enum org.greenrobot.eventbus.ThreadMode { *; }
- 
-# And if you use AsyncExecutor:
--keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
-    <init>(java.lang.Throwable);
-}
-```
+If your project uses R8 or ProGuard this library ships [with embedded rules](/eventbus-android/consumer-rules.pro).
 
 Homepage, Documentation, Links
 ------------------------------
@@ -112,8 +102,6 @@ For more details please check the [EventBus website](https://greenrobot.org/even
 
 [FAQ](https://greenrobot.org/eventbus/documentation/faq/)
 
-How does EventBus compare to other solutions, like Otto from Square? Check this [comparison](COMPARISON.md).
-
 License
 -------
 Copyright (C) 2012-2020 Markus Junginger, greenrobot (https://greenrobot.org)
@@ -125,5 +113,3 @@ Other projects by greenrobot
 [__ObjectBox__](https://objectbox.io/) ([GitHub](https://github.com/objectbox/objectbox-java)) is a new superfast object-oriented database.
 
 [__Essentials__](https://github.com/greenrobot/essentials) is a set of utility classes and hash functions for Android & Java projects.
-
-[__greenDAO__](https://github.com/greenrobot/greenDAO) is an ORM optimized for Android: it maps database tables to Java objects and uses code generation for optimal speed.
