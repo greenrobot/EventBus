@@ -241,7 +241,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         if (typeMirror instanceof TypeVariable) {
             TypeMirror upperBound = ((TypeVariable) typeMirror).getUpperBound();
             if (upperBound instanceof DeclaredType) {
-                if (messager != null && (verbose || nolog == NoLogValue.NONE || nolog == NoLogValue.FALLBACK)) {
+                if (messager != null && (verbose || nolog == NoLogValue.NONE || nolog == NoLogValue.GENERICS)) {
                     messager.printMessage(Diagnostic.Kind.NOTE, "Using upper bound type " + upperBound +
                             " for generic parameter", param);
                 }
