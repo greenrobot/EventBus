@@ -131,9 +131,7 @@ public class EventBus {
     }
 
     /**
-     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they
-     * are no longer interested in receiving events.
-     * <p/>
+     * Registers the given subscriber to receive events. Subscribers must call {@link #unregister(Object)} once they are no longer interested in receiving events.
      * Subscribers have event handling methods that must be annotated by {@link Subscribe}.
      * The {@link Subscribe} annotation also allows configuration like {@link
      * ThreadMode} and priority.
@@ -148,7 +146,7 @@ public class EventBus {
         }
     }
 
-    // Must be called in synchronized block
+    // Must be called in synchronized block.
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
         Class<?> eventType = subscriberMethod.eventType;
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
@@ -182,7 +180,7 @@ public class EventBus {
             if (eventInheritance) {
                 // Existing sticky events of all subclasses of eventType have to be considered.
                 // Note: Iterating over all events may be inefficient with lots of sticky events,
-                // thus data structure should be changed to allow a more efficient lookup
+                // thus data structure should be changed to allow a more efficient lookup:
                 // (e.g. an additional map storing sub classes of super classes: Class -> List<Class>).
                 Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
                 for (Map.Entry<Class<?>, Object> entry : entries) {
@@ -209,8 +207,8 @@ public class EventBus {
 
     /**
      * Checks if the current thread is running in the main thread.
-     * If there is no main thread support (e.g. non-Android), "true" is always returned. In that case MAIN thread
-     * subscribers are always called in posting thread, and BACKGROUND subscribers are always called from a background
+     * If there is no main thread support (e.g. non-Android), "true" is always returned. In that case MAIN thread.
+     * subscribers are always called in posting thread, and BACKGROUND subscribers are always called from a background.
      * poster.
      */
     private boolean isMainThread() {
