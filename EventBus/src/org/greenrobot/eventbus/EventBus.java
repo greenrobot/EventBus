@@ -182,7 +182,7 @@ public class EventBus {
             if (eventInheritance) {
                 // Existing sticky events of all subclasses of eventType have to be considered.
                 // Note: Iterating over all events may be inefficient with lots of sticky events,
-                // thus data structure should be changed to allow a more efficient lookup
+                // thus data structure should be changed to allow a more efficient lookup.
                 // (e.g. an additional map storing sub classes of super classes: Class -> List<Class>).
                 Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
                 for (Map.Entry<Class<?>, Object> entry : entries) {
@@ -275,7 +275,7 @@ public class EventBus {
     }
 
     /**
-     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent
+     * Called from a subscriber's event handling method, further event delivery will be canceled. Subsequent.
      * subscribers
      * won't receive the event. Events are usually canceled by higher priority subscribers (see
      * {@link Subscribe#priority()}). Canceling is restricted to event handling methods running in posting thread
@@ -305,7 +305,7 @@ public class EventBus {
         synchronized (stickyEvents) {
             stickyEvents.put(event.getClass(), event);
         }
-        // Should be posted after it is putted, in case the subscriber wants to remove immediately
+        // Should be posted after it is putted, in case the subscriber wants to remove immediately.
         post(event);
     }
 
