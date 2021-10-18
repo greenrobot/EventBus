@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
@@ -47,7 +49,6 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 import de.greenrobot.common.ListMap;
-
 
 import static net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING;
 
@@ -369,12 +370,17 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     }
 
     private void writeIndexLines(BufferedWriter writer, String myPackage) throws IOException {
+        Map<String, TypeElement> classMethods = new TreeMap<>();
         for (TypeElement subscriberTypeElement : methodsByClass.keySet()) {
             if (classesToSkip.contains(subscriberTypeElement)) {
                 continue;
             }
-
             String subscriberClass = getClassString(subscriberTypeElement, myPackage);
+            classMethods.put(subscriberClass, subscriberTypeElement);
+        }
+        for(Map.Entry<String, TypeElement> entry: classMethods.entrySet()) {
+            String subscriberClass = entry.getKey();
+            TypeElement subscriberTypeElement = entry.getValue();
             if (isVisible(myPackage, subscriberTypeElement)) {
                 writeLine(writer, 2,
                         "putIndex(new SimpleSubscriberInfo(" + subscriberClass + ".class,",
