@@ -1,6 +1,6 @@
 /* Javadoc style sheet */
 /*
-Overall document style
+Overall document style.
 */
 
 @import url('resources/fonts/dejavu.css');
@@ -79,7 +79,11 @@ sup {
     font-size:8px;
 }
 /*
-Document title and Copyright styles
+
+
+Document title and Copyright styles.
+
+
 */
 .clear {
     clear:both;
@@ -111,7 +115,11 @@ Document title and Copyright styles
     font-weight:bold;
 }
 /*
-Navigation bar styles
+
+
+Navigation bar styles.
+
+
 */
 .bar {
     background-color:#4D974D;
@@ -196,7 +204,11 @@ ul.subNavList li{
     overflow:hidden;
 }
 /*
-Page header and footer styles
+
+
+Page header and footer styles.
+
+
 */
 .header, .footer {
     clear:both;
@@ -232,7 +244,11 @@ Page header and footer styles
     font-size:13px;
 }
 /*
-Heading styles
+
+
+Heading styles.
+
+
 */
 div.details ul.blockList ul.blockList ul.blockList li.blockList h4, div.details ul.blockList ul.blockList ul.blockListLast li.blockList h4 {
     background-color:#dee3e9;
@@ -254,7 +270,11 @@ ul.blockList li.blockList h2 {
     padding:0px 0 20px 0;
 }
 /*
-Page layout container styles
+
+
+Page layout container styles.
+
+
 */
 .contentContainer, .sourceContainer, .classUseContainer, .serializedFormContainer, .constantValuesContainer {
     clear:both;
@@ -301,7 +321,9 @@ Page layout container styles
     display:inline;
 }
 /*
-List styles
+
+List styles.
+
 */
 ul.horizontal li {
     display:inline;
@@ -355,7 +377,11 @@ table tr td dl, table tr td dl dt, table tr td dl dd {
     margin-bottom:1px;
 }
 /*
-Table styles
+
+
+Table styles.
+
+
 */
 .overviewSummary, .memberSummary, .typeSummary, .useSummary, .constantsSummary, .deprecatedSummary {
     width:100%;
