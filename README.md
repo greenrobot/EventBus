@@ -5,6 +5,7 @@ EventBus
 
 [![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
 [![Follow greenrobot on Twitter](https://img.shields.io/twitter/follow/greenrobot_de.svg?style=flat-square&logo=twitter)](https://twitter.com/greenrobot_de)
+[![Maintainability](https://cloud.quality-gate.com/dashboard/api/badge?projectName=greenrobot_EventBus&branchName=master)](https://cloud.quality-gate.com/dashboard/branches/34726#overview)
 
 EventBus...
 
