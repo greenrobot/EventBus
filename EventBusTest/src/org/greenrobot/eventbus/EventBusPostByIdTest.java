@@ -17,8 +17,6 @@ package org.greenrobot.eventbus;
 
 import static org.junit.Assert.assertEquals;
 
-import android.util.Log;
-
 import org.junit.Test;
 
 /**
