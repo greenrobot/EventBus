@@ -443,8 +443,6 @@ public class EventBus {
     }
 
     private CopyOnWriteArrayList<Subscription> clearSubscriptionsById(CopyOnWriteArrayList<Subscription> subscriptions, Object id) {
-
-        Log.e(TAG, "clearSubscriptionsById: "+ subscriptions.size() );
         if (id == null){
             return  subscriptions;
         } else {
