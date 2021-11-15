@@ -16,6 +16,7 @@
 package org.greenrobot.eventbus;
 
 final class Subscription {
+    final Object id;
     final Object subscriber;
     final SubscriberMethod subscriberMethod;
     /**
@@ -24,7 +25,8 @@ final class Subscription {
      */
     volatile boolean active;
 
-    Subscription(Object subscriber, SubscriberMethod subscriberMethod) {
+    Subscription(Object id, Object subscriber, SubscriberMethod subscriberMethod) {
+        this.id = id;
         this.subscriber = subscriber;
         this.subscriberMethod = subscriberMethod;
         active = true;

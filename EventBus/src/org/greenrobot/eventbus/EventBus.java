@@ -15,6 +15,8 @@
  */
 package org.greenrobot.eventbus;
 
+import android.util.Log;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,19 +141,23 @@ public class EventBus {
      * ThreadMode} and priority.
      */
     public void register(Object subscriber) {
+        register(subscriber, null);
+    }
+
+    public void register(Object subscriber, Object id) {
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
         synchronized (this) {
             for (SubscriberMethod subscriberMethod : subscriberMethods) {
-                subscribe(subscriber, subscriberMethod);
+                subscribe(id, subscriber, subscriberMethod);
             }
         }
     }
 
     // Must be called in synchronized block
-    private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
+    private void subscribe(Object id, Object subscriber, SubscriberMethod subscriberMethod) {
         Class<?> eventType = subscriberMethod.eventType;
-        Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
+        Subscription newSubscription = new Subscription(id, subscriber, subscriberMethod);
         CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
         if (subscriptions == null) {
             subscriptions = new CopyOnWriteArrayList<>();
@@ -253,6 +259,10 @@ public class EventBus {
 
     /** Posts the given event to the event bus. */
     public void post(Object event) {
+        post(event, null);
+    }
+
+    public void post(Object event, Object id) {
         PostingThreadState postingState = currentPostingThreadState.get();
         List<Object> eventQueue = postingState.eventQueue;
         eventQueue.add(event);
@@ -265,7 +275,7 @@ public class EventBus {
             }
             try {
                 while (!eventQueue.isEmpty()) {
-                    postSingleEvent(eventQueue.remove(0), postingState);
+                    postSingleEvent(id, eventQueue.remove(0), postingState);
                 }
             } finally {
                 postingState.isPosting = false;
@@ -302,11 +312,15 @@ public class EventBus {
      * event of an event's type is kept in memory for future access by subscribers using {@link Subscribe#sticky()}.
      */
     public void postSticky(Object event) {
+        postSticky(event, null);
+    }
+
+    public void postSticky(Object event, Object id) {
         synchronized (stickyEvents) {
             stickyEvents.put(event.getClass(), event);
         }
         // Should be posted after it is putted, in case the subscriber wants to remove immediately
-        post(event);
+        post(event, id);
     }
 
     /**
@@ -376,7 +390,7 @@ public class EventBus {
         return false;
     }
 
-    private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
+    private void postSingleEvent(Object id, Object event, PostingThreadState postingState) throws Error {
         Class<?> eventClass = event.getClass();
         boolean subscriptionFound = false;
         if (eventInheritance) {
@@ -384,10 +398,10 @@ public class EventBus {
             int countTypes = eventTypes.size();
             for (int h = 0; h < countTypes; h++) {
                 Class<?> clazz = eventTypes.get(h);
-                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
+                subscriptionFound |= postSingleEventForEventType(id, event, postingState, clazz);
             }
         } else {
-            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
+            subscriptionFound = postSingleEventForEventType(id, event, postingState, eventClass);
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
@@ -400,12 +414,13 @@ public class EventBus {
         }
     }
 
-    private boolean postSingleEventForEventType(Object event, PostingThreadState postingState, Class<?> eventClass) {
+    private boolean postSingleEventForEventType(Object id, Object event, PostingThreadState postingState, Class<?> eventClass) {
         CopyOnWriteArrayList<Subscription> subscriptions;
         synchronized (this) {
             subscriptions = subscriptionsByEventType.get(eventClass);
         }
         if (subscriptions != null && !subscriptions.isEmpty()) {
+            subscriptions = clearSubscriptionsById(subscriptions, id);
             for (Subscription subscription : subscriptions) {
                 postingState.event = event;
                 postingState.subscription = subscription;
@@ -425,6 +440,22 @@ public class EventBus {
             return true;
         }
         return false;
+    }
+
+    private CopyOnWriteArrayList<Subscription> clearSubscriptionsById(CopyOnWriteArrayList<Subscription> subscriptions, Object id) {
+
+        Log.e(TAG, "clearSubscriptionsById: "+ subscriptions.size() );
+        if (id == null){
+            return  subscriptions;
+        } else {
+            CopyOnWriteArrayList<Subscription> result = new CopyOnWriteArrayList<>();
+            for (Subscription s : subscriptions) {
+                if (s.id == id) {
+                    result.add(s);
+                }
+            }
+            return result;
+        }
     }
 
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
