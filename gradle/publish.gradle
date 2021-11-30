@@ -3,58 +3,79 @@
 apply plugin: "maven-publish"
 apply plugin: "signing"
 
-signing {
-    if (project.hasProperty('signing.keyId') && project.hasProperty('signing.password') &&
-            project.hasProperty('signing.secretKeyRingFile')) {
-        sign configurations.archives
-    } else {
-        println "Signing information missing/incomplete for ${project.name}."
-    }
-}
+publishing {
+    publications {
+        // Note: Sonatype repo created by publish-plugin, see root build.gradle.
+        mavenJava(MavenPublication) {
+            pom {
+                url = "https://greenrobot.org/eventbus/"
 
-// https://developer.android.com/studio/build/maven-publish-plugin
-// Because the Android components are created only during the afterEvaluate phase, you must
-// configure your publications using the afterEvaluate() lifecycle method.
-afterEvaluate {
-    publishing {
-        publications {
-            // Note: Sonatype repo created by publish-plugin, see root build.gradle.
-            mavenJava(MavenPublication) {
-                pom {
-                    url = "https://greenrobot.org/eventbus/"
+                scm {
+                    connection = "scm:git@github.com:greenrobot/EventBus.git"
+                    developerConnection = "scm:git@github.com:greenrobot/EventBus.git"
+                    url = "https://github.com/greenrobot/EventBus"
+                }
 
-                    scm {
-                        connection = "scm:git@github.com:greenrobot/EventBus.git"
-                        developerConnection = "scm:git@github.com:greenrobot/EventBus.git"
-                        url = "https://github.com/greenrobot/EventBus"
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "repo"
                     }
+                }
 
-                    licenses {
-                        license {
-                            name = "The Apache Software License, Version 2.0"
-                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                            distribution = "repo"
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = "greenrobot"
-                            name = "greenrobot"
-                        }
-                    }
-
-                    issueManagement {
-                        system = "https://github.com/greenrobot/EventBus/issues"
-                        url = "https://github.com/greenrobot/EventBus/issues"
-                    }
-
-                    organization {
+                developers {
+                    developer {
+                        id = "greenrobot"
                         name = "greenrobot"
-                        url = "https://greenrobot.org"
                     }
+                }
+
+                issueManagement {
+                    system = "https://github.com/greenrobot/EventBus/issues"
+                    url = "https://github.com/greenrobot/EventBus/issues"
+                }
+
+                organization {
+                    name = "greenrobot"
+                    url = "https://greenrobot.org"
                 }
             }
         }
+    }
+}
+
+// Note: ext to export to scripts applying this script.
+ext {
+    // Signing: in-memory ascii-armored key (CI) or keyring file (dev machine), see https://docs.gradle.org/current/userguide/signing_plugin.html
+    hasSigningPropertiesKeyFile = {
+        return (project.hasProperty('signingKeyId')
+                && project.hasProperty('signingKeyFile')
+                && project.hasProperty('signingPassword'))
+    }
+    // Typically via ~/.gradle/gradle.properties; default properties for signing plugin.
+    hasSigningPropertiesKeyRing = {
+        return (project.hasProperty('signing.keyId')
+                && project.hasProperty('signing.secretKeyRingFile')
+                && project.hasProperty('signing.password'))
+    }
+    hasSigningProperties = {
+        return hasSigningPropertiesKeyFile() || hasSigningPropertiesKeyRing()
+    }
+}
+
+signing {
+    if (hasSigningProperties()) {
+        if (hasSigningPropertiesKeyFile()) {
+            println "Configured signing to use key file."
+            String signingKey = new File(signingKeyFile).text
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        } else if (hasSigningPropertiesKeyRing()) {
+            println "Configured signing to use key ring."
+            // Note: using expected property names (see above), no need to configure anything.
+        }
+        sign publishing.publications.mavenJava
+    } else {
+        println "WARNING: signing properties NOT set, will not sign artifacts."
     }
 }
