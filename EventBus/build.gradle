@@ -1,7 +1,8 @@
 apply plugin: 'java'
 
-group = 'org.greenrobot'
-version = '3.3.0-SNAPSHOT'
+group = rootProject.group
+version = rootProject.version
+
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 java.targetCompatibility = JavaVersion.VERSION_1_8
 
