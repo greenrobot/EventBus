@@ -70,18 +70,18 @@ Available on <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%2
 
 Android projects:
 ```groovy
-implementation("org.greenrobot:eventbus:3.2.0")
+implementation("org.greenrobot:eventbus:3.3.0-SNAPSHOT")
 ```
 
 Java projects:
 ```groovy
-implementation("org.greenrobot:eventbus-java:3.2.0")
+implementation("org.greenrobot:eventbus-java:3.3.0-SNAPSHOT")
 ```
 ```xml
 <dependency>
     <groupId>org.greenrobot</groupId>
     <artifactId>eventbus-java</artifactId>
-    <version>3.2.0</version>
+    <version>3.3.0-SNAPSHOT</version>
 </dependency>
 ```
 
