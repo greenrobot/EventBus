@@ -3,7 +3,7 @@ EventBus
 [EventBus](https://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
 
-[![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
+[![Build Status](https://github.com/greenrobot/EventBus/actions/workflows/gradle.yml/badge.svg)](https://github.com/greenrobot/EventBus/actions)
 [![Follow greenrobot on Twitter](https://img.shields.io/twitter/follow/greenrobot_de.svg?style=flat-square&logo=twitter)](https://twitter.com/greenrobot_de)
 
 EventBus...
@@ -98,13 +98,13 @@ For more details please check the [EventBus website](https://greenrobot.org/even
 
 [Documentation](https://greenrobot.org/eventbus/documentation/)
 
-[Changelog](https://greenrobot.org/eventbus/changelog/)
+[Changelog](https://github.com/greenrobot/EventBus/releases)
 
 [FAQ](https://greenrobot.org/eventbus/documentation/faq/)
 
 License
 -------
-Copyright (C) 2012-2020 Markus Junginger, greenrobot (https://greenrobot.org)
+Copyright (C) 2012-2021 Markus Junginger, greenrobot (https://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 
