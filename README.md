@@ -68,22 +68,20 @@ Add EventBus to your project
 
 Available on <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus">Maven Central</a>.
 
-**Note: to use the latest stable version [see the previous README](https://github.com/greenrobot/EventBus/tree/V3.2.0#add-eventbus-to-your-project). The following only applies to the 3.3.0 preview release available on the [Maven Central Snapshots](https://oss.sonatype.org/content/repositories/snapshots/) repository.**
-
 Android projects:
 ```groovy
-implementation("org.greenrobot:eventbus:3.3.0-SNAPSHOT")
+implementation("org.greenrobot:eventbus:3.3.0")
 ```
 
 Java projects:
 ```groovy
-implementation("org.greenrobot:eventbus-java:3.3.0-SNAPSHOT")
+implementation("org.greenrobot:eventbus-java:3.3.0")
 ```
 ```xml
 <dependency>
     <groupId>org.greenrobot</groupId>
     <artifactId>eventbus-java</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.3.0</version>
 </dependency>
 ```
 
