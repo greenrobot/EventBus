@@ -111,24 +111,21 @@ public class AsyncExecutor {
 
     /** Posts an failure event if the given {@link RunnableEx} throws an Exception. */
     public void execute(final RunnableEx runnable) {
-        threadPool.execute(new Runnable() {
-            @Override
-            public void run() {
+        threadPool.execute(() -> {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                Object event;
                 try {
-                    runnable.run();
-                } catch (Exception e) {
-                    Object event;
-                    try {
-                        event = failureEventConstructor.newInstance(e);
-                    } catch (Exception e1) {
-                        eventBus.getLogger().log(Level.SEVERE, "Original exception:", e);
-                        throw new RuntimeException("Could not create failure event", e1);
-                    }
-                    if (event instanceof HasExecutionScope) {
-                        ((HasExecutionScope) event).setExecutionScope(scope);
-                    }
-                    eventBus.post(event);
+                    event = failureEventConstructor.newInstance(e);
+                } catch (Exception e1) {
+                    eventBus.getLogger().log(Level.SEVERE, "Original exception:", e);
+                    throw new RuntimeException("Could not create failure event", e1);
                 }
+                if (event instanceof HasExecutionScope) {
+                    ((HasExecutionScope) event).setExecutionScope(scope);
+                }
+                eventBus.post(event);
             }
         });
     }
