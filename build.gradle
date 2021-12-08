@@ -13,7 +13,7 @@ buildscript {
 
 // Set group and version in root build.gradle so publish-plugin can detect them.
 group = "org.greenrobot"
-version = "3.3.0"
+version = "3.3.1"
 
 allprojects {
     repositories {
