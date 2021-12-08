@@ -23,10 +23,18 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 /**
- * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events of any
- * given type (default is {@link ThrowableFailureEvent}).
- * 
- * @author Markus
+ * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events.
+ * By default, uses {@link ThrowableFailureEvent}.
+ * <p>
+ * Set a custom event type using {@link Builder#failureEventType(Class)}.
+ * The failure event class must have a constructor with one parameter of type {@link Throwable}.
+ * If using ProGuard or R8 make sure the constructor of the failure event class is kept, it is accessed via reflection.
+ * E.g. add a rule like
+ * <pre>
+ * -keepclassmembers class com.example.CustomThrowableFailureEvent {
+ *     &lt;init&gt;(java.lang.Throwable);
+ * }
+ * </pre>
  */
 public class AsyncExecutor {
 
