@@ -4,8 +4,9 @@
 }
 -keep enum org.greenrobot.eventbus.ThreadMode { *; }
 
-# And if you use AsyncExecutor:
--keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+# If using AsyncExecutord, keep required constructor of default event used.
+# Adjust the class name if a custom failure event type is used.
+-keepclassmembers class org.greenrobot.eventbus.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
 }
 
