@@ -31,7 +31,9 @@ EventBus in 3 steps
 
     ```java
     @Subscribe(threadMode = ThreadMode.MAIN)  
-    public void onMessageEvent(MessageEvent event) {/* Do something */};
+    public void onMessageEvent(MessageEvent event) {
+        // Do something
+    }
     ```
     Register and unregister your subscriber. For example on Android, activities and fragments should usually register according to their life cycle:
 
