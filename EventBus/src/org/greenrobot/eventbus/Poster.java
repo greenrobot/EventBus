@@ -20,7 +20,7 @@ package org.greenrobot.eventbus;
  *
  * @author William Ferguson
  */
-interface Poster {
+public interface Poster {
 
     /**
      * Enqueue an event to be posted for a particular subscription.

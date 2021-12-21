@@ -1,18 +1,19 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
+        // Note: IntelliJ IDEA 2021.1 only supports up to version 4.1
+        classpath 'com.android.tools.build:gradle:4.1.3'
     }
 }
 
 apply plugin: 'com.android.application'
 
 dependencies {
-    androidTestImplementation project(':eventbus')
+    androidTestImplementation project(':eventbus-android')
     androidTestImplementation project(':EventBusTestJava')
     androidTestAnnotationProcessor project(':eventbus-annotation-processor')
     // Trying to repro bug:
@@ -55,6 +56,8 @@ android {
             }
         }
     }
+
+    useLibrary 'android.test.base'
 
     lintOptions {
         // To see problems right away, also nice for Travis CI
