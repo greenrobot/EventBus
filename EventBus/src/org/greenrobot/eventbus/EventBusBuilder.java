@@ -37,7 +37,7 @@ public class EventBusBuilder {
     boolean throwSubscriberException;
     boolean eventInheritance = true;
     boolean ignoreGeneratedIndex;
-    boolean strictMethodVerification;
+    boolean strictMethodVerification = true;
     ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
     List<Class<?>> skipMethodVerificationForClasses;
     List<SubscriberInfoIndex> subscriberInfoIndexes;
