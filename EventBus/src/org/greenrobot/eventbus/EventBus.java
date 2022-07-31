@@ -366,7 +366,16 @@ public class EventBus {
     }
 
     public boolean hasSubscriberForEvent(Class<?> eventClass) {
-        List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
+       
+        List<Class<?>> eventTypes ;
+        
+        if(eventInheritance){
+            eventTypes = lookupAllEventTypes(eventClass);
+        }else{
+            eventTypes = new ArrayList<>();
+            eventTypes.add(eventClass);
+        }    
+        
         if (eventTypes != null) {
             int countTypes = eventTypes.size();
             for (int h = 0; h < countTypes; h++) {
