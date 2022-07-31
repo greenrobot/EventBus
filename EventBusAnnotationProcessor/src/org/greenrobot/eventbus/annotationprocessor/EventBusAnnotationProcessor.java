@@ -56,11 +56,27 @@ import static net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATI
  * based on found elements with the @Subscriber annotation.
  */
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
-@SupportedOptions(value = {"eventBusIndex", "verbose"})
+@SupportedOptions(value = {"eventBusIndex", "verbose", "nolog"})
 @IncrementalAnnotationProcessor(AGGREGATING)
 public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
     public static final String OPTION_VERBOSE = "verbose";
+    public static final String OPTION_NOLOG = "nolog";
+
+    private enum NoLogValue {
+        ALL, GENERICS, FALLBACK, NONE;
+
+        public static NoLogValue parse(String option) {
+            if (option != null) {
+                for (NoLogValue value : values()) {
+                    if (value.name().equalsIgnoreCase(option)) {
+                        return value;
+                    }
+                }
+            }
+            return NONE;
+        }
+    }
 
     /** Found subscriber methods for a class (without superclasses). */
     private final ListMap<TypeElement, ExecutableElement> methodsByClass = new ListMap<>();
@@ -69,6 +85,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     private boolean writerRoundDone;
     private int round;
     private boolean verbose;
+    private NoLogValue nolog;
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
@@ -86,6 +103,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 return false;
             }
             verbose = Boolean.parseBoolean(processingEnv.getOptions().get(OPTION_VERBOSE));
+            nolog = NoLogValue.parse(processingEnv.getOptions().get(OPTION_NOLOG));
             int lastPeriod = index.lastIndexOf('.');
             String indexPackage = lastPeriod != -1 ? index.substring(0, lastPeriod) : null;
 
@@ -171,7 +189,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             while (subscriberClass != null) {
                 if (!isVisible(myPackage, subscriberClass)) {
                     boolean added = classesToSkip.add(skipCandidate);
-                    if (added) {
+                    if (added && nolog != NoLogValue.ALL && nolog != NoLogValue.FALLBACK) {
                         String msg;
                         if (subscriberClass.equals(skipCandidate)) {
                             msg = "Falling back to reflection because class is not public";
@@ -201,7 +219,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         }
                         if (skipReason != null) {
                             boolean added = classesToSkip.add(skipCandidate);
-                            if (added) {
+                            if (added && nolog != NoLogValue.ALL && nolog != NoLogValue.FALLBACK) {
                                 String msg = "Falling back to reflection because " + skipReason;
                                 if (!subscriberClass.equals(skipCandidate)) {
                                     msg += " (found in super class for " + skipCandidate + ")";
@@ -223,7 +241,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         if (typeMirror instanceof TypeVariable) {
             TypeMirror upperBound = ((TypeVariable) typeMirror).getUpperBound();
             if (upperBound instanceof DeclaredType) {
-                if (messager != null) {
+                if (messager != null && (verbose || nolog == NoLogValue.NONE || nolog == NoLogValue.GENERICS)) {
                     messager.printMessage(Diagnostic.Kind.NOTE, "Using upper bound type " + upperBound +
                             " for generic parameter", param);
                 }
