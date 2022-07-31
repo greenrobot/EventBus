@@ -41,15 +41,17 @@ class SubscriberMethodFinder {
     private List<SubscriberInfoIndex> subscriberInfoIndexes;
     private final boolean strictMethodVerification;
     private final boolean ignoreGeneratedIndex;
+    private final boolean throwSubscriberException;
 
     private static final int POOL_SIZE = 4;
     private static final FindState[] FIND_STATE_POOL = new FindState[POOL_SIZE];
 
     SubscriberMethodFinder(List<SubscriberInfoIndex> subscriberInfoIndexes, boolean strictMethodVerification,
-                           boolean ignoreGeneratedIndex) {
+                           boolean ignoreGeneratedIndex, boolean throwSubscriberException) {
         this.subscriberInfoIndexes = subscriberInfoIndexes;
         this.strictMethodVerification = strictMethodVerification;
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
+        this.throwSubscriberException = throwSubscriberException;
     }
 
     List<SubscriberMethod> findSubscriberMethods(Class<?> subscriberClass) {
@@ -63,7 +65,7 @@ class SubscriberMethodFinder {
         } else {
             subscriberMethods = findUsingInfo(subscriberClass);
         }
-        if (subscriberMethods.isEmpty()) {
+        if (subscriberMethods.isEmpty() && throwSubscriberException) {
             throw new EventBusException("Subscriber " + subscriberClass
                     + " and its super classes have no public methods with the @Subscribe annotation");
         } else {
