@@ -328,6 +328,14 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             if (myPackage != null) {
                 writer.write("package " + myPackage + ";\n\n");
             }
+
+            int indexSize = methodsByClass.size() - classesToSkip.size();
+
+            // sanity check
+             if (indexSize < 0) {
+                indexSize = 0;
+            }
+
             writer.write("import org.greenrobot.eventbus.meta.SimpleSubscriberInfo;\n");
             writer.write("import org.greenrobot.eventbus.meta.SubscriberMethodInfo;\n");
             writer.write("import org.greenrobot.eventbus.meta.SubscriberInfo;\n");
@@ -339,7 +347,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             writer.write("public class " + clazz + " implements SubscriberInfoIndex {\n");
             writer.write("    private static final Map<Class<?>, SubscriberInfo> SUBSCRIBER_INDEX;\n\n");
             writer.write("    static {\n");
-            writer.write("        SUBSCRIBER_INDEX = new HashMap<Class<?>, SubscriberInfo>();\n\n");
+            writer.write("        SUBSCRIBER_INDEX = new HashMap<Class<?>, SubscriberInfo>(" + indexSize + ");\n\n");
             writeIndexLines(writer, myPackage);
             writer.write("    }\n\n");
             writer.write("    private static void putIndex(SubscriberInfo info) {\n");
