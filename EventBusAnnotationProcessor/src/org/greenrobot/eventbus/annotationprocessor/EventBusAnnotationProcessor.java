@@ -143,6 +143,14 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+    * Returns the <code>true</code> or </code>false</code> depending on the
+    * the subscriber method modifier and number of parameters.
+    *
+    * @param element instance of ExecutableElement.
+    * @return true if subscriber method is public and has exactly 1 parameter
+    * otherwise false.
+    */
     private boolean checkHasNoErrors(ExecutableElement element, Messager messager) {
         if (element.getModifiers().contains(Modifier.STATIC)) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must not be static", element);
@@ -248,6 +256,17 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         }
     }
 
+    /**
+    * Returns the class name from given <code>TypeElement</code>. Class Name
+    * will not be fully qualified name but relative the given package name.
+    *
+    * @param     typeElement instance of TypeElement
+    * @param	   myPackage name of package
+    * @return    name of class inside the package.
+    * @exception IllegalStateException
+    *              if actual package of class and given package name are
+    *              different.
+    */
     private String getClassString(TypeElement typeElement, String myPackage) {
         PackageElement packageElement = getPackageElement(typeElement);
         String packageString = packageElement.getQualifiedName().toString();
