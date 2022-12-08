@@ -46,6 +46,11 @@ afterEvaluate {
                 description = "EventBus is a publish/subscribe event bus."
                 packaging = "jar"
             }
+            jar {
+                manifest {
+                    attributes("Automatic-Module-Name": "eventbus.java")
+                }
+            }
         }
     }
 }
