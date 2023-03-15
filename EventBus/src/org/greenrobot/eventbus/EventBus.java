@@ -18,6 +18,7 @@ package org.greenrobot.eventbus;
 import org.greenrobot.eventbus.android.AndroidDependenciesDetector;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,6 +149,7 @@ public class EventBus {
 
         Class<?> subscriberClass = subscriber.getClass();
         List<SubscriberMethod> subscriberMethods = subscriberMethodFinder.findSubscriberMethods(subscriberClass);
+        Collections.sort(subscriberMethods);
         synchronized (this) {
             for (SubscriberMethod subscriberMethod : subscriberMethods) {
                 subscribe(subscriber, subscriberMethod);
