@@ -24,6 +24,8 @@ import static org.junit.Assert.*;
  */
 public class EventBusStickyEventTest extends AbstractEventBusTest {
 
+    private int a = 0;
+
     @Test
     public void testPostSticky() throws InterruptedException {
         eventBus.postSticky("Sticky");
@@ -54,6 +56,14 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
 
         eventBus.postSticky(new IntTestEvent(8));
         assertEquals(6, eventCount.intValue());
+    }
+
+    @Test
+    public void testPostTwoDiffPriorityStickyEventOrder() throws InterruptedException {
+        eventBus.postSticky("Sticky");
+        eventBus.postSticky(1);
+        eventBus.register(new TwoDiffPriorityStickyEventSubscriber());
+        assertEquals(1, a);
     }
 
     @Test
@@ -184,6 +194,19 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         @Subscribe
         public void onEvent(IntTestEvent event) {
             trackEvent(event);
+        }
+    }
+
+    public class TwoDiffPriorityStickyEventSubscriber {
+
+        @Subscribe(sticky = true,priority = 1)
+        public void onEvent(String event) {
+            a = 1;
+        }
+
+        @Subscribe(sticky = true,priority = 2)
+        public void onEvent(Integer event) {
+            a = 2;
         }
     }
 

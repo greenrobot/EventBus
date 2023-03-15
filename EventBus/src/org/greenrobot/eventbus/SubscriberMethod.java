@@ -18,7 +18,7 @@ package org.greenrobot.eventbus;
 import java.lang.reflect.Method;
 
 /** Used internally by EventBus and generated subscriber indexes. */
-public class SubscriberMethod {
+public class SubscriberMethod implements Comparable<SubscriberMethod>{
     final Method method;
     final ThreadMode threadMode;
     final Class<?> eventType;
@@ -64,5 +64,10 @@ public class SubscriberMethod {
     @Override
     public int hashCode() {
         return method.hashCode();
+    }
+
+    @Override
+    public int compareTo(SubscriberMethod subscriberMethod) {
+        return Integer.compare(subscriberMethod.priority,this.priority);
     }
 }
