@@ -1,5 +1,7 @@
 EventBus
 ========
+[中文文档](https://github.com/tomridder/EventBus/blob/personal/tomridder/issue_515/README_CN.md)
+
 [EventBus](https://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
 
