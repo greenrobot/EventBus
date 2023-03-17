@@ -15,23 +15,39 @@
  */
 package org.greenrobot.eventbus;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 
-public class HandlerPoster extends Handler implements Poster {
+public class HandlerPoster implements Poster {
 
+    private Handler handler;
     private final PendingPostQueue queue;
     private final int maxMillisInsideHandleMessage;
     private final EventBus eventBus;
     private boolean handlerActive;
 
     public HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {
-        super(looper);
         this.eventBus = eventBus;
         this.maxMillisInsideHandleMessage = maxMillisInsideHandleMessage;
         queue = new PendingPostQueue();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            handler = Handler.createAsync(looper, new Handler.Callback() {
+                @Override
+                public boolean handleMessage(Message msg) {
+                    return HandleMessageInHandlerPoster();
+                }
+            });
+        } else {
+            handler = new Handler(looper, new Handler.Callback() {
+                @Override
+                public boolean handleMessage(Message msg) {
+                    return HandleMessageInHandlerPoster();
+                }
+            });
+        }
     }
 
     public void enqueue(Subscription subscription, Object event) {
@@ -40,15 +56,14 @@ public class HandlerPoster extends Handler implements Poster {
             queue.enqueue(pendingPost);
             if (!handlerActive) {
                 handlerActive = true;
-                if (!sendMessage(obtainMessage())) {
+                if (!handler.sendMessage(handler.obtainMessage())) {
                     throw new EventBusException("Could not send handler message");
                 }
             }
         }
     }
 
-    @Override
-    public void handleMessage(Message msg) {
+    private boolean HandleMessageInHandlerPoster() {
         boolean rescheduled = false;
         try {
             long started = SystemClock.uptimeMillis();
@@ -60,22 +75,23 @@ public class HandlerPoster extends Handler implements Poster {
                         pendingPost = queue.poll();
                         if (pendingPost == null) {
                             handlerActive = false;
-                            return;
+                            return true;
                         }
                     }
                 }
                 eventBus.invokeSubscriber(pendingPost);
                 long timeInMethod = SystemClock.uptimeMillis() - started;
                 if (timeInMethod >= maxMillisInsideHandleMessage) {
-                    if (!sendMessage(obtainMessage())) {
+                    if (!handler.sendMessage(handler.obtainMessage())) {
                         throw new EventBusException("Could not send handler message");
                     }
                     rescheduled = true;
-                    return;
+                    return true;
                 }
             }
         } finally {
             handlerActive = rescheduled;
         }
     }
+
 }
