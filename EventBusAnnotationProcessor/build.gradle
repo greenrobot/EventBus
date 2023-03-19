@@ -9,6 +9,7 @@ java.targetCompatibility = JavaVersion.VERSION_1_8
 dependencies {
     implementation project(':eventbus-java')
     implementation 'de.greenrobot:java-common:2.3.1'
+    implementation 'com.squareup:javapoet:1.13.0'
 
     // Generates the required META-INF descriptor to make the processor incremental.
     def incap = '0.2'

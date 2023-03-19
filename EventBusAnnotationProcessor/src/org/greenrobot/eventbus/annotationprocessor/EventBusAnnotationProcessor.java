@@ -19,12 +19,18 @@ import net.ltgt.gradle.incap.IncrementalAnnotationProcessor;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.eventbus.meta.SimpleSubscriberInfo;
+import org.greenrobot.eventbus.meta.SubscriberInfo;
+import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
+import org.greenrobot.eventbus.meta.SubscriberMethodInfo;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -51,6 +57,18 @@ import de.greenrobot.common.ListMap;
 
 import static net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING;
 
+import static javax.lang.model.element.Modifier.STATIC;
+
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
+
 /**
  * Is an aggregating processor as it writes a single file, the subscriber index file,
  * based on found elements with the @Subscriber annotation.
@@ -62,6 +80,19 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
     public static final String OPTION_VERBOSE = "verbose";
 
+    private static final String PUT_INDEX_METHOD = "putIndex";
+
+    private static final String INFO = "info";
+
+    private static final String GET_SUBSCRIBER_CLASS = "getSubscriberClass";
+
+    private static final String GET_SUBSCRIBE_INFO_METHOD = "getSubscriberInfo";
+
+    private static final String SUBSCRIBER_CLASS = "subscriberClass";
+
+    private static final String SUBSCRIBER_INDEX = "SUBSCRIBER_INDEX";
+
+
     /** Found subscriber methods for a class (without superclasses). */
     private final ListMap<TypeElement, ExecutableElement> methodsByClass = new ListMap<>();
     private final Set<TypeElement> classesToSkip = new HashSet<>();
@@ -69,6 +100,12 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
     private boolean writerRoundDone;
     private int round;
     private boolean verbose;
+
+    private MethodSpec getSubscriberInfoMethod;
+
+    private MethodSpec putIndexMethod;
+
+    private boolean isUseJavaPoet = true;
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
@@ -113,7 +150,11 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             checkForSubscribersToSkip(messager, indexPackage);
 
             if (!methodsByClass.isEmpty()) {
-                createInfoIndexFile(index);
+                if (isUseJavaPoet) {
+                    createInfoIndexFileByJavaPoet(index);
+                } else {
+                    createInfoIndexFile(index);
+                }
             } else {
                 messager.printMessage(Diagnostic.Kind.WARNING, "No @Subscribe annotations found");
             }
@@ -280,6 +321,40 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return (PackageElement) candidate;
     }
 
+    private void writeCreateSubscriberMethodsWithJavaPoet(CodeBlock.Builder codeBlockBuilder , List<ExecutableElement> methods) {
+        for (ExecutableElement method : methods) {
+            List<? extends VariableElement> parameters = method.getParameters();
+            TypeMirror paramType = getParamTypeMirror(parameters.get(0), null);
+            TypeElement paramElement = (TypeElement) processingEnv.getTypeUtils().asElement(paramType);
+            String methodName = method.getSimpleName().toString();
+            ClassName threadMode = ClassName.get(ThreadMode.class);
+
+            Subscribe subscribe = method.getAnnotation(Subscribe.class);
+            codeBlockBuilder.add("new $T(\"" + methodName + "\",", ClassName.get(SubscriberMethodInfo.class));
+            String lineEnd = "),";
+            if (subscribe.priority() == 0 && !subscribe.sticky()) {
+                if (subscribe.threadMode() == ThreadMode.POSTING) {
+                    codeBlockBuilder.add("$T.class" + lineEnd,ClassName.get(paramElement));
+                } else {
+                    codeBlockBuilder.add("$T.class,",ClassName.get(paramElement));
+                    codeBlockBuilder.add("$T." + subscribe.threadMode().name() + lineEnd,threadMode);
+                }
+            } else {
+                codeBlockBuilder.add("$T.class,",ClassName.get(paramElement));
+                codeBlockBuilder.add("$T." + subscribe.threadMode().name() + ",",threadMode);
+                codeBlockBuilder.add(subscribe.priority() + ",");
+                codeBlockBuilder.add(subscribe.sticky() + lineEnd);
+            }
+
+            if (verbose) {
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
+                        method.getEnclosingElement().getSimpleName() + "." + methodName +
+                        "(" + paramElement.getSimpleName() + ")");
+            }
+
+        }
+    }
+
     private void writeCreateSubscriberMethods(BufferedWriter writer, List<ExecutableElement> methods,
                                               String callPrefix, String myPackage) throws IOException {
         for (ExecutableElement method : methods) {
@@ -314,6 +389,83 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         "(" + paramElement.getSimpleName() + ")");
             }
 
+        }
+    }
+
+    private void createInfoIndexFileByJavaPoet(String index) {
+        BufferedWriter writer = null;
+        try {
+            JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(index);
+            int period = index.lastIndexOf('.');
+            String myPackage = period > 0 ? index.substring(0, period) : null;
+            String clazz = index.substring(period + 1);
+            writer = new BufferedWriter(sourceFile.openWriter());
+
+            // putIndex Method
+            ClassName subscriberInfoClass = ClassName.get(SubscriberInfo.class);
+            putIndexMethod = MethodSpec.methodBuilder(PUT_INDEX_METHOD)
+                    .returns(TypeName.VOID)
+                    .addModifiers(Modifier.PRIVATE, STATIC)
+                    .addParameter(subscriberInfoClass,INFO)
+                    .addStatement("$N.put($N.$N(), $N)",SUBSCRIBER_INDEX,INFO,GET_SUBSCRIBER_CLASS,INFO)
+                    .build();
+
+            // getSubscriberInfo Method
+            TypeName wildcard = WildcardTypeName.subtypeOf(Object.class);
+            ClassName cls = ClassName.get(Class.class);
+            TypeName clsWildcard = ParameterizedTypeName.get(cls, wildcard);
+            getSubscriberInfoMethod = MethodSpec.methodBuilder(GET_SUBSCRIBE_INFO_METHOD)
+                    .returns(subscriberInfoClass)
+                    .addAnnotation(Override.class)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(clsWildcard,SUBSCRIBER_CLASS)
+                    .addStatement("$T info = $N.get($N)",ClassName.get(SubscriberInfo.class),SUBSCRIBER_INDEX,SUBSCRIBER_CLASS)
+                    .addCode(
+                            " if (info != null) { \n" +
+                            "   return info; \n" +
+                            " } else { \n" +
+                            "   return null; \n" +
+                            " }"
+                    )
+                    .build();
+
+
+            // static method
+            CodeBlock staticBlock = CodeBlock.builder()
+                    .add(writeIndexLinesWithJavaPoet(myPackage))
+                    .build();
+
+            // variable
+            TypeName subscribeInfo = ClassName.get(SubscriberInfo.class);
+            ClassName map = ClassName.get(Map.class);
+            TypeName mapStringClass = ParameterizedTypeName.get(map, clsWildcard,subscribeInfo);
+            FieldSpec variable = FieldSpec.builder(mapStringClass, SUBSCRIBER_INDEX)
+                    .addModifiers(Modifier.PRIVATE, STATIC,Modifier.FINAL)
+                    .build();
+
+            // class
+            TypeSpec typeClass = TypeSpec.classBuilder(clazz)
+                    .addModifiers(Modifier.PUBLIC)
+                    .addJavadoc("This class is generated by EventBus, do not edit.")
+                    .addSuperinterface(SubscriberInfoIndex.class)
+                    .addField(variable)
+                    .addStaticBlock(staticBlock)
+                    .addMethod(getSubscriberInfoMethod)
+                    .addMethod(putIndexMethod).build();
+
+            // file
+            JavaFile javaFile = JavaFile.builder(myPackage, typeClass).build();
+            writer.write(javaFile.toString());
+        } catch (IOException e) {
+            throw new RuntimeException();
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    //Silent
+                }
+            }
         }
     }
 
@@ -366,6 +518,40 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 }
             }
         }
+    }
+
+    private CodeBlock writeIndexLinesWithJavaPoet(String myPackage) {
+        CodeBlock.Builder staticBlockBuilder = CodeBlock.builder();
+
+        TypeName wildcard = WildcardTypeName.subtypeOf(Object.class);
+        ClassName cls = ClassName.get(Class.class);
+        TypeName clsWildcard = ParameterizedTypeName.get(cls, wildcard);
+
+        TypeName subscribeInfo = ClassName.get(SubscriberInfo.class);
+
+        ClassName map = ClassName.get(HashMap.class);
+
+        TypeName mapStringClass = ParameterizedTypeName.get(map, clsWildcard,subscribeInfo);
+
+        staticBlockBuilder.add("$N = new $T();\n \n",SUBSCRIBER_INDEX,mapStringClass);
+
+        ClassName simpleSubscriberInfoClass = ClassName.get(SimpleSubscriberInfo.class);
+        for (TypeElement subscriberTypeElement : methodsByClass.keySet()) {
+            if (classesToSkip.contains(subscriberTypeElement)) {
+                continue;
+            }
+
+            String subscriberClass = getClassString(subscriberTypeElement, myPackage);
+            if (isVisible(myPackage, subscriberTypeElement)) {
+                staticBlockBuilder.add(" $N(new $T($T.class,true,new $T[] {",putIndexMethod,simpleSubscriberInfoClass,ClassName.get(subscriberTypeElement), ClassName.get(SubscriberMethodInfo.class));
+                List<ExecutableElement> methods = methodsByClass.get(subscriberTypeElement);
+                writeCreateSubscriberMethodsWithJavaPoet(staticBlockBuilder,methods);
+                staticBlockBuilder.add("}));\n \n");
+            } else {
+                staticBlockBuilder.add("        // Subscriber not visible to index: $T \n",subscriberClass);
+            }
+        }
+        return  staticBlockBuilder.build();
     }
 
     private void writeIndexLines(BufferedWriter writer, String myPackage) throws IOException {
