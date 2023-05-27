@@ -16,9 +16,7 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
 import java.util.concurrent.CountDownLatch;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -35,7 +33,6 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
         eventBus.register(new Subscriber(0, false));
         eventBus.post("42");
         assertEquals(1, eventCount.intValue());
-
         eventBus.unregister(canceler);
         eventBus.post("42");
         assertEquals(1 + 2, eventCount.intValue());
@@ -69,7 +66,9 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     public class Subscriber {
+
         private final int prio;
+
         private final boolean cancel;
 
         public Subscriber(int prio, boolean cancel) {
@@ -98,7 +97,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
         }
 
         private void handleEvent(String event, int prio) {
-            if(this.prio == prio) {
+            if (this.prio == prio) {
                 trackEvent(event);
                 if (cancel) {
                     eventBus.cancelEventDelivery(event);
@@ -108,6 +107,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     public class SubscriberCancelOtherEvent {
+
         @Subscribe
         public void onEvent(String event) {
             try {
@@ -119,6 +119,7 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
     }
 
     public class SubscriberMainThread {
+
         final CountDownLatch done = new CountDownLatch(1);
 
         @Subscribe(threadMode = ThreadMode.MAIN)
@@ -131,5 +132,4 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
             done.countDown();
         }
     }
-
 }

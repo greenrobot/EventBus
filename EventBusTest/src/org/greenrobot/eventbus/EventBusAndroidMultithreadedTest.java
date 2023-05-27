@@ -17,13 +17,10 @@ package org.greenrobot.eventbus;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import android.os.Looper;
 import android.support.test.runner.AndroidJUnit4;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
@@ -33,7 +30,6 @@ public class EventBusAndroidMultithreadedTest extends EventBusMultithreadedTest 
     @Test
     public void testSubscribeUnSubscribeAndPostMixedEventType() throws InterruptedException {
         List<SubscribeUnsubscribeThread> threads = new ArrayList<SubscribeUnsubscribeThread>();
-
         // Debug.startMethodTracing("testSubscribeUnSubscribeAndPostMixedEventType");
         for (int i = 0; i < 5; i++) {
             SubscribeUnsubscribeThread thread = new SubscribeUnsubscribeThread();
@@ -52,6 +48,7 @@ public class EventBusAndroidMultithreadedTest extends EventBusMultithreadedTest 
     }
 
     public class SubscribeUnsubscribeThread extends Thread {
+
         boolean running = true;
 
         public void shutdown() {
@@ -88,13 +85,16 @@ public class EventBusAndroidMultithreadedTest extends EventBusMultithreadedTest 
 
         @Subscribe
         public void onEvent(Object event) {
-            assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+            assertNotMainLooper(event);
         }
 
         @Subscribe(threadMode = ThreadMode.ASYNC)
         public void onEventAsync(Object event) {
+            assertNotMainLooper(event);
+        }
+
+        public void assertNotMainLooper(Object event) {
             assertNotSame(Looper.getMainLooper(), Looper.myLooper());
         }
     }
-
 }

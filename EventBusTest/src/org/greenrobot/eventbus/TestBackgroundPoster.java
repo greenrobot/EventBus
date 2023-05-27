@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestBackgroundPoster extends Thread {
+
     private final EventBus eventBus;
+
     volatile boolean running = true;
+
     private final List<Object> eventQ = new ArrayList<>();
+
     private final List<Object> eventsDone = new ArrayList<>();
 
     TestBackgroundPoster(EventBus eventBus) {
@@ -37,7 +41,7 @@ public class TestBackgroundPoster extends Thread {
                 } catch (InterruptedException ignored) {
                 }
             }
-            if(!eventQ.isEmpty()) {
+            if (!eventQ.isEmpty()) {
                 event = eventQ.remove(0);
             }
         }
@@ -66,5 +70,4 @@ public class TestBackgroundPoster extends Thread {
             }
         }
     }
-
 }

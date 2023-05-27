@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus.indexed;
 
 import org.greenrobot.eventbus.EventBus;
@@ -21,10 +20,8 @@ import org.greenrobot.eventbus.EventBusJavaTestsIndex;
 import org.greenrobot.eventbus.EventBusTestsIndex;
 
 public class Indexed {
+
     static EventBus build() {
-        return EventBus.builder()
-                .addIndex(new EventBusTestsIndex())
-                .addIndex(new EventBusJavaTestsIndex())
-                .build();
+        return EventBus.builder().addIndex(new EventBusTestsIndex()).addIndex(new EventBusJavaTestsIndex()).build();
     }
 }

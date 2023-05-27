@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * Simple event storing an int value. More efficient than Integer because of the its flat hierarchy. 
+ * Simple event storing an int value. More efficient than Integer because of the its flat hierarchy.
  */
 package org.greenrobot.eventbus;
 
 public class IntTestEvent {
+
     public final int value;
 
     public IntTestEvent(int value) {
         this.value = value;
     }
-
 }

@@ -17,7 +17,6 @@ package org.greenrobot.eventbus.android;
 
 import android.util.Log;
 import org.greenrobot.eventbus.Logger;
-
 import java.util.logging.Level;
 
 public class AndroidLogger implements Logger {
@@ -43,15 +42,19 @@ public class AndroidLogger implements Logger {
 
     private int mapLevel(Level level) {
         int value = level.intValue();
-        if (value < 800) { // below INFO
-            if (value < 500) { // below FINE
+        if (value < 800) {
+            // below INFO
+            if (value < 500) {
+                // below FINE
                 return Log.VERBOSE;
             } else {
                 return Log.DEBUG;
             }
-        } else if (value < 900) { // below WARNING
+        } else if (value < 900) {
+            // below WARNING
             return Log.INFO;
-        } else if (value < 1000) { // below ERROR
+        } else if (value < 1000) {
+            // below ERROR
             return Log.WARN;
         } else {
             return Log.ERROR;

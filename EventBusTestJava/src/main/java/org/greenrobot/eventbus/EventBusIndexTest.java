@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus;
 
 import org.greenrobot.eventbus.meta.SimpleSubscriberInfo;
@@ -24,9 +23,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class EventBusIndexTest {
+
     private String value;
 
-    /** Ensures the index is actually used and no reflection fall-back kicks in. */
+    /**
+     * Ensures the index is actually used and no reflection fall-back kicks in.
+     */
     @Test
     public void testManualIndexWithoutAnnotation() {
         SubscriberInfoIndex index = new SubscriberInfoIndex() {
@@ -34,13 +36,10 @@ public class EventBusIndexTest {
             @Override
             public SubscriberInfo getSubscriberInfo(Class<?> subscriberClass) {
                 Assert.assertEquals(EventBusIndexTest.class, subscriberClass);
-                SubscriberMethodInfo[] methodInfos = {
-                        new SubscriberMethodInfo("someMethodWithoutAnnotation", String.class)
-                };
+                SubscriberMethodInfo[] methodInfos = { new SubscriberMethodInfo("someMethodWithoutAnnotation", String.class) };
                 return new SimpleSubscriberInfo(EventBusIndexTest.class, false, methodInfos);
             }
         };
-
         EventBus eventBus = EventBus.builder().addIndex(index).build();
         eventBus.register(this);
         eventBus.post("Yepp");

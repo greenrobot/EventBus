@@ -2,17 +2,15 @@ package org.greenrobot.eventbus;
 
 import android.os.Handler;
 import android.os.Looper;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-
 import static org.junit.Assert.assertEquals;
 
 public class EventBusAndroidOrderTest extends AbstractAndroidEventBusTest {
 
     private TestBackgroundPoster backgroundPoster;
+
     private Handler handler;
 
     @Before
@@ -31,8 +29,8 @@ public class EventBusAndroidOrderTest extends AbstractAndroidEventBusTest {
     @Test
     public void backgroundAndMainUnordered() {
         eventBus.register(this);
-
         handler.post(new Runnable() {
+
             @Override
             public void run() {
                 // post from non-main thread
@@ -41,9 +39,7 @@ public class EventBusAndroidOrderTest extends AbstractAndroidEventBusTest {
                 eventBus.post("main");
             }
         });
-
         waitForEventCount(2, 1000);
-
         // observe that event from *main* thread is posted FIRST
         // NOT in posting order
         assertEquals("non-main", lastEvent);
@@ -52,8 +48,8 @@ public class EventBusAndroidOrderTest extends AbstractAndroidEventBusTest {
     @Test
     public void backgroundAndMainOrdered() {
         eventBus.register(this);
-
         handler.post(new Runnable() {
+
             @Override
             public void run() {
                 // post from non-main thread
@@ -62,9 +58,7 @@ public class EventBusAndroidOrderTest extends AbstractAndroidEventBusTest {
                 eventBus.post(new OrderedEvent("main"));
             }
         });
-
         waitForEventCount(2, 1000);
-
         // observe that event from *main* thread is posted LAST
         // IN posting order
         assertEquals("main", ((OrderedEvent) lastEvent).thread);
@@ -81,11 +75,11 @@ public class EventBusAndroidOrderTest extends AbstractAndroidEventBusTest {
     }
 
     static class OrderedEvent {
+
         String thread;
 
         OrderedEvent(String thread) {
             this.thread = thread;
         }
     }
-
 }

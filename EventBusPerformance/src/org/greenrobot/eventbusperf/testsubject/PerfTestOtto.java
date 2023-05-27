@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf.testsubject;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Looper;
-
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 import com.squareup.otto.ThreadEnforcer;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.greenrobot.eventbusperf.Test;
 import org.greenrobot.eventbusperf.TestEvent;
 import org.greenrobot.eventbusperf.TestParams;
@@ -36,9 +32,13 @@ import org.greenrobot.eventbusperf.TestParams;
 public abstract class PerfTestOtto extends Test {
 
     private final Bus eventBus;
+
     private final ArrayList<Object> subscribers;
+
     private final Class<?> subscriberClass;
+
     private final int eventCount;
+
     private final int expectedEventCount;
 
     public PerfTestOtto(Context context, TestParams params) {
@@ -53,7 +53,6 @@ public abstract class PerfTestOtto extends Test {
     @Override
     public void prepareTest() {
         Looper.prepare();
-
         try {
             Constructor<?> constructor = subscriberClass.getConstructor(PerfTestOtto.class);
             for (int i = 0; i < params.getSubscriberCount(); i++) {
@@ -66,6 +65,7 @@ public abstract class PerfTestOtto extends Test {
     }
 
     public static class Post extends PerfTestOtto {
+
         public Post(Context context, TestParams params) {
             super(context, params);
         }
@@ -87,7 +87,6 @@ public abstract class PerfTestOtto extends Test {
             }
             long timeAfterPosting = System.nanoTime();
             waitForReceivedEventCount(super.expectedEventCount);
-
             primaryResultMicros = (timeAfterPosting - timeStart) / 1000;
             primaryResultCount = super.expectedEventCount;
         }
@@ -99,6 +98,7 @@ public abstract class PerfTestOtto extends Test {
     }
 
     public static class RegisterAll extends PerfTestOtto {
+
         public RegisterAll(Context context, TestParams params) {
             super(context, params);
         }
@@ -117,6 +117,7 @@ public abstract class PerfTestOtto extends Test {
     }
 
     public static class RegisterOneByOne extends PerfTestOtto {
+
         protected Field cacheField;
 
         public RegisterOneByOne(Context context, TestParams params) {
@@ -140,7 +141,6 @@ public abstract class PerfTestOtto extends Test {
                 }
                 long beforeRegister = System.nanoTime();
                 super.eventBus.register(subscriber);
-
                 long afterRegister = System.nanoTime();
                 long end = System.nanoTime();
                 long timeMeasureOverhead = (end - afterRegister) * 2;
@@ -151,7 +151,6 @@ public abstract class PerfTestOtto extends Test {
                     return;
                 }
             }
-
             primaryResultMicros = time / 1000;
             primaryResultCount = params.getSubscriberCount();
         }
@@ -179,10 +178,10 @@ public abstract class PerfTestOtto extends Test {
         public String getDisplayName() {
             return "Otto Register, first time";
         }
-
     }
 
     public class Subscriber extends Activity {
+
         public Subscriber() {
         }
 
@@ -205,7 +204,6 @@ public abstract class PerfTestOtto extends Test {
 
         public void dummy5() {
         }
-
     }
 
     private long registerSubscribers() {
@@ -229,5 +227,4 @@ public abstract class PerfTestOtto extends Test {
             eventBus.unregister(subscriber);
         }
     }
-
 }

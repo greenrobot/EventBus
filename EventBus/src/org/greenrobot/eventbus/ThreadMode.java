@@ -22,6 +22,7 @@ package org.greenrobot.eventbus;
  * @see EventBus#register(Object)
  */
 public enum ThreadMode {
+
     /**
      * This is the default. Subscriber will be called directly in the same thread, which is posting the event. Event delivery
      * implies the least overhead because it avoids thread switching completely. Thus, this is the recommended mode for
@@ -29,7 +30,6 @@ public enum ThreadMode {
      * using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
      */
     POSTING,
-
     /**
      * On Android, subscriber will be called in Android's main thread (UI thread). If the posting thread is
      * the main thread, subscriber methods will be called directly, blocking the posting thread. Otherwise the event
@@ -38,7 +38,6 @@ public enum ThreadMode {
      * If not on Android, behaves the same as {@link #POSTING}.
      */
     MAIN,
-
     /**
      * On Android, subscriber will be called in Android's main thread (UI thread). Different from {@link #MAIN},
      * the event will always be queued for delivery. This ensures that the post call is non-blocking.
@@ -46,7 +45,6 @@ public enum ThreadMode {
      * If not on Android, behaves the same as {@link #POSTING}.
      */
     MAIN_ORDERED,
-
     /**
      * On Android, subscriber will be called in a background thread. If posting thread is not the main thread, subscriber methods
      * will be called directly in the posting thread. If the posting thread is the main thread, EventBus uses a single
@@ -56,7 +54,6 @@ public enum ThreadMode {
      * If not on Android, always uses a background thread.
      */
     BACKGROUND,
-
     /**
      * Subscriber will be called in a separate thread. This is always independent of the posting thread and the
      * main thread. Posting events never wait for subscriber methods using this mode. Subscriber methods should

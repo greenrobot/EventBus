@@ -17,9 +17,8 @@ package org.greenrobot.eventbus;
 
 /**
  * An {@link RuntimeException} thrown in cases something went wrong inside EventBus.
- * 
+ *
  * @author Markus
- * 
  */
 public class EventBusException extends RuntimeException {
 
@@ -36,5 +35,4 @@ public class EventBusException extends RuntimeException {
     public EventBusException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
     }
-
 }

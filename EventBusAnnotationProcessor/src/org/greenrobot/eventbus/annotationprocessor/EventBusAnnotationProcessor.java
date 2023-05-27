@@ -16,17 +16,14 @@
 package org.greenrobot.eventbus.annotationprocessor;
 
 import net.ltgt.gradle.incap.IncrementalAnnotationProcessor;
-
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;
@@ -45,10 +42,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-
 import de.greenrobot.common.ListMap;
-
-
 import static net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATING;
 
 /**
@@ -56,18 +50,25 @@ import static net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.AGGREGATI
  * based on found elements with the @Subscriber annotation.
  */
 @SupportedAnnotationTypes("org.greenrobot.eventbus.Subscribe")
-@SupportedOptions(value = {"eventBusIndex", "verbose"})
+@SupportedOptions(value = { "eventBusIndex", "verbose" })
 @IncrementalAnnotationProcessor(AGGREGATING)
 public class EventBusAnnotationProcessor extends AbstractProcessor {
+
     public static final String OPTION_EVENT_BUS_INDEX = "eventBusIndex";
+
     public static final String OPTION_VERBOSE = "verbose";
 
-    /** Found subscriber methods for a class (without superclasses). */
+    /**
+     * Found subscriber methods for a class (without superclasses).
+     */
     private final ListMap<TypeElement, ExecutableElement> methodsByClass = new ListMap<>();
+
     private final Set<TypeElement> classesToSkip = new HashSet<>();
 
     private boolean writerRoundDone;
+
     private int round;
+
     private boolean verbose;
 
     @Override
@@ -81,37 +82,28 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         try {
             String index = processingEnv.getOptions().get(OPTION_EVENT_BUS_INDEX);
             if (index == null) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX +
-                        " passed to annotation processor");
+                messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX + " passed to annotation processor");
                 return false;
             }
             verbose = Boolean.parseBoolean(processingEnv.getOptions().get(OPTION_VERBOSE));
             int lastPeriod = index.lastIndexOf('.');
             String indexPackage = lastPeriod != -1 ? index.substring(0, lastPeriod) : null;
-
             round++;
             if (verbose) {
-                messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " +
-                        !annotations.isEmpty() + ", processingOver: " + env.processingOver());
+                messager.printMessage(Diagnostic.Kind.NOTE, "Processing round " + round + ", new annotations: " + !annotations.isEmpty() + ", processingOver: " + env.processingOver());
             }
-            if (env.processingOver()) {
-                if (!annotations.isEmpty()) {
-                    messager.printMessage(Diagnostic.Kind.ERROR,
-                            "Unexpected processing state: annotations still available after processing over");
-                    return false;
-                }
+            if (env.processingOver() && !annotations.isEmpty()) {
+                messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected processing state: annotations still available after processing over");
+                return false;
             }
             if (annotations.isEmpty()) {
                 return false;
             }
-
             if (writerRoundDone) {
-                messager.printMessage(Diagnostic.Kind.ERROR,
-                        "Unexpected processing state: annotations still available after writing.");
+                messager.printMessage(Diagnostic.Kind.ERROR, "Unexpected processing state: annotations still available after writing.");
             }
             collectSubscribers(annotations, env, messager);
             checkForSubscribersToSkip(messager, indexPackage);
-
             if (!methodsByClass.isEmpty()) {
                 createInfoIndexFile(index);
             } else {
@@ -148,12 +140,10 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must not be static", element);
             return false;
         }
-
         if (!element.getModifiers().contains(Modifier.PUBLIC)) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must be public", element);
             return false;
         }
-
         List<? extends VariableElement> parameters = ((ExecutableElement) element).getParameters();
         if (parameters.size() != 1) {
             messager.printMessage(Diagnostic.Kind.ERROR, "Subscriber method must have exactly 1 parameter", element);
@@ -176,8 +166,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         if (subscriberClass.equals(skipCandidate)) {
                             msg = "Falling back to reflection because class is not public";
                         } else {
-                            msg = "Falling back to reflection because " + skipCandidate +
-                                    " has a non-public super class";
+                            msg = "Falling back to reflection because " + skipCandidate + " has a non-public super class";
                         }
                         messager.printMessage(Diagnostic.Kind.NOTE, msg, subscriberClass);
                     }
@@ -189,8 +178,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                         String skipReason = null;
                         VariableElement param = method.getParameters().get(0);
                         TypeMirror typeMirror = getParamTypeMirror(param, messager);
-                        if (!(typeMirror instanceof DeclaredType) ||
-                                !(((DeclaredType) typeMirror).asElement() instanceof TypeElement)) {
+                        if (!(typeMirror instanceof DeclaredType) || !(((DeclaredType) typeMirror).asElement() instanceof TypeElement)) {
                             skipReason = "event type cannot be processed";
                         }
                         if (skipReason == null) {
@@ -224,8 +212,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             TypeMirror upperBound = ((TypeVariable) typeMirror).getUpperBound();
             if (upperBound instanceof DeclaredType) {
                 if (messager != null) {
-                    messager.printMessage(Diagnostic.Kind.NOTE, "Using upper bound type " + upperBound +
-                            " for generic parameter", param);
+                    messager.printMessage(Diagnostic.Kind.NOTE, "Using upper bound type " + upperBound + " for generic parameter", param);
                 }
                 typeMirror = upperBound;
             }
@@ -280,15 +267,13 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         return (PackageElement) candidate;
     }
 
-    private void writeCreateSubscriberMethods(BufferedWriter writer, List<ExecutableElement> methods,
-                                              String callPrefix, String myPackage) throws IOException {
+    private void writeCreateSubscriberMethods(BufferedWriter writer, List<ExecutableElement> methods, String callPrefix, String myPackage) throws IOException {
         for (ExecutableElement method : methods) {
             List<? extends VariableElement> parameters = method.getParameters();
             TypeMirror paramType = getParamTypeMirror(parameters.get(0), null);
             TypeElement paramElement = (TypeElement) processingEnv.getTypeUtils().asElement(paramType);
             String methodName = method.getSimpleName().toString();
             String eventClass = getClassString(paramElement, myPackage) + ".class";
-
             Subscribe subscribe = method.getAnnotation(Subscribe.class);
             List<String> parts = new ArrayList<>();
             parts.add(callPrefix + "(\"" + methodName + "\",");
@@ -307,13 +292,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
                 parts.add(subscribe.sticky() + lineEnd);
             }
             writeLine(writer, 3, parts.toArray(new String[parts.size()]));
-
             if (verbose) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " +
-                        method.getEnclosingElement().getSimpleName() + "." + methodName +
-                        "(" + paramElement.getSimpleName() + ")");
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Indexed @Subscribe at " + method.getEnclosingElement().getSimpleName() + "." + methodName + "(" + paramElement.getSimpleName() + ")");
             }
-
         }
     }
 
@@ -373,12 +354,9 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
             if (classesToSkip.contains(subscriberTypeElement)) {
                 continue;
             }
-
             String subscriberClass = getClassString(subscriberTypeElement, myPackage);
             if (isVisible(myPackage, subscriberTypeElement)) {
-                writeLine(writer, 2,
-                        "putIndex(new SimpleSubscriberInfo(" + subscriberClass + ".class,",
-                        "true,", "new SubscriberMethodInfo[] {");
+                writeLine(writer, 2, "putIndex(new SimpleSubscriberInfo(" + subscriberClass + ".class,", "true,", "new SubscriberMethodInfo[] {");
                 List<ExecutableElement> methods = methodsByClass.get(subscriberTypeElement);
                 writeCreateSubscriberMethods(writer, methods, "new SubscriberMethodInfo", myPackage);
                 writer.write("        }));\n\n");
@@ -410,8 +388,7 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         writeLine(writer, indentLevel, 2, parts);
     }
 
-    private void writeLine(BufferedWriter writer, int indentLevel, int indentLevelIncrease, String... parts)
-            throws IOException {
+    private void writeLine(BufferedWriter writer, int indentLevel, int indentLevelIncrease, String... parts) throws IOException {
         writeIndent(writer, indentLevel);
         int len = indentLevel * 4;
         for (int i = 0; i < parts.length; i++) {

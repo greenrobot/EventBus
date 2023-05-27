@@ -16,15 +16,12 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Before;
-
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -33,15 +30,20 @@ import static org.junit.Assert.fail;
  * @author Markus Junginger, greenrobot
  */
 public abstract class AbstractEventBusTest {
-    /** Activates long(er) running tests e.g. testing multi-threading more thoroughly.  */
+
+    /**
+     * Activates long(er) running tests e.g. testing multi-threading more thoroughly.
+     */
     protected static final boolean LONG_TESTS = false;
 
     protected EventBus eventBus;
 
     protected final AtomicInteger eventCount = new AtomicInteger();
+
     protected final List<Object> eventsReceived;
 
     protected volatile Object lastEvent;
+
     protected volatile Thread lastThread;
 
     public AbstractEventBusTest() {
@@ -68,8 +70,7 @@ public abstract class AbstractEventBusTest {
             if (currentCount == expectedCount) {
                 break;
             } else if (currentCount > expectedCount) {
-                fail("Current count (" + currentCount + ") is already higher than expected count (" + expectedCount
-                        + ")");
+                fail("Current count (" + currentCount + ") is already higher than expected count (" + expectedCount + ")");
             } else {
                 try {
                     Thread.sleep(1);
@@ -94,7 +95,7 @@ public abstract class AbstractEventBusTest {
     protected void assertEventCount(int expectedEventCount) {
         assertEquals(expectedEventCount, eventCount.intValue());
     }
-    
+
     protected void countDownAndAwaitLatch(CountDownLatch latch, long seconds) {
         latch.countDown();
         awaitLatch(latch, seconds);
@@ -115,5 +116,4 @@ public abstract class AbstractEventBusTest {
     protected void log(String msg, Throwable e) {
         eventBus.getLogger().log(Level.FINE, msg, e);
     }
-
 }

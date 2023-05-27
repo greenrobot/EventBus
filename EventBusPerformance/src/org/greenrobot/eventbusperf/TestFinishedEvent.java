@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf;
 
 public class TestFinishedEvent {
 
     public final Test test;
+
     public final boolean isLastEvent;
 
     public TestFinishedEvent(Test test, boolean isLastEvent) {

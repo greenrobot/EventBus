@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf;
 
-/** Used by otto and EventBus */
+/**
+ * Used by otto and EventBus
+ */
 public class TestEvent {
-
 }

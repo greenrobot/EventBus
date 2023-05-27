@@ -19,11 +19,8 @@ import android.app.Activity;
 import android.support.test.annotation.UiThreadTest;
 import android.support.test.rule.UiThreadTestRule;
 import android.util.Log;
-
 import org.junit.Rule;
 import org.junit.Test;
-
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -33,10 +30,10 @@ import static org.junit.Assert.assertEquals;
 public class EventBusAndroidActivityTest extends AbstractEventBusTest {
 
     public static class WithIndex extends EventBusBasicTest {
+
         @Test
         public void dummy() {
         }
-
     }
 
     @Rule
@@ -48,18 +45,16 @@ public class EventBusAndroidActivityTest extends AbstractEventBusTest {
         // Use an activity to test real life performance
         TestActivity testActivity = new TestActivity();
         String event = "Hello";
-
         long start = System.currentTimeMillis();
         eventBus.register(testActivity);
         long time = System.currentTimeMillis() - start;
         Log.d(EventBus.TAG, "Registered in " + time + "ms");
-
         eventBus.post(event);
-
         assertEquals(event, testActivity.lastStringEvent);
     }
 
     public static class TestActivity extends Activity {
+
         public String lastStringEvent;
 
         @Subscribe
@@ -67,5 +62,4 @@ public class EventBusAndroidActivityTest extends AbstractEventBusTest {
             lastStringEvent = event;
         }
     }
-
 }

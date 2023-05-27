@@ -17,7 +17,6 @@ package org.greenrobot.eventbus;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import static junit.framework.Assert.assertEquals;
 
 /**
@@ -28,9 +27,13 @@ public class EventBusInheritanceDisabledTest {
     protected EventBus eventBus;
 
     protected int countMyEventExtended;
+
     protected int countMyEvent;
+
     protected int countObjectEvent;
+
     private int countMyEventInterface;
+
     private int countMyEventInterfaceExtended;
 
     @Before
@@ -41,14 +44,11 @@ public class EventBusInheritanceDisabledTest {
     @Test
     public void testEventClassHierarchy() {
         eventBus.register(this);
-
         eventBus.post("Hello");
         assertEquals(0, countObjectEvent);
-
         eventBus.post(new MyEvent());
         assertEquals(0, countObjectEvent);
         assertEquals(1, countMyEvent);
-
         eventBus.post(new MyEventExtended());
         assertEquals(0, countObjectEvent);
         assertEquals(1, countMyEvent);
@@ -69,10 +69,8 @@ public class EventBusInheritanceDisabledTest {
     @Test
     public void testEventInterfaceHierarchy() {
         eventBus.register(this);
-
         eventBus.post(new MyEvent());
         assertEquals(0, countMyEventInterface);
-
         eventBus.post(new MyEventExtended());
         assertEquals(0, countMyEventInterface);
         assertEquals(0, countMyEventInterfaceExtended);
@@ -81,7 +79,6 @@ public class EventBusInheritanceDisabledTest {
     @Test
     public void testEventSuperInterfaceHierarchy() {
         eventBus.register(this);
-
         eventBus.post(new MyEventInterfaceExtended() {
         });
         assertEquals(0, countMyEventInterface);
@@ -90,18 +87,14 @@ public class EventBusInheritanceDisabledTest {
 
     @Test
     public void testSubscriberClassHierarchy() {
-        EventBusInheritanceDisabledSubclassTest
-                subscriber = new EventBusInheritanceDisabledSubclassTest();
+        EventBusInheritanceDisabledSubclassTest subscriber = new EventBusInheritanceDisabledSubclassTest();
         eventBus.register(subscriber);
-
         eventBus.post("Hello");
         assertEquals(0, subscriber.countObjectEvent);
-
         eventBus.post(new MyEvent());
         assertEquals(0, subscriber.countObjectEvent);
         assertEquals(0, subscriber.countMyEvent);
         assertEquals(1, subscriber.countMyEventOverwritten);
-
         eventBus.post(new MyEventExtended());
         assertEquals(0, subscriber.countObjectEvent);
         assertEquals(0, subscriber.countMyEvent);
@@ -111,17 +104,13 @@ public class EventBusInheritanceDisabledTest {
 
     @Test
     public void testSubscriberClassHierarchyWithoutNewSubscriberMethod() {
-        EventBusInheritanceDisabledSubclassNoMethod
-                subscriber = new EventBusInheritanceDisabledSubclassNoMethod();
+        EventBusInheritanceDisabledSubclassNoMethod subscriber = new EventBusInheritanceDisabledSubclassNoMethod();
         eventBus.register(subscriber);
-
         eventBus.post("Hello");
         assertEquals(0, subscriber.countObjectEvent);
-
         eventBus.post(new MyEvent());
         assertEquals(0, subscriber.countObjectEvent);
         assertEquals(1, subscriber.countMyEvent);
-
         eventBus.post(new MyEventExtended());
         assertEquals(0, subscriber.countObjectEvent);
         assertEquals(1, subscriber.countMyEvent);
@@ -166,6 +155,7 @@ public class EventBusInheritanceDisabledTest {
     }
 
     public class StickySubscriber {
+
         @Subscribe(sticky = true)
         public void onEvent(Object event) {
             countObjectEvent++;
@@ -191,5 +181,4 @@ public class EventBusInheritanceDisabledTest {
             countMyEventInterfaceExtended++;
         }
     }
-
 }

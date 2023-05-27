@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus.indexed;
 
 import org.greenrobot.eventbus.EventBusBasicTest;
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.assertTrue;
 
 public class EventBusBasicTestWithIndex extends EventBusBasicTest {
+
     @Before
     public void overwriteEventBus() throws Exception {
         eventBus = Indexed.build();

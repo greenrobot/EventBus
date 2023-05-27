@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus.util;
 
 public interface HasExecutionScope {
+
     Object getExecutionScope();
 
     void setExecutionScope(Object executionScope);
-
 }

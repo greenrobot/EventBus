@@ -13,24 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf;
 
 import org.greenrobot.eventbus.ThreadMode;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class TestParams implements Serializable {
+
     private static final long serialVersionUID = -2739435088947740809L;
 
     private int eventCount;
+
     private int subscriberCount;
+
     private int publisherCount;
+
     private ThreadMode threadMode;
+
     private boolean eventInheritance;
+
     private boolean ignoreGeneratedIndex;
+
     private int testNumber;
+
     private ArrayList<Class<? extends Test>> testClasses;
 
     public int getEventCount() {
@@ -96,5 +102,4 @@ public class TestParams implements Serializable {
     public void setTestNumber(int testNumber) {
         this.testNumber = testNumber;
     }
-
 }

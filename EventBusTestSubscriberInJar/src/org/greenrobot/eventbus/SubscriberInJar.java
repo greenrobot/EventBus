@@ -3,8 +3,11 @@ package org.greenrobot.eventbus;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Helper class used by test inside a jar. */
+/**
+ * Helper class used by test inside a jar.
+ */
 public class SubscriberInJar {
+
     List<String> collectedStrings = new ArrayList<String>();
 
     @Subscribe

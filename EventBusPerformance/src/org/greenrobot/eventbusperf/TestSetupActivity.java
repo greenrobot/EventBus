@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
@@ -24,32 +23,28 @@ import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-
 import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.ArrayList;
-
 import org.greenrobot.eventbusperf.testsubject.PerfTestEventBus;
 import org.greenrobot.eventbusperf.testsubject.PerfTestOtto;
 
 public class TestSetupActivity extends Activity {
 
     @SuppressWarnings("rawtypes")
-    static final Class[] TEST_CLASSES_EVENTBUS = {PerfTestEventBus.Post.class,//
-            PerfTestEventBus.RegisterOneByOne.class,//
-            PerfTestEventBus.RegisterAll.class, //
-            PerfTestEventBus.RegisterFirstTime.class};
+    static final Class[] TEST_CLASSES_EVENTBUS = { //
+    PerfTestEventBus.Post.class, //
+    PerfTestEventBus.RegisterOneByOne.class, //
+    PerfTestEventBus.RegisterAll.class, PerfTestEventBus.RegisterFirstTime.class };
 
-    static final Class[] TEST_CLASSES_OTTO = {PerfTestOtto.Post.class,//
-            PerfTestOtto.RegisterOneByOne.class,//
-            PerfTestOtto.RegisterAll.class, //
-            PerfTestOtto.RegisterFirstTime.class};
+    static final Class[] TEST_CLASSES_OTTO = { //
+    PerfTestOtto.Post.class, //
+    PerfTestOtto.RegisterOneByOne.class, //
+    PerfTestOtto.RegisterAll.class, PerfTestOtto.RegisterFirstTime.class };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setuptests);
-
         Spinner spinnerRun = findViewById(R.id.spinnerTestToRun);
         spinnerRun.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -77,22 +72,17 @@ public class TestSetupActivity extends Activity {
         String threadModeStr = spinnerThread.getSelectedItem().toString();
         ThreadMode threadMode = ThreadMode.valueOf(threadModeStr);
         params.setThreadMode(threadMode);
-
         params.setEventInheritance(((CheckBox) findViewById(R.id.checkBoxEventBusEventHierarchy)).isChecked());
         params.setIgnoreGeneratedIndex(((CheckBox) findViewById(R.id.checkBoxEventBusIgnoreGeneratedIndex)).isChecked());
-
         EditText editTextEvent = findViewById(R.id.editTextEvent);
         params.setEventCount(Integer.parseInt(editTextEvent.getText().toString()));
-
         EditText editTextSubscriber = findViewById(R.id.editTextSubscribe);
         params.setSubscriberCount(Integer.parseInt(editTextSubscriber.getText().toString()));
-
         Spinner spinnerTestToRun = findViewById(R.id.spinnerTestToRun);
         int testPos = spinnerTestToRun.getSelectedItemPosition();
         params.setTestNumber(testPos + 1);
         ArrayList<Class<? extends Test>> testClasses = initTestClasses(testPos);
         params.setTestClasses(testClasses);
-
         Intent intent = new Intent();
         intent.setClass(this, TestRunnerActivity.class);
         intent.putExtra("params", params);
@@ -117,7 +107,6 @@ public class TestSetupActivity extends Activity {
         }
         if (checkBoxLocalBroadcast.isChecked()) {
         }
-
         return testClasses;
     }
 }

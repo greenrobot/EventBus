@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus.util;
 
 import org.greenrobot.eventbus.Logger;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 
-
 /**
  * Maps throwables to texts for error dialogs. Use Config to configure the mapping.
- * 
+ *
  * @author Markus
  */
 public class ExceptionToResourceMapping {
@@ -38,11 +35,12 @@ public class ExceptionToResourceMapping {
         throwableToMsgIdMap = new HashMap<>();
     }
 
-    /** Looks at the exception and its causes trying to find an ID. */
+    /**
+     * Looks at the exception and its causes trying to find an ID.
+     */
     public Integer mapThrowable(final Throwable throwable) {
         Throwable throwableToCheck = throwable;
         int depthToGo = 20;
-
         while (true) {
             Integer resId = mapThrowableFlat(throwableToCheck);
             if (resId != null) {
@@ -51,17 +49,19 @@ public class ExceptionToResourceMapping {
                 throwableToCheck = throwableToCheck.getCause();
                 depthToGo--;
                 if (depthToGo <= 0 || throwableToCheck == throwable || throwableToCheck == null) {
-                    Logger logger = Logger.Default.get();  // No EventBus instance here
+                    // No EventBus instance here
+                    Logger logger = Logger.Default.get();
                     logger.log(Level.FINE, "No specific message resource ID found for " + throwable);
                     // return config.defaultErrorMsgId;
                     return null;
                 }
             }
         }
-
     }
 
-    /** Mapping without checking the cause (done in mapThrowable). */
+    /**
+     * Mapping without checking the cause (done in mapThrowable).
+     */
     protected Integer mapThrowableFlat(Throwable throwable) {
         Class<? extends Throwable> throwableClass = throwable.getClass();
         Integer resId = throwableToMsgIdMap.get(throwableClass);
@@ -70,14 +70,11 @@ public class ExceptionToResourceMapping {
             Set<Entry<Class<? extends Throwable>, Integer>> mappings = throwableToMsgIdMap.entrySet();
             for (Entry<Class<? extends Throwable>, Integer> mapping : mappings) {
                 Class<? extends Throwable> candidate = mapping.getKey();
-                if (candidate.isAssignableFrom(throwableClass)) {
-                    if (closestClass == null || closestClass.isAssignableFrom(candidate)) {
-                        closestClass = candidate;
-                        resId = mapping.getValue();
-                    }
+                if (candidate.isAssignableFrom(throwableClass) && closestClass == null || closestClass.isAssignableFrom(candidate)) {
+                    closestClass = candidate;
+                    resId = mapping.getValue();
                 }
             }
-
         }
         return resId;
     }
@@ -86,5 +83,4 @@ public class ExceptionToResourceMapping {
         throwableToMsgIdMap.put(clazz, msgId);
         return this;
     }
-
 }
