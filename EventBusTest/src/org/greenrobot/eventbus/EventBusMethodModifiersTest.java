@@ -35,8 +35,7 @@ public class EventBusMethodModifiersTest extends AbstractAndroidEventBusTest {
 
     @Subscribe
     public void onEvent(String event) {
-        trackEvent(event);
-        assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+        processEventInBackground(event);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -47,12 +46,15 @@ public class EventBusMethodModifiersTest extends AbstractAndroidEventBusTest {
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onEventBackgroundThread(String event) {
-        trackEvent(event);
-        assertNotSame(Looper.getMainLooper(), Looper.myLooper());
+        processEventInBackground(event);
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
     public void onEventAsync(String event) {
+        processEventInBackground(event);
+    }
+
+    public void processEventInBackground(String event) {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }

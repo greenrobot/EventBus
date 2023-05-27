@@ -86,7 +86,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
 
             @Subscribe
             public void onEvent(String event) {
-                trackEvent(event);
+                logEvent(event);
             }
         };
         eventBus.register(subscriber);
@@ -101,7 +101,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
 
             @Subscribe
             public void onEvent(String event) {
-                trackEvent(event);
+                logEvent(event);
             }
         };
         eventBus.register(subscriber);
@@ -146,5 +146,9 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         eventBus.post(privateEvent);
         assertEquals(privateEvent, lastEvent);
         assertEquals(2, eventsReceived.size());
+    }
+
+    public void logEvent(String event) {
+        trackEvent(event);
     }
 }
