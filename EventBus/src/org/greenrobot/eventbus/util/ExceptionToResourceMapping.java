@@ -70,11 +70,9 @@ public class ExceptionToResourceMapping {
             Set<Entry<Class<? extends Throwable>, Integer>> mappings = throwableToMsgIdMap.entrySet();
             for (Entry<Class<? extends Throwable>, Integer> mapping : mappings) {
                 Class<? extends Throwable> candidate = mapping.getKey();
-                if (candidate.isAssignableFrom(throwableClass)) {
-                    if (closestClass == null || closestClass.isAssignableFrom(candidate)) {
-                        closestClass = candidate;
-                        resId = mapping.getValue();
-                    }
+                if (candidate.isAssignableFrom(throwableClass) && closestClass == null || closestClass.isAssignableFrom(candidate)) {
+                    closestClass = candidate;
+                    resId = mapping.getValue();
                 }
             }
         }
