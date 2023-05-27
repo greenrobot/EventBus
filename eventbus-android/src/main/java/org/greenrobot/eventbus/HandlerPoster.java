@@ -23,8 +23,11 @@ import android.os.SystemClock;
 public class HandlerPoster extends Handler implements Poster {
 
     private final PendingPostQueue queue;
+
     private final int maxMillisInsideHandleMessage;
+
     private final EventBus eventBus;
+
     private boolean handlerActive;
 
     public HandlerPoster(EventBus eventBus, Looper looper, int maxMillisInsideHandleMessage) {

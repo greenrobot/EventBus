@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus;
 
 import java.util.HashMap;
@@ -23,9 +22,11 @@ import java.util.Map;
 /**
  * Just to verify testHashMapClassObject is fastest. Ignore this test.
  */
-public class ClassMapPerfTest /* extends TestCase */ {
+public class ClassMapPerfTest {
 
+    /* extends TestCase */
     static final int COUNT = 10000000;
+
     static final Class CLAZZ = ClassMapPerfTest.class;
 
     public void testHashMapClassObject() {
@@ -51,5 +52,4 @@ public class ClassMapPerfTest /* extends TestCase */ {
             Class value = map.get(CLAZZ.getName());
         }
     }
-
 }

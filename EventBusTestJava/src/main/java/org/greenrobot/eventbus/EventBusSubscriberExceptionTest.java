@@ -16,7 +16,6 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -58,10 +57,10 @@ public class EventBusSubscriberExceptionTest extends AbstractEventBusTest {
     }
 
     public class BadExceptionSubscriber {
+
         @Subscribe
         public void onEvent(SubscriberExceptionEvent event) {
             throw new RuntimeException("Bad");
         }
     }
-
 }

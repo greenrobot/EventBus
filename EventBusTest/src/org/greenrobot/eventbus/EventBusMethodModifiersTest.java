@@ -16,9 +16,7 @@
 package org.greenrobot.eventbus;
 
 import android.os.Looper;
-
 import org.junit.Test;
-
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
@@ -58,5 +56,4 @@ public class EventBusMethodModifiersTest extends AbstractAndroidEventBusTest {
         trackEvent(event);
         assertNotSame(Looper.getMainLooper(), Looper.myLooper());
     }
-
 }

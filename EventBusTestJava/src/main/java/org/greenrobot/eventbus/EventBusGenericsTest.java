@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
 
 public class EventBusGenericsTest extends AbstractEventBusTest {
+
     public static class GenericEvent<T> {
+
         T value;
     }
 
     public class GenericEventSubscriber<T> {
+
         @Subscribe
         public void onGenericEvent(GenericEvent<T> event) {
             trackEvent(event);
@@ -31,6 +33,7 @@ public class EventBusGenericsTest extends AbstractEventBusTest {
     }
 
     public class FullGenericEventSubscriber<T> {
+
         @Subscribe
         public void onGenericEvent(T event) {
             trackEvent(event);
@@ -38,6 +41,7 @@ public class EventBusGenericsTest extends AbstractEventBusTest {
     }
 
     public class GenericNumberEventSubscriber<T extends Number> {
+
         @Subscribe
         public void onGenericEvent(T event) {
             trackEvent(event);

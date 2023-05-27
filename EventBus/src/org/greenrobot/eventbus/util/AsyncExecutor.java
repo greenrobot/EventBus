@@ -16,7 +16,6 @@
 package org.greenrobot.eventbus.util;
 
 import org.greenrobot.eventbus.EventBus;
-
 import java.lang.reflect.Constructor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -39,8 +38,11 @@ import java.util.logging.Level;
 public class AsyncExecutor {
 
     public static class Builder {
+
         private Executor threadPool;
+
         private Class<?> failureEventType;
+
         private EventBus eventBus;
 
         private Builder() {
@@ -79,8 +81,11 @@ public class AsyncExecutor {
         }
     }
 
-    /** Like {@link Runnable}, but the run method may throw an exception. */
+    /**
+     * Like {@link Runnable}, but the run method may throw an exception.
+     */
     public interface RunnableEx {
+
         void run() throws Exception;
     }
 
@@ -93,8 +98,11 @@ public class AsyncExecutor {
     }
 
     private final Executor threadPool;
+
     private final Constructor<?> failureEventConstructor;
+
     private final EventBus eventBus;
+
     private final Object scope;
 
     private AsyncExecutor(Executor threadPool, EventBus eventBus, Class<?> failureEventType, Object scope) {
@@ -104,12 +112,13 @@ public class AsyncExecutor {
         try {
             failureEventConstructor = failureEventType.getConstructor(Throwable.class);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException(
-                    "Failure event class must have a constructor with one parameter of type Throwable", e);
+            throw new RuntimeException("Failure event class must have a constructor with one parameter of type Throwable", e);
         }
     }
 
-    /** Posts an failure event if the given {@link RunnableEx} throws an Exception. */
+    /**
+     * Posts an failure event if the given {@link RunnableEx} throws an Exception.
+     */
     public void execute(final RunnableEx runnable) {
         threadPool.execute(() -> {
             try {
@@ -129,5 +138,4 @@ public class AsyncExecutor {
             }
         });
     }
-
 }

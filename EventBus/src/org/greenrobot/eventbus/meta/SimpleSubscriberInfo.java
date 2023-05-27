@@ -35,8 +35,7 @@ public class SimpleSubscriberInfo extends AbstractSubscriberInfo {
         SubscriberMethod[] methods = new SubscriberMethod[length];
         for (int i = 0; i < length; i++) {
             SubscriberMethodInfo info = methodInfos[i];
-            methods[i] = createSubscriberMethod(info.methodName, info.eventType, info.threadMode,
-                    info.priority, info.sticky);
+            methods[i] = createSubscriberMethod(info.methodName, info.eventType, info.threadMode, info.priority, info.sticky);
         }
         return methods;
     }

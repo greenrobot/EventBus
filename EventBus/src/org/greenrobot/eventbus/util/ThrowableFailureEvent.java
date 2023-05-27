@@ -20,8 +20,11 @@ package org.greenrobot.eventbus.util;
  * Used as default failure event by {@link AsyncExecutor}.
  */
 public class ThrowableFailureEvent implements HasExecutionScope {
+
     protected final Throwable throwable;
+
     protected final boolean suppressErrorUi;
+
     private Object executionContext;
 
     public ThrowableFailureEvent(Throwable throwable) {
@@ -53,5 +56,4 @@ public class ThrowableFailureEvent implements HasExecutionScope {
     public void setExecutionScope(Object executionContext) {
         this.executionContext = executionContext;
     }
-    
 }

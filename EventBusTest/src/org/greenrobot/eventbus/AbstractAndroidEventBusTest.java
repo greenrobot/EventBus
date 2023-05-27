@@ -20,11 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.test.runner.AndroidJUnit4;
-
 import org.junit.Before;
 import org.junit.runner.RunWith;
-
-
 import static org.junit.Assert.assertFalse;
 
 /**
@@ -32,6 +29,7 @@ import static org.junit.Assert.assertFalse;
  */
 @RunWith(AndroidJUnit4.class)
 public abstract class AbstractAndroidEventBusTest extends AbstractEventBusTest {
+
     private EventPostHandler mainPoster;
 
     public AbstractAndroidEventBusTest() {
@@ -54,6 +52,7 @@ public abstract class AbstractAndroidEventBusTest extends AbstractEventBusTest {
 
     @SuppressLint("HandlerLeak")
     class EventPostHandler extends Handler {
+
         public EventPostHandler(Looper looper) {
             super(looper);
         }
@@ -66,7 +65,5 @@ public abstract class AbstractAndroidEventBusTest extends AbstractEventBusTest {
         void post(Object event) {
             sendMessage(obtainMessage(0, event));
         }
-
     }
-
 }

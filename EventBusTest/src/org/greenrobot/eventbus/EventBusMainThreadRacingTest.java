@@ -17,9 +17,7 @@ package org.greenrobot.eventbus;
 
 import android.os.Handler;
 import android.os.Looper;
-
 import org.junit.Test;
-
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
@@ -31,27 +29,29 @@ public class EventBusMainThreadRacingTest extends AbstractAndroidEventBusTest {
     private static final int ITERATIONS = LONG_TESTS ? 100000 : 1000;
 
     protected boolean unregistered;
+
     private CountDownLatch startLatch;
+
     private volatile RuntimeException failed;
 
     @Test
     public void testRacingThreads() throws InterruptedException {
         Runnable register = new Runnable() {
+
             @Override
             public void run() {
                 eventBus.register(EventBusMainThreadRacingTest.this);
                 unregistered = false;
             }
         };
-
         Runnable unregister = new Runnable() {
+
             @Override
             public void run() {
                 eventBus.unregister(EventBusMainThreadRacingTest.this);
                 unregistered = true;
             }
         };
-
         startLatch = new CountDownLatch(2);
         BackgroundPoster backgroundPoster = new BackgroundPoster();
         backgroundPoster.start();
@@ -61,7 +61,8 @@ public class EventBusMainThreadRacingTest extends AbstractAndroidEventBusTest {
             countDownAndAwaitLatch(startLatch, 10);
             for (int i = 0; i < ITERATIONS; i++) {
                 handler.post(register);
-                Thread.sleep(0, random.nextInt(300)); // Sleep just some nanoseconds, timing is crucial here
+                // Sleep just some nanoseconds, timing is crucial here
+                Thread.sleep(0, random.nextInt(300));
                 handler.post(unregister);
                 if (failed != null) {
                     throw new RuntimeException("Failed in iteration " + i, failed);
@@ -91,12 +92,12 @@ public class EventBusMainThreadRacingTest extends AbstractAndroidEventBusTest {
     public void onEventMainThread(String event) {
         trackEvent(event);
         if (unregistered) {
-            failed = new RuntimeException("Main thread event delivered while unregistered on received event #"
-                    + eventCount);
+            failed = new RuntimeException("Main thread event delivered while unregistered on received event #" + eventCount);
         }
     }
 
     class BackgroundPoster extends Thread {
+
         volatile boolean running = true;
 
         public BackgroundPoster() {
@@ -114,7 +115,5 @@ public class EventBusMainThreadRacingTest extends AbstractAndroidEventBusTest {
                 }
             }
         }
-
     }
-
 }

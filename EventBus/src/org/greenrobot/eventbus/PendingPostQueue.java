@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus;
 
 final class PendingPostQueue {
+
     private PendingPost head;
+
     private PendingPost tail;
 
     synchronized void enqueue(PendingPost pendingPost) {
@@ -52,5 +53,4 @@ final class PendingPostQueue {
         }
         return poll();
     }
-
 }

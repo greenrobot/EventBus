@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
 public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
+
     private class PrivateEvent {
     }
 
     public class PublicClass {
+
         @Subscribe
         public void onEvent(Object any) {
             trackEvent(any);
@@ -32,6 +32,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     }
 
     private class PrivateClass {
+
         @Subscribe
         public void onEvent(Object any) {
             trackEvent(any);
@@ -39,6 +40,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     }
 
     public class PublicWithPrivateSuperClass extends PrivateClass {
+
         @Subscribe
         public void onEvent(String any) {
             trackEvent(any);
@@ -46,6 +48,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     }
 
     public class PublicClassWithPrivateEvent {
+
         @Subscribe
         public void onEvent(PrivateEvent any) {
             trackEvent(any);
@@ -53,6 +56,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     }
 
     public class PublicClassWithPublicAndPrivateEvent {
+
         @Subscribe
         public void onEvent(String any) {
             trackEvent(any);
@@ -65,6 +69,7 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     }
 
     public class PublicWithPrivateEventInSuperclass extends PublicClassWithPrivateEvent {
+
         @Subscribe
         public void onEvent(Object any) {
             trackEvent(any);
@@ -78,13 +83,13 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     @Test
     public void testAnonymousSubscriberClass() {
         Object subscriber = new Object() {
+
             @Subscribe
             public void onEvent(String event) {
                 trackEvent(event);
             }
         };
         eventBus.register(subscriber);
-
         eventBus.post("Hello");
         assertEquals("Hello", lastEvent);
         assertEquals(1, eventsReceived.size());
@@ -93,13 +98,13 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     @Test
     public void testAnonymousSubscriberClassWithPublicSuperclass() {
         Object subscriber = new PublicClass() {
+
             @Subscribe
             public void onEvent(String event) {
                 trackEvent(event);
             }
         };
         eventBus.register(subscriber);
-
         eventBus.post("Hello");
         assertEquals("Hello", lastEvent);
         assertEquals(2, eventsReceived.size());
@@ -125,11 +130,9 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
     @Test
     public void testSubscriberClassWithPublicAndPrivateEvent() {
         eventBus.register(new PublicClassWithPublicAndPrivateEvent());
-
         eventBus.post("Hello");
         assertEquals("Hello", lastEvent);
         assertEquals(1, eventsReceived.size());
-
         PrivateEvent privateEvent = new PrivateEvent();
         eventBus.post(privateEvent);
         assertEquals(privateEvent, lastEvent);
@@ -144,5 +147,4 @@ public class EventBusFallbackToReflectionTest extends AbstractEventBusTest {
         assertEquals(privateEvent, lastEvent);
         assertEquals(2, eventsReceived.size());
     }
-
 }

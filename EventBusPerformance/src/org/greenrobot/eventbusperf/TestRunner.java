@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf;
 
 import android.content.Context;
-
 import org.greenrobot.eventbus.EventBus;
-
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +25,11 @@ import java.util.List;
  * This thread initialize all selected tests and runs them through. Also the thread skips the tests, when it is canceled
  */
 public class TestRunner extends Thread {
+
     private List<Test> tests;
+
     private volatile boolean canceled;
+
     private final EventBus controlBus;
 
     public TestRunner(Context context, TestParams testParams, EventBus controlBus) {
@@ -48,7 +48,6 @@ public class TestRunner extends Thread {
     }
 
     public void run() {
-
         int idx = 0;
         for (Test test : tests) {
             // Clean up and let the main thread calm down
@@ -59,7 +58,6 @@ public class TestRunner extends Thread {
                 Thread.sleep(300);
             } catch (InterruptedException e) {
             }
-
             test.prepareTest();
             if (!canceled) {
                 test.runTest();
@@ -70,7 +68,6 @@ public class TestRunner extends Thread {
             }
             idx++;
         }
-
     }
 
     public List<Test> getTests() {

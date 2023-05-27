@@ -2,7 +2,6 @@ package org.greenrobot.eventbus;
 
 import org.greenrobot.eventbus.android.AndroidComponents;
 import org.junit.Test;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

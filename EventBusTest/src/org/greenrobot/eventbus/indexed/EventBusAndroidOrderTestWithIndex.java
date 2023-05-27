@@ -9,5 +9,4 @@ public class EventBusAndroidOrderTestWithIndex extends EventBusAndroidOrderTest 
         eventBus = Indexed.build();
         super.setUp();
     }
-
 }

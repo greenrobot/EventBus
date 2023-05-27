@@ -8,9 +8,7 @@ public abstract class AndroidComponents {
     private static final AndroidComponents implementation;
 
     static {
-        implementation = AndroidDependenciesDetector.isAndroidSDKAvailable()
-            ? AndroidDependenciesDetector.instantiateAndroidComponents()
-            : null;
+        implementation = AndroidDependenciesDetector.isAndroidSDKAvailable() ? AndroidDependenciesDetector.instantiateAndroidComponents() : null;
     }
 
     public static boolean areAvailable() {
@@ -22,6 +20,7 @@ public abstract class AndroidComponents {
     }
 
     public final Logger logger;
+
     public final MainThreadSupport defaultMainThreadSupport;
 
     public AndroidComponents(Logger logger, MainThreadSupport defaultMainThreadSupport) {

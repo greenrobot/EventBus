@@ -17,10 +17,8 @@ package org.greenrobot.eventbus;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import android.support.test.runner.AndroidJUnit4;
 import android.test.UiThreadTest;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -37,5 +35,4 @@ public class EventBusAndroidCancelEventDeliveryTest extends EventBusCancelEventD
         assertEquals(0, eventCount.intValue());
         assertNotNull(failed);
     }
-
 }

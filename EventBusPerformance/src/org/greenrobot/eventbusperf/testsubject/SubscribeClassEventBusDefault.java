@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf.testsubject;
 
 import org.greenrobot.eventbus.Subscribe;
-
 import org.greenrobot.eventbusperf.TestEvent;
 
 public class SubscribeClassEventBusDefault {
+
     private PerfTestEventBus perfTestEventBus;
 
     public SubscribeClassEventBusDefault(PerfTestEventBus perfTestEventBus) {

@@ -16,7 +16,6 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -51,7 +50,6 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
         eventBus.register(new BadNoSubscriberSubscriber());
         eventBus.post("Foo");
         assertEventCount(2);
-
         assertEquals(SubscriberExceptionEvent.class, lastEvent.getClass());
         NoSubscriberEvent noSub = (NoSubscriberEvent) ((SubscriberExceptionEvent) lastEvent).causingEvent;
         assertEquals("Foo", noSub.originalEvent);
@@ -68,6 +66,7 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
     }
 
     public static class DummySubscriber {
+
         @SuppressWarnings("unused")
         @Subscribe
         public void onEvent(String dummy) {
@@ -75,10 +74,10 @@ public class EventBusNoSubscriberEventTest extends AbstractEventBusTest {
     }
 
     public class BadNoSubscriberSubscriber {
+
         @Subscribe
         public void onEvent(NoSubscriberEvent event) {
             throw new RuntimeException("I'm bad");
         }
     }
-
 }

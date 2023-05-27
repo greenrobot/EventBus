@@ -15,15 +15,15 @@
  */
 package org.greenrobot.eventbus;
 
-
 /**
  * Posts events in background.
- * 
+ *
  * @author Markus
  */
 class AsyncPoster implements Runnable, Poster {
 
     private final PendingPostQueue queue;
+
     private final EventBus eventBus;
 
     AsyncPoster(EventBus eventBus) {
@@ -40,10 +40,9 @@ class AsyncPoster implements Runnable, Poster {
     @Override
     public void run() {
         PendingPost pendingPost = queue.poll();
-        if(pendingPost == null) {
+        if (pendingPost == null) {
             throw new IllegalStateException("No pending post available");
         }
         eventBus.invokeSubscriber(pendingPost);
     }
-
 }

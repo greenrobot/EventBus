@@ -16,10 +16,8 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -28,7 +26,9 @@ import static org.junit.Assert.assertEquals;
 public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
 
     int lastPrio = Integer.MAX_VALUE;
+
     final List<PrioSubscriber> registered = new ArrayList<PrioSubscriber>();
+
     private String fail;
 
     @Test
@@ -65,14 +65,13 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
         Object subscriber = sticky ? new PrioSubscriberSticky() : new PrioSubscriber();
         eventBus.register(subscriber);
         eventBus.post(event);
-
         waitForEventCount(expectedEventCount, 10000);
         assertEquals(null, fail);
-
         eventBus.unregister(subscriber);
     }
 
     public final class PrioSubscriber {
+
         @Subscribe(priority = 1)
         public void onEventP1(String event) {
             handleEvent(1, event);
@@ -97,7 +96,6 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
         public void onEventM100(String event) {
             handleEvent(-100, event);
         }
-
 
         @Subscribe(threadMode = ThreadMode.MAIN, priority = -1)
         public void onEventMainThreadM1(IntTestEvent event) {
@@ -134,19 +132,17 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
                 fail = "Called prio " + prio + " after " + lastPrio;
             }
             lastPrio = prio;
-
             log("Subscriber " + prio + " got: " + event);
             trackEvent(event);
         }
-
     }
 
     public final class PrioSubscriberSticky {
+
         @Subscribe(priority = 1, sticky = true)
         public void onEventP1(String event) {
             handleEvent(1, event);
         }
-
 
         @Subscribe(priority = -1, sticky = true)
         public void onEventM1(String event) {
@@ -203,11 +199,8 @@ public class EventBusOrderedSubscriptionsTest extends AbstractEventBusTest {
                 fail = "Called prio " + prio + " after " + lastPrio;
             }
             lastPrio = prio;
-
             log("Subscriber " + prio + " got: " + event);
             trackEvent(event);
         }
-
     }
-
 }

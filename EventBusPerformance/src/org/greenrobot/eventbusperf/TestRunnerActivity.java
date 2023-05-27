@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.greenrobot.eventbusperf;
 
 import android.app.Activity;
@@ -22,7 +21,6 @@ import android.os.Process;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -35,7 +33,9 @@ import org.greenrobot.eventbus.ThreadMode;
 public class TestRunnerActivity extends Activity {
 
     private TestRunner testRunner;
+
     private EventBus controlBus;
+
     private TextView textViewResult;
 
     @Override
@@ -53,7 +53,6 @@ public class TestRunnerActivity extends Activity {
         if (testRunner == null) {
             TestParams testParams = (TestParams) getIntent().getSerializableExtra("params");
             testRunner = new TestRunner(getApplicationContext(), testParams, controlBus);
-
             if (testParams.getTestNumber() == 1) {
                 textViewResult.append("Events: " + testParams.getEventCount() + "\n");
             }
@@ -65,9 +64,9 @@ public class TestRunnerActivity extends Activity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(TestFinishedEvent event) {
         Test test = event.test;
-        String text = "<b>" + test.getDisplayName() + "</b><br/>" + //
-                test.getPrimaryResultMicros() + " micro seconds<br/>" + //
-                ((int) test.getPrimaryResultRate()) + "/s<br/>";
+        String text = //
+        "<b>" + test.getDisplayName() + "</b><br/>" + test.getPrimaryResultMicros() + //
+        " micro seconds<br/>" + ((int) test.getPrimaryResultRate()) + "/s<br/>";
         if (test.getOtherTestResults() != null) {
             text += test.getOtherTestResults();
         }

@@ -17,7 +17,6 @@ package org.greenrobot.eventbus;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import static org.junit.Assert.fail;
 
 /**
@@ -62,7 +61,6 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
             // Either this should throw when another unit test got the default event bus...
             eventBus = builder.installDefaultEventBus();
             Assert.assertEquals(eventBus, EventBus.getDefault());
-
             // ...or this should throw
             eventBus = builder.installDefaultEventBus();
             fail("Should have thrown");
@@ -79,6 +77,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
     }
 
     public class SubscriberExceptionEventTracker {
+
         @Subscribe
         public void onEvent(SubscriberExceptionEvent event) {
             trackEvent(event);
@@ -86,6 +85,7 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
     }
 
     public class NoSubscriberEventTracker {
+
         @Subscribe
         public void onEvent(NoSubscriberEvent event) {
             trackEvent(event);
@@ -93,10 +93,10 @@ public class EventBusBuilderTest extends AbstractEventBusTest {
     }
 
     public class ThrowingSubscriber {
+
         @Subscribe
         public void onEvent(Object event) {
             throw new RuntimeException();
         }
     }
-
 }

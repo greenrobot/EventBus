@@ -16,7 +16,6 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 /**
@@ -48,10 +47,8 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         StickyIntTestSubscriber subscriber2 = new StickyIntTestSubscriber();
         eventBus.register(subscriber2);
         assertEquals(3, eventCount.intValue());
-
         eventBus.postSticky("Sticky");
         assertEquals(4, eventCount.intValue());
-
         eventBus.postSticky(new IntTestEvent(8));
         assertEquals(6, eventCount.intValue());
     }
@@ -93,16 +90,13 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
         eventBus.register(this);
         eventBus.postSticky("Sticky");
         assertEquals("Sticky", lastEvent);
-
         eventBus.unregister(this);
         eventBus.register(this);
         assertEquals("Sticky", lastEvent);
         assertEquals(2, eventCount.intValue());
-
         eventBus.postSticky("NewSticky");
         assertEquals(3, eventCount.intValue());
         assertEquals("NewSticky", lastEvent);
-
         eventBus.unregister(this);
         eventBus.register(this);
         assertEquals(4, eventCount.intValue());
@@ -168,6 +162,7 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
     }
 
     public class RemoveStickySubscriber {
+
         @SuppressWarnings("unused")
         @Subscribe(sticky = true)
         public void onEvent(String event) {
@@ -176,6 +171,7 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
     }
 
     public class NonStickySubscriber {
+
         @Subscribe
         public void onEvent(String event) {
             trackEvent(event);
@@ -188,6 +184,7 @@ public class EventBusStickyEventTest extends AbstractEventBusTest {
     }
 
     public class StickyIntTestSubscriber {
+
         @Subscribe(sticky = true)
         public void onEvent(IntTestEvent event) {
             trackEvent(event);

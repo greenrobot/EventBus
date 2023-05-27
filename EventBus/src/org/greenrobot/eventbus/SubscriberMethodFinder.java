@@ -17,7 +17,6 @@ package org.greenrobot.eventbus;
 
 import org.greenrobot.eventbus.meta.SubscriberInfo;
 import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -27,26 +26,31 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 class SubscriberMethodFinder {
+
     /*
      * In newer class files, compilers may add methods. Those are called bridge or synthetic methods.
      * EventBus must ignore both. There modifiers are not public but defined in the Java class file format:
      * http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.6-200-A.1
      */
     private static final int BRIDGE = 0x40;
+
     private static final int SYNTHETIC = 0x1000;
 
     private static final int MODIFIERS_IGNORE = Modifier.ABSTRACT | Modifier.STATIC | BRIDGE | SYNTHETIC;
+
     private static final Map<Class<?>, List<SubscriberMethod>> METHOD_CACHE = new ConcurrentHashMap<>();
 
     private List<SubscriberInfoIndex> subscriberInfoIndexes;
+
     private final boolean strictMethodVerification;
+
     private final boolean ignoreGeneratedIndex;
 
     private static final int POOL_SIZE = 4;
+
     private static final FindState[] FIND_STATE_POOL = new FindState[POOL_SIZE];
 
-    SubscriberMethodFinder(List<SubscriberInfoIndex> subscriberInfoIndexes, boolean strictMethodVerification,
-                           boolean ignoreGeneratedIndex) {
+    SubscriberMethodFinder(List<SubscriberInfoIndex> subscriberInfoIndexes, boolean strictMethodVerification, boolean ignoreGeneratedIndex) {
         this.subscriberInfoIndexes = subscriberInfoIndexes;
         this.strictMethodVerification = strictMethodVerification;
         this.ignoreGeneratedIndex = ignoreGeneratedIndex;
@@ -57,15 +61,13 @@ class SubscriberMethodFinder {
         if (subscriberMethods != null) {
             return subscriberMethods;
         }
-
         if (ignoreGeneratedIndex) {
             subscriberMethods = findUsingReflection(subscriberClass);
         } else {
             subscriberMethods = findUsingInfo(subscriberClass);
         }
         if (subscriberMethods.isEmpty()) {
-            throw new EventBusException("Subscriber " + subscriberClass
-                    + " and its super classes have no public methods with the @Subscribe annotation");
+            throw new EventBusException("Subscriber " + subscriberClass + " and its super classes have no public methods with the @Subscribe annotation");
         } else {
             METHOD_CACHE.put(subscriberClass, subscriberMethods);
             return subscriberMethods;
@@ -156,7 +158,8 @@ class SubscriberMethodFinder {
             // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
             try {
                 methods = findState.clazz.getMethods();
-            } catch (LinkageError error) { // super class of NoClassDefFoundError to be a bit more broad...
+            } catch (LinkageError error) {
+                // super class of NoClassDefFoundError to be a bit more broad...
                 String msg = "Could not inspect methods of " + findState.clazz.getName();
                 if (ignoreGeneratedIndex) {
                     msg += ". Please consider using EventBus annotation processor to avoid reflection.";
@@ -177,19 +180,16 @@ class SubscriberMethodFinder {
                         Class<?> eventType = parameterTypes[0];
                         if (findState.checkAdd(method, eventType)) {
                             ThreadMode threadMode = subscribeAnnotation.threadMode();
-                            findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
-                                    subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
+                            findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode, subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
                         }
                     }
                 } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
                     String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                    throw new EventBusException("@Subscribe method " + methodName +
-                            "must have exactly 1 parameter but has " + parameterTypes.length);
+                    throw new EventBusException("@Subscribe method " + methodName + "must have exactly 1 parameter but has " + parameterTypes.length);
                 }
             } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
                 String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                throw new EventBusException(methodName +
-                        " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
+                throw new EventBusException(methodName + " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
             }
         }
     }
@@ -199,14 +199,21 @@ class SubscriberMethodFinder {
     }
 
     static class FindState {
+
         final List<SubscriberMethod> subscriberMethods = new ArrayList<>();
+
         final Map<Class, Object> anyMethodByEventType = new HashMap<>();
+
         final Map<String, Class> subscriberClassByMethodKey = new HashMap<>();
+
         final StringBuilder methodKeyBuilder = new StringBuilder(128);
 
         Class<?> subscriberClass;
+
         Class<?> clazz;
+
         boolean skipSuperClasses;
+
         SubscriberInfo subscriberInfo;
 
         void initForSubscriber(Class<?> subscriberClass) {
@@ -249,7 +256,6 @@ class SubscriberMethodFinder {
             methodKeyBuilder.setLength(0);
             methodKeyBuilder.append(method.getName());
             methodKeyBuilder.append('>').append(eventType.getName());
-
             String methodKey = methodKeyBuilder.toString();
             Class<?> methodClass = method.getDeclaringClass();
             Class<?> methodClassOld = subscriberClassByMethodKey.put(methodKey, methodClass);
@@ -271,12 +277,10 @@ class SubscriberMethodFinder {
                 String clazzName = clazz.getName();
                 // Skip system classes, this degrades performance.
                 // Also we might avoid some ClassNotFoundException (see FAQ for background).
-                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") ||
-                        clazzName.startsWith("android.") || clazzName.startsWith("androidx.")) {
+                if (clazzName.startsWith("java.") || clazzName.startsWith("javax.") || clazzName.startsWith("android.") || clazzName.startsWith("androidx.")) {
                     clazz = null;
                 }
             }
         }
     }
-
 }

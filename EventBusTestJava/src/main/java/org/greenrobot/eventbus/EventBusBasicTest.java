@@ -16,8 +16,6 @@
 package org.greenrobot.eventbus;
 
 import org.junit.Test;
-
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -27,22 +25,28 @@ import static org.junit.Assert.fail;
 /**
  * @author Markus Junginger, greenrobot
  */
-@SuppressWarnings({"WeakerAccess", "UnusedParameters", "unused"})
+@SuppressWarnings({ "WeakerAccess", "UnusedParameters", "unused" })
 public class EventBusBasicTest extends AbstractEventBusTest {
 
     public static class WithIndex extends EventBusBasicTest {
+
         @Test
         public void dummy() {
         }
-
     }
 
     private String lastStringEvent;
+
     private int countStringEvent;
+
     private int countIntEvent;
+
     private int lastIntEvent;
+
     private int countMyEventExtended;
+
     private int countMyEvent;
+
     private int countMyEvent2;
 
     @Test
@@ -50,14 +54,11 @@ public class EventBusBasicTest extends AbstractEventBusTest {
         // Use an activity to test real life performance
         StringEventSubscriber stringEventSubscriber = new StringEventSubscriber();
         String event = "Hello";
-
         long start = System.currentTimeMillis();
         eventBus.register(stringEventSubscriber);
         long time = System.currentTimeMillis() - start;
         log("Registered in " + time + "ms");
-
         eventBus.post(event);
-
         assertEquals(event, stringEventSubscriber.lastStringEvent);
     }
 
@@ -79,6 +80,7 @@ public class EventBusBasicTest extends AbstractEventBusTest {
         for (int i = 0; i < heapMBytes * 2; i++) {
             @SuppressWarnings("unused")
             EventBusBasicTest subscriber = new EventBusBasicTest() {
+
                 byte[] expensiveObject = new byte[1024 * 1024];
             };
             eventBus.register(subscriber);
@@ -195,10 +197,8 @@ public class EventBusBasicTest extends AbstractEventBusTest {
     @Test
     public void testHasSubscriberForEvent() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
-
         eventBus.register(this);
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
-
         eventBus.unregister(this);
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
@@ -206,11 +206,9 @@ public class EventBusBasicTest extends AbstractEventBusTest {
     @Test
     public void testHasSubscriberForEventSuperclass() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
-
         Object subscriber = new ObjectSubscriber();
         eventBus.register(subscriber);
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
-
         eventBus.unregister(subscriber);
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
     }
@@ -218,12 +216,10 @@ public class EventBusBasicTest extends AbstractEventBusTest {
     @Test
     public void testHasSubscriberForEventImplementedInterface() {
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
-
         Object subscriber = new CharSequenceSubscriber();
         eventBus.register(subscriber);
         assertTrue(eventBus.hasSubscriberForEvent(CharSequence.class));
         assertTrue(eventBus.hasSubscriberForEvent(String.class));
-
         eventBus.unregister(subscriber);
         assertFalse(eventBus.hasSubscriberForEvent(CharSequence.class));
         assertFalse(eventBus.hasSubscriberForEvent(String.class));
@@ -257,6 +253,7 @@ public class EventBusBasicTest extends AbstractEventBusTest {
     }
 
     public static class StringEventSubscriber {
+
         public String lastStringEvent;
 
         @Subscribe
@@ -266,12 +263,14 @@ public class EventBusBasicTest extends AbstractEventBusTest {
     }
 
     public static class CharSequenceSubscriber {
+
         @Subscribe
         public void onEvent(CharSequence event) {
         }
     }
 
     public static class ObjectSubscriber {
+
         @Subscribe
         public void onEvent(Object event) {
         }
@@ -284,7 +283,9 @@ public class EventBusBasicTest extends AbstractEventBusTest {
     }
 
     public class RepostInteger {
+
         public int lastEvent;
+
         public int countEvent;
 
         @Subscribe
@@ -292,7 +293,6 @@ public class EventBusBasicTest extends AbstractEventBusTest {
             lastEvent = event;
             countEvent++;
             assertEquals(countEvent, event.intValue());
-
             if (event < 10) {
                 int countIntEventBefore = countEvent;
                 eventBus.post(event + 1);
@@ -301,5 +301,4 @@ public class EventBusBasicTest extends AbstractEventBusTest {
             }
         }
     }
-
 }

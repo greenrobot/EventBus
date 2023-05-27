@@ -25,6 +25,7 @@ import java.util.logging.Level;
 final class BackgroundPoster implements Runnable, Poster {
 
     private final PendingPostQueue queue;
+
     private final EventBus eventBus;
 
     private volatile boolean executorRunning;
@@ -70,5 +71,4 @@ final class BackgroundPoster implements Runnable, Poster {
             executorRunning = false;
         }
     }
-
 }

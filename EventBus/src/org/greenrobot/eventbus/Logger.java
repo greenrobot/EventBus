@@ -25,6 +25,7 @@ public interface Logger {
     void log(Level level, String msg, Throwable th);
 
     class JavaLogger implements Logger {
+
         protected final java.util.logging.Logger logger;
 
         public JavaLogger(String tag) {
@@ -42,7 +43,6 @@ public interface Logger {
             // TODO Replace logged method with caller method
             logger.log(level, msg, th);
         }
-
     }
 
     class SystemOutLogger implements Logger {
@@ -57,17 +57,15 @@ public interface Logger {
             System.out.println("[" + level + "] " + msg);
             th.printStackTrace(System.out);
         }
-
     }
 
     class Default {
+
         public static Logger get() {
             if (AndroidComponents.areAvailable()) {
                 return AndroidComponents.get().logger;
             }
-
             return new SystemOutLogger();
         }
     }
-
 }
