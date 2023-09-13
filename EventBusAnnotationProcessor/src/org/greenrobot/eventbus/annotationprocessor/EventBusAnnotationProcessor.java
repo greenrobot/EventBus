@@ -81,8 +81,8 @@ public class EventBusAnnotationProcessor extends AbstractProcessor {
         try {
             String index = processingEnv.getOptions().get(OPTION_EVENT_BUS_INDEX);
             if (index == null) {
-                messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX +
-                        " passed to annotation processor");
+//                messager.printMessage(Diagnostic.Kind.ERROR, "No option " + OPTION_EVENT_BUS_INDEX +
+//                        " passed to annotation processor");
                 return false;
             }
             verbose = Boolean.parseBoolean(processingEnv.getOptions().get(OPTION_VERBOSE));
