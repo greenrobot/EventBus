@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 group = rootProject.group
 version = rootProject.version
@@ -11,7 +12,7 @@ dependencies {
     implementation 'de.greenrobot:java-common:2.3.1'
 
     // Generates the required META-INF descriptor to make the processor incremental.
-    def incap = '0.2'
+    def incap = '1.0.0'
     compileOnly "net.ltgt.gradle.incap:incap:$incap"
     annotationProcessor "net.ltgt.gradle.incap:incap-processor:$incap"
 }
@@ -42,20 +43,29 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-apply from: rootProject.file("gradle/publish.gradle")
 // Set project-specific properties
 afterEvaluate {
-    publishing.publications {
-        mavenJava(MavenPublication) {
-            artifactId = "eventbus-annotation-processor"
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = "eventbus-annotation-processor"
 
-            from components.java
-            artifact javadocJar
-            artifact sourcesJar
-            pom {
-                name = "EventBus Annotation Processor"
-                description = "Precompiler for EventBus Annotations."
-                packaging = "jar"
+                from components.java
+                artifact javadocJar
+                artifact sourcesJar
+                pom {
+                    name = "EventBus Annotation Processor"
+                    description = "Precompiler for EventBus Annotations."
+                    packaging = "jar"
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = project.uri("https://maven.pkg.github.com/favordelivery/EventBus")
+                credentials(PasswordCredentials)
             }
         }
     }
