@@ -23,10 +23,18 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 /**
- * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events of any
- * given type (default is {@link ThrowableFailureEvent}).
- * 
- * @author Markus
+ * Executes an {@link RunnableEx} using a thread pool. Thrown exceptions are propagated by posting failure events.
+ * By default, uses {@link ThrowableFailureEvent}.
+ * <p>
+ * Set a custom event type using {@link Builder#failureEventType(Class)}.
+ * The failure event class must have a constructor with one parameter of type {@link Throwable}.
+ * If using ProGuard or R8 make sure the constructor of the failure event class is kept, it is accessed via reflection.
+ * E.g. add a rule like
+ * <pre>
+ * -keepclassmembers class com.example.CustomThrowableFailureEvent {
+ *     &lt;init&gt;(java.lang.Throwable);
+ * }
+ * </pre>
  */
 public class AsyncExecutor {
 
@@ -103,24 +111,21 @@ public class AsyncExecutor {
 
     /** Posts an failure event if the given {@link RunnableEx} throws an Exception. */
     public void execute(final RunnableEx runnable) {
-        threadPool.execute(new Runnable() {
-            @Override
-            public void run() {
+        threadPool.execute(() -> {
+            try {
+                runnable.run();
+            } catch (Exception e) {
+                Object event;
                 try {
-                    runnable.run();
-                } catch (Exception e) {
-                    Object event;
-                    try {
-                        event = failureEventConstructor.newInstance(e);
-                    } catch (Exception e1) {
-                        eventBus.getLogger().log(Level.SEVERE, "Original exception:", e);
-                        throw new RuntimeException("Could not create failure event", e1);
-                    }
-                    if (event instanceof HasExecutionScope) {
-                        ((HasExecutionScope) event).setExecutionScope(scope);
-                    }
-                    eventBus.post(event);
+                    event = failureEventConstructor.newInstance(e);
+                } catch (Exception e1) {
+                    eventBus.getLogger().log(Level.SEVERE, "Original exception:", e);
+                    throw new RuntimeException("Could not create failure event", e1);
                 }
+                if (event instanceof HasExecutionScope) {
+                    ((HasExecutionScope) event).setExecutionScope(scope);
+                }
+                eventBus.post(event);
             }
         });
     }

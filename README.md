@@ -3,7 +3,7 @@ EventBus
 [EventBus](https://greenrobot.org/eventbus/) is a publish/subscribe event bus for Android and Java.<br/>
 <img src="EventBus-Publish-Subscribe.png" width="500" height="187"/>
 
-[![Build Status](https://travis-ci.org/greenrobot/EventBus.svg?branch=master)](https://travis-ci.org/greenrobot/EventBus)
+[![Build Status](https://github.com/greenrobot/EventBus/actions/workflows/gradle.yml/badge.svg)](https://github.com/greenrobot/EventBus/actions)
 [![Follow greenrobot on Twitter](https://img.shields.io/twitter/follow/greenrobot_de.svg?style=flat-square&logo=twitter)](https://twitter.com/greenrobot_de)
 
 EventBus...
@@ -31,7 +31,9 @@ EventBus in 3 steps
 
     ```java
     @Subscribe(threadMode = ThreadMode.MAIN)  
-    public void onMessageEvent(MessageEvent event) {/* Do something */};
+    public void onMessageEvent(MessageEvent event) {
+        // Do something
+    }
     ```
     Register and unregister your subscriber. For example on Android, activities and fragments should usually register according to their life cycle:
 
@@ -68,37 +70,27 @@ Add EventBus to your project
 
 Available on <a href="https://search.maven.org/search?q=g:org.greenrobot%20AND%20a:eventbus">Maven Central</a>.
 
-Via Gradle:
-```gradle
-implementation 'org.greenrobot:eventbus:3.2.0'
+Android projects:
+```groovy
+implementation("org.greenrobot:eventbus:3.3.1")
 ```
 
-Via Maven:
+Java projects:
+```groovy
+implementation("org.greenrobot:eventbus-java:3.3.1")
+```
 ```xml
 <dependency>
     <groupId>org.greenrobot</groupId>
-    <artifactId>eventbus</artifactId>
-    <version>3.2.0</version>
+    <artifactId>eventbus-java</artifactId>
+    <version>3.3.1</version>
 </dependency>
 ```
 
 R8, ProGuard
 ------------
 
-If your project uses R8 or ProGuard add the following rules:
-
-```bash
--keepattributes *Annotation*
--keepclassmembers class * {
-    @org.greenrobot.eventbus.Subscribe <methods>;
-}
--keep enum org.greenrobot.eventbus.ThreadMode { *; }
- 
-# And if you use AsyncExecutor:
--keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
-    <init>(java.lang.Throwable);
-}
-```
+If your project uses R8 or ProGuard this library ships [with embedded rules](/eventbus-android/consumer-rules.pro).
 
 Homepage, Documentation, Links
 ------------------------------
@@ -108,15 +100,13 @@ For more details please check the [EventBus website](https://greenrobot.org/even
 
 [Documentation](https://greenrobot.org/eventbus/documentation/)
 
-[Changelog](https://greenrobot.org/eventbus/changelog/)
+[Changelog](https://github.com/greenrobot/EventBus/releases)
 
 [FAQ](https://greenrobot.org/eventbus/documentation/faq/)
 
-How does EventBus compare to other solutions, like Otto from Square? Check this [comparison](COMPARISON.md).
-
 License
 -------
-Copyright (C) 2012-2020 Markus Junginger, greenrobot (https://greenrobot.org)
+Copyright (C) 2012-2021 Markus Junginger, greenrobot (https://greenrobot.org)
 
 EventBus binaries and source code can be used according to the [Apache License, Version 2.0](LICENSE).
 
@@ -125,5 +115,3 @@ Other projects by greenrobot
 [__ObjectBox__](https://objectbox.io/) ([GitHub](https://github.com/objectbox/objectbox-java)) is a new superfast object-oriented database.
 
 [__Essentials__](https://github.com/greenrobot/essentials) is a set of utility classes and hash functions for Android & Java projects.
-
-[__greenDAO__](https://github.com/greenrobot/greenDAO) is an ORM optimized for Android: it maps database tables to Java objects and uses code generation for optimal speed.

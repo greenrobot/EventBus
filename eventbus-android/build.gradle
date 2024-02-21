@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        // Note: IntelliJ IDEA 2021.1 only supports up to version 4.1
+        classpath 'com.android.tools.build:gradle:4.1.3'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+group = rootProject.group
+version = rootProject.version
+
+android {
+    compileSdkVersion _compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 30 // Android 11 (R)
+
+        consumerProguardFiles "consumer-rules.pro"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api project(":eventbus-java")
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set("sources")
+}
+
+apply from: rootProject.file("gradle/publish.gradle")
+// Set project-specific properties
+// https://developer.android.com/studio/build/maven-publish-plugin
+// Because the Android components are created only during the afterEvaluate phase, you must
+// configure your publications using the afterEvaluate() lifecycle method.
+afterEvaluate {
+    publishing.publications {
+        mavenJava(MavenPublication) {
+            artifactId = "eventbus"
+
+            from components.release
+            artifact sourcesJar
+
+            pom {
+                name = "EventBus"
+                description = "EventBus is a publish/subscribe event bus optimized for Android."
+                packaging = "aar"
+            }
+        }
+    }
+}

@@ -1,12 +1,22 @@
 buildscript {
     ext {
-        _compileSdkVersion = 26 // When updating, don't forget to adjust .travis.yml.
+        _compileSdkVersion = 30 // Android 11 (R)
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "io.github.gradle-nexus:publish-plugin:1.1.0"
     }
 }
 
+// Set group and version in root build.gradle so publish-plugin can detect them.
+group = "org.greenrobot"
+version = "3.3.1"
+
 allprojects {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -21,5 +31,22 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 
 wrapper {
-    distributionType = org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+// Plugin to publish to Central https://github.com/gradle-nexus/publish-plugin/
+// This plugin ensures a separate, named staging repo is created for each build when publishing.
+apply plugin: "io.github.gradle-nexus.publish-plugin"
+nexusPublishing {
+    repositories {
+        sonatype {
+            if (project.hasProperty("sonatypeUsername") && project.hasProperty("sonatypePassword")) {
+                println('nexusPublishing credentials supplied.')
+                username = sonatypeUsername
+                password = sonatypePassword
+            } else {
+                println('nexusPublishing credentials NOT supplied.')
+            }
+        }
+    }
 }
