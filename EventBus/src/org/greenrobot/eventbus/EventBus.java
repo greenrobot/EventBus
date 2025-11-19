@@ -69,6 +69,7 @@ public class EventBus {
     private final ExecutorService executorService;
 
     private final boolean throwSubscriberException;
+    private final boolean throwNoSubscriberException;
     private final boolean logSubscriberExceptions;
     private final boolean logNoSubscriberMessages;
     private final boolean sendSubscriberExceptionEvent;
@@ -127,6 +128,7 @@ public class EventBus {
         sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
         sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
         throwSubscriberException = builder.throwSubscriberException;
+        throwNoSubscriberException = builder.throwNoSubscriberException;
         eventInheritance = builder.eventInheritance;
         executorService = builder.executorService;
     }
@@ -397,6 +399,9 @@ public class EventBus {
             subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
         }
         if (!subscriptionFound) {
+            if (throwNoSubscriberException) {
+                throw new EventBusException("No subscribers registered for event " + eventClass);
+            }
             if (logNoSubscriberMessages) {
                 logger.log(Level.FINE, "No subscribers registered for event " + eventClass);
             }
