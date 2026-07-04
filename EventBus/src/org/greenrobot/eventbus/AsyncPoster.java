@@ -32,8 +32,7 @@ class AsyncPoster implements Runnable, Poster {
     }
 
     public void enqueue(Subscription subscription, Object event) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
-        queue.enqueue(pendingPost);
+        queue.enqueue(subscription, event);
         eventBus.getExecutorService().execute(this);
     }
 

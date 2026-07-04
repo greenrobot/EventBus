@@ -16,6 +16,7 @@
 package org.greenrobot.eventbus;
 
 import org.greenrobot.eventbus.android.AndroidDependenciesDetector;
+import org.greenrobot.eventbus.meta.SubscriberInfoIndex;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,16 +120,17 @@ public class EventBus {
         mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
         backgroundPoster = new BackgroundPoster(this);
         asyncPoster = new AsyncPoster(this);
-        indexCount = builder.subscriberInfoIndexes != null ? builder.subscriberInfoIndexes.size() : 0;
-        subscriberMethodFinder = new SubscriberMethodFinder(builder.subscriberInfoIndexes,
-                builder.strictMethodVerification, builder.ignoreGeneratedIndex);
-        logSubscriberExceptions = builder.logSubscriberExceptions;
-        logNoSubscriberMessages = builder.logNoSubscriberMessages;
-        sendSubscriberExceptionEvent = builder.sendSubscriberExceptionEvent;
-        sendNoSubscriberEvent = builder.sendNoSubscriberEvent;
-        throwSubscriberException = builder.throwSubscriberException;
-        eventInheritance = builder.eventInheritance;
-        executorService = builder.executorService;
+        List<SubscriberInfoIndex> subscriberInfoIndexes = builder.getSubscriberInfoIndexes();
+        indexCount = subscriberInfoIndexes != null ? subscriberInfoIndexes.size() : 0;
+        subscriberMethodFinder = new SubscriberMethodFinder(subscriberInfoIndexes,
+                builder.getStrictMethodVerification(), builder.getIgnoreGeneratedIndex());
+        logSubscriberExceptions = builder.getLogSubscriberExceptions();
+        logNoSubscriberMessages = builder.getLogNoSubscriberMessages();
+        sendSubscriberExceptionEvent = builder.getSendSubscriberExceptionEvent();
+        sendNoSubscriberEvent = builder.getSendNoSubscriberEvent();
+        throwSubscriberException = builder.getThrowSubscriberException();
+        eventInheritance = builder.getEventInheritance();
+        executorService = builder.getExecutorService();
     }
 
     /**
@@ -159,17 +161,20 @@ public class EventBus {
     private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
         Class<?> eventType = subscriberMethod.eventType;
         Subscription newSubscription = new Subscription(subscriber, subscriberMethod);
-        CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.get(eventType);
-        if (subscriptions == null) {
-            subscriptions = new CopyOnWriteArrayList<>();
-            subscriptionsByEventType.put(eventType, subscriptions);
-        } else {
-            if (subscriptions.contains(newSubscription)) {
-                throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
-                        + eventType);
-            }
+        CopyOnWriteArrayList<Subscription> subscriptions = subscriptionsByEventType.computeIfAbsent(eventType,
+                key -> new CopyOnWriteArrayList<>());
+        if (subscriptions.contains(newSubscription)) {
+            throw new EventBusException("Subscriber " + subscriber.getClass() + " already registered to event "
+                    + eventType);
         }
 
+        insertSubscription(newSubscription, subscriberMethod, subscriptions);
+        addEventTypeForSubscriber(subscriber, eventType);
+        postStickyEventForSubscriber(subscriberMethod, eventType, newSubscription);
+    }
+
+    private void insertSubscription(Subscription newSubscription, SubscriberMethod subscriberMethod,
+            CopyOnWriteArrayList<Subscription> subscriptions) {
         int size = subscriptions.size();
         for (int i = 0; i <= size; i++) {
             if (i == size || subscriberMethod.priority > subscriptions.get(i).subscriberMethod.priority) {
@@ -177,30 +182,37 @@ public class EventBus {
                 break;
             }
         }
+    }
 
+    private void addEventTypeForSubscriber(Object subscriber, Class<?> eventType) {
         List<Class<?>> subscribedEvents = typesBySubscriber.get(subscriber);
         if (subscribedEvents == null) {
             subscribedEvents = new ArrayList<>();
             typesBySubscriber.put(subscriber, subscribedEvents);
         }
         subscribedEvents.add(eventType);
+    }
 
-        if (subscriberMethod.sticky) {
-            if (eventInheritance) {
-                // Existing sticky events of all subclasses of eventType have to be considered.
-                // Note: Iterating over all events may be inefficient with lots of sticky events,
-                // thus data structure should be changed to allow a more efficient lookup
-                // (e.g. an additional map storing sub classes of super classes: Class -> List<Class>).
-                Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
-                for (Map.Entry<Class<?>, Object> entry : entries) {
-                    Class<?> candidateEventType = entry.getKey();
-                    if (eventType.isAssignableFrom(candidateEventType)) {
-                        Object stickyEvent = entry.getValue();
-                        checkPostStickyEventToSubscription(newSubscription, stickyEvent);
-                    }
-                }
-            } else {
-                Object stickyEvent = stickyEvents.get(eventType);
+    private void postStickyEventForSubscriber(SubscriberMethod subscriberMethod, Class<?> eventType,
+            Subscription newSubscription) {
+        if (!subscriberMethod.sticky) {
+            return;
+        }
+        if (eventInheritance) {
+            postStickyEventsForAllSubclasses(eventType, newSubscription);
+        } else {
+            Object stickyEvent = stickyEvents.get(eventType);
+            checkPostStickyEventToSubscription(newSubscription, stickyEvent);
+        }
+    }
+
+    private void postStickyEventsForAllSubclasses(Class<?> eventType, Subscription newSubscription) {
+    
+        Set<Map.Entry<Class<?>, Object>> entries = stickyEvents.entrySet();
+        for (Map.Entry<Class<?>, Object> entry : entries) {
+            Class<?> candidateEventType = entry.getKey();
+            if (eventType.isAssignableFrom(candidateEventType)) {
+                Object stickyEvent = entry.getValue();
                 checkPostStickyEventToSubscription(newSubscription, stickyEvent);
             }
         }
@@ -208,18 +220,12 @@ public class EventBus {
 
     private void checkPostStickyEventToSubscription(Subscription newSubscription, Object stickyEvent) {
         if (stickyEvent != null) {
-            // If the subscriber is trying to abort the event, it will fail (event is not tracked in posting state)
-            // --> Strange corner case, which we don't take care of here.
+        
             postToSubscription(newSubscription, stickyEvent, isMainThread());
         }
     }
 
-    /**
-     * Checks if the current thread is running in the main thread.
-     * If there is no main thread support (e.g. non-Android), "true" is always returned. In that case MAIN thread
-     * subscribers are always called in posting thread, and BACKGROUND subscribers are always called from a background
-     * poster.
-     */
+  
     private boolean isMainThread() {
         return mainThreadSupport == null || mainThreadSupport.isMainThread();
     }
@@ -367,17 +373,15 @@ public class EventBus {
 
     public boolean hasSubscriberForEvent(Class<?> eventClass) {
         List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
-        if (eventTypes != null) {
-            int countTypes = eventTypes.size();
-            for (int h = 0; h < countTypes; h++) {
-                Class<?> clazz = eventTypes.get(h);
-                CopyOnWriteArrayList<Subscription> subscriptions;
-                synchronized (this) {
-                    subscriptions = subscriptionsByEventType.get(clazz);
-                }
-                if (subscriptions != null && !subscriptions.isEmpty()) {
-                    return true;
-                }
+        int countTypes = eventTypes.size();
+        for (int h = 0; h < countTypes; h++) {
+            Class<?> clazz = eventTypes.get(h);
+            CopyOnWriteArrayList<Subscription> subscriptions;
+            synchronized (this) {
+                subscriptions = subscriptionsByEventType.get(clazz);
+            }
+            if (subscriptions != null && !subscriptions.isEmpty()) {
+                return true;
             }
         }
         return false;
@@ -437,36 +441,56 @@ public class EventBus {
     private void postToSubscription(Subscription subscription, Object event, boolean isMainThread) {
         switch (subscription.subscriberMethod.threadMode) {
             case POSTING:
-                invokeSubscriber(subscription, event);
+                dispatchPosting(subscription, event);
                 break;
             case MAIN:
-                if (isMainThread) {
-                    invokeSubscriber(subscription, event);
-                } else {
-                    mainThreadPoster.enqueue(subscription, event);
-                }
+                dispatchMain(subscription, event, isMainThread);
                 break;
             case MAIN_ORDERED:
-                if (mainThreadPoster != null) {
-                    mainThreadPoster.enqueue(subscription, event);
-                } else {
-                    // temporary: technically not correct as poster not decoupled from subscriber
-                    invokeSubscriber(subscription, event);
-                }
+                dispatchMainOrdered(subscription, event);
                 break;
             case BACKGROUND:
-                if (isMainThread) {
-                    backgroundPoster.enqueue(subscription, event);
-                } else {
-                    invokeSubscriber(subscription, event);
-                }
+                dispatchBackground(subscription, event, isMainThread);
                 break;
             case ASYNC:
-                asyncPoster.enqueue(subscription, event);
+                dispatchAsync(subscription, event);
                 break;
             default:
                 throw new IllegalStateException("Unknown thread mode: " + subscription.subscriberMethod.threadMode);
         }
+    }
+
+    private void dispatchPosting(Subscription subscription, Object event) {
+        invokeSubscriber(subscription, event);
+    }
+
+    private void dispatchMain(Subscription subscription, Object event, boolean isMainThread) {
+        if (isMainThread) {
+            invokeSubscriber(subscription, event);
+        } else {
+            mainThreadPoster.enqueue(subscription, event);
+        }
+    }
+
+    private void dispatchMainOrdered(Subscription subscription, Object event) {
+        if (mainThreadPoster != null) {
+            mainThreadPoster.enqueue(subscription, event);
+        } else {
+            // temporary: technically not correct as poster not decoupled from subscriber
+            invokeSubscriber(subscription, event);
+        }
+    }
+
+    private void dispatchBackground(Subscription subscription, Object event, boolean isMainThread) {
+        if (isMainThread) {
+            backgroundPoster.enqueue(subscription, event);
+        } else {
+            invokeSubscriber(subscription, event);
+        }
+    }
+
+    private void dispatchAsync(Subscription subscription, Object event) {
+        asyncPoster.enqueue(subscription, event);
     }
 
     /** Looks up all Class objects including super classes and interfaces. Should also work for interfaces. */
@@ -524,27 +548,43 @@ public class EventBus {
 
     private void handleSubscriberException(Subscription subscription, Object event, Throwable cause) {
         if (event instanceof SubscriberExceptionEvent) {
-            if (logSubscriberExceptions) {
-                // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
-                logger.log(Level.SEVERE, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
-                        + " threw an exception", cause);
-                SubscriberExceptionEvent exEvent = (SubscriberExceptionEvent) event;
-                logger.log(Level.SEVERE, "Initial event " + exEvent.causingEvent + " caused exception in "
-                        + exEvent.causingSubscriber, exEvent.throwable);
-            }
+            logSubscriberExceptionEventError(subscription, (SubscriberExceptionEvent) event, cause);
         } else {
-            if (throwSubscriberException) {
-                throw new EventBusException("Invoking subscriber failed", cause);
-            }
-            if (logSubscriberExceptions) {
-                logger.log(Level.SEVERE, "Could not dispatch event: " + event.getClass() + " to subscribing class "
-                        + subscription.subscriber.getClass(), cause);
-            }
-            if (sendSubscriberExceptionEvent) {
-                SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
-                        subscription.subscriber);
-                post(exEvent);
-            }
+            handleSubscriberExceptionForEvent(subscription, event, cause);
+        }
+    }
+
+    private void logSubscriberExceptionEventError(Subscription subscription, SubscriberExceptionEvent event,
+            Throwable cause) {
+        if (logSubscriberExceptions) {
+            // Don't send another SubscriberExceptionEvent to avoid infinite event recursion, just log
+            logger.log(Level.SEVERE, "SubscriberExceptionEvent subscriber " + subscription.subscriber.getClass()
+                    + " threw an exception", cause);
+            logger.log(Level.SEVERE, "Initial event " + event.causingEvent + " caused exception in "
+                    + event.causingSubscriber, event.throwable);
+        }
+    }
+
+    private void handleSubscriberExceptionForEvent(Subscription subscription, Object event, Throwable cause) {
+        if (throwSubscriberException) {
+            throw new EventBusException("Invoking subscriber failed", cause);
+        }
+        logSubscriberException(subscription, event, cause);
+        postSubscriberExceptionEventIfNeeded(subscription, event, cause);
+    }
+
+    private void logSubscriberException(Subscription subscription, Object event, Throwable cause) {
+        if (logSubscriberExceptions) {
+            logger.log(Level.SEVERE, "Could not dispatch event: " + event.getClass() + " to subscribing class "
+                    + subscription.subscriber.getClass(), cause);
+        }
+    }
+
+    private void postSubscriberExceptionEventIfNeeded(Subscription subscription, Object event, Throwable cause) {
+        if (sendSubscriberExceptionEvent) {
+            SubscriberExceptionEvent exEvent = new SubscriberExceptionEvent(this, cause, event,
+                    subscription.subscriber);
+            post(exEvent);
         }
     }
 

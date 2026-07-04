@@ -61,6 +61,9 @@ public interface Logger {
     }
 
     class Default {
+        private Default() {
+        }
+
         public static Logger get() {
             if (AndroidComponents.areAvailable()) {
                 return AndroidComponents.get().logger;

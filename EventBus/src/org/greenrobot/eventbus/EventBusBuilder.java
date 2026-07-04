@@ -30,19 +30,19 @@ import java.util.concurrent.Executors;
 public class EventBusBuilder {
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 
-    boolean logSubscriberExceptions = true;
-    boolean logNoSubscriberMessages = true;
-    boolean sendSubscriberExceptionEvent = true;
-    boolean sendNoSubscriberEvent = true;
-    boolean throwSubscriberException;
-    boolean eventInheritance = true;
-    boolean ignoreGeneratedIndex;
-    boolean strictMethodVerification;
-    ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
-    List<Class<?>> skipMethodVerificationForClasses;
-    List<SubscriberInfoIndex> subscriberInfoIndexes;
-    Logger logger;
-    MainThreadSupport mainThreadSupport;
+    private boolean logSubscriberExceptions = true;
+    private boolean logNoSubscriberMessages = true;
+    private boolean sendSubscriberExceptionEvent = true;
+    private boolean sendNoSubscriberEvent = true;
+    private boolean throwSubscriberException;
+    private boolean eventInheritance = true;
+    private boolean ignoreGeneratedIndex;
+    private boolean strictMethodVerification;
+    private ExecutorService executorService = DEFAULT_EXECUTOR_SERVICE;
+    private List<Class<?>> skipMethodVerificationForClasses;
+    private List<SubscriberInfoIndex> subscriberInfoIndexes;
+    private Logger logger;
+    private MainThreadSupport mainThreadSupport;
 
     EventBusBuilder() {
     }
@@ -166,6 +166,50 @@ public class EventBusBuilder {
         } else {
             return null;
         }
+    }
+
+    boolean getLogSubscriberExceptions() {
+        return logSubscriberExceptions;
+    }
+
+    boolean getLogNoSubscriberMessages() {
+        return logNoSubscriberMessages;
+    }
+
+    boolean getSendSubscriberExceptionEvent() {
+        return sendSubscriberExceptionEvent;
+    }
+
+    boolean getSendNoSubscriberEvent() {
+        return sendNoSubscriberEvent;
+    }
+
+    boolean getThrowSubscriberException() {
+        return throwSubscriberException;
+    }
+
+    boolean getEventInheritance() {
+        return eventInheritance;
+    }
+
+    boolean getIgnoreGeneratedIndex() {
+        return ignoreGeneratedIndex;
+    }
+
+    boolean getStrictMethodVerification() {
+        return strictMethodVerification;
+    }
+
+    ExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    List<Class<?>> getSkipMethodVerificationForClasses() {
+        return skipMethodVerificationForClasses;
+    }
+
+    List<SubscriberInfoIndex> getSubscriberInfoIndexes() {
+        return subscriberInfoIndexes;
     }
 
     /**

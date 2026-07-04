@@ -35,9 +35,8 @@ public class HandlerPoster extends Handler implements Poster {
     }
 
     public void enqueue(Subscription subscription, Object event) {
-        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
         synchronized (this) {
-            queue.enqueue(pendingPost);
+            queue.enqueue(subscription, event);
             if (!handlerActive) {
                 handlerActive = true;
                 if (!sendMessage(obtainMessage())) {

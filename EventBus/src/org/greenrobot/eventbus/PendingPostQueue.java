@@ -35,6 +35,11 @@ final class PendingPostQueue {
         notifyAll();
     }
 
+    void enqueue(Subscription subscription, Object event) {
+        PendingPost pendingPost = PendingPost.obtainPendingPost(subscription, event);
+        enqueue(pendingPost);
+    }
+
     synchronized PendingPost poll() {
         PendingPost pendingPost = head;
         if (head != null) {

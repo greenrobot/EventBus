@@ -148,14 +148,20 @@ class SubscriberMethodFinder {
     }
 
     private void findUsingReflectionInSingleClass(FindState findState) {
-        Method[] methods;
+        Method[] methods = getDeclaredMethods(findState);
+        for (Method method : methods) {
+            inspectSubscriberMethod(method, findState);
+        }
+    }
+
+    private Method[] getDeclaredMethods(FindState findState) {
         try {
             // This is faster than getMethods, especially when subscribers are fat classes like Activities
-            methods = findState.clazz.getDeclaredMethods();
+            return findState.clazz.getDeclaredMethods();
         } catch (Throwable th) {
             // Workaround for java.lang.NoClassDefFoundError, see https://github.com/greenrobot/EventBus/issues/149
             try {
-                methods = findState.clazz.getMethods();
+                return findState.clazz.getMethods();
             } catch (LinkageError error) { // super class of NoClassDefFoundError to be a bit more broad...
                 String msg = "Could not inspect methods of " + findState.clazz.getName();
                 if (ignoreGeneratedIndex) {
@@ -165,32 +171,41 @@ class SubscriberMethodFinder {
                 }
                 throw new EventBusException(msg, error);
             }
-            findState.skipSuperClasses = true;
-        }
-        for (Method method : methods) {
-            int modifiers = method.getModifiers();
-            if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
-                    if (subscribeAnnotation != null) {
-                        Class<?> eventType = parameterTypes[0];
-                        if (findState.checkAdd(method, eventType)) {
-                            ThreadMode threadMode = subscribeAnnotation.threadMode();
-                            findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
-                                    subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
-                        }
-                    }
-                } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
-                    String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                    throw new EventBusException("@Subscribe method " + methodName +
-                            "must have exactly 1 parameter but has " + parameterTypes.length);
-                }
-            } else if (strictMethodVerification && method.isAnnotationPresent(Subscribe.class)) {
-                String methodName = method.getDeclaringClass().getName() + "." + method.getName();
-                throw new EventBusException(methodName +
-                        " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
+            // If reflection falls back to getMethods(), the superclasses are already handled.
+            finally {
+                findState.skipSuperClasses = true;
             }
+        }
+    }
+
+    private void inspectSubscriberMethod(Method method, FindState findState) {
+        int modifiers = method.getModifiers();
+        Subscribe subscribeAnnotation = method.getAnnotation(Subscribe.class);
+        if ((modifiers & Modifier.PUBLIC) != 0 && (modifiers & MODIFIERS_IGNORE) == 0) {
+            processPublicSubscriberMethod(method, subscribeAnnotation, findState);
+        } else if (strictMethodVerification && subscribeAnnotation != null) {
+            String methodName = method.getDeclaringClass().getName() + "." + method.getName();
+            throw new EventBusException(methodName +
+                    " is a illegal @Subscribe method: must be public, non-static, and non-abstract");
+        }
+    }
+
+    private void processPublicSubscriberMethod(Method method, Subscribe subscribeAnnotation,
+            FindState findState) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length == 1) {
+            if (subscribeAnnotation != null) {
+                Class<?> eventType = parameterTypes[0];
+                if (findState.checkAdd(method, eventType)) {
+                    ThreadMode threadMode = subscribeAnnotation.threadMode();
+                    findState.subscriberMethods.add(new SubscriberMethod(method, eventType, threadMode,
+                            subscribeAnnotation.priority(), subscribeAnnotation.sticky()));
+                }
+            }
+        } else if (strictMethodVerification && subscribeAnnotation != null) {
+            String methodName = method.getDeclaringClass().getName() + "." + method.getName();
+            throw new EventBusException("@Subscribe method " + methodName +
+                    "must have exactly 1 parameter but has " + parameterTypes.length);
         }
     }
 
