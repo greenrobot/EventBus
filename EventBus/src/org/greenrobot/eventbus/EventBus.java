@@ -19,6 +19,7 @@ import org.greenrobot.eventbus.android.AndroidDependenciesDetector;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,7 +114,7 @@ public class EventBus {
     EventBus(EventBusBuilder builder) {
         logger = builder.getLogger();
         subscriptionsByEventType = new HashMap<>();
-        typesBySubscriber = new HashMap<>();
+        typesBySubscriber = new IdentityHashMap<>();
         stickyEvents = new ConcurrentHashMap<>();
         mainThreadSupport = builder.getMainThreadSupport();
         mainThreadPoster = mainThreadSupport != null ? mainThreadSupport.createPoster(this) : null;
