@@ -386,15 +386,21 @@ public class EventBus {
     private void postSingleEvent(Object event, PostingThreadState postingState) throws Error {
         Class<?> eventClass = event.getClass();
         boolean subscriptionFound = false;
-        if (eventInheritance) {
-            List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
-            int countTypes = eventTypes.size();
-            for (int h = 0; h < countTypes; h++) {
-                Class<?> clazz = eventTypes.get(h);
-                subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
+        try {
+            if (eventInheritance) {
+                List<Class<?>> eventTypes = lookupAllEventTypes(eventClass);
+                int countTypes = eventTypes.size();
+                for (int h = 0; h < countTypes && !postingState.canceled; h++) {
+                    Class<?> clazz = eventTypes.get(h);
+                    subscriptionFound |= postSingleEventForEventType(event, postingState, clazz);
+                }
+            } else {
+                subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
             }
-        } else {
-            subscriptionFound = postSingleEventForEventType(event, postingState, eventClass);
+        } finally {
+            // Reset after the whole type walk. Clearing this per subscriber let the next
+            // superclass or interface type run. Leaving it set would abort the next event.
+            postingState.canceled = false;
         }
         if (!subscriptionFound) {
             if (logNoSubscriberMessages) {
@@ -423,7 +429,6 @@ public class EventBus {
                 } finally {
                     postingState.event = null;
                     postingState.subscription = null;
-                    postingState.canceled = false;
                 }
                 if (aborted) {
                     break;
