@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
 
     Throwable failed;
+    int baseEvents;
 
     @Test
     public void testCancel() {
@@ -39,6 +40,22 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
         eventBus.unregister(canceler);
         eventBus.post("42");
         assertEquals(1 + 2, eventCount.intValue());
+    }
+
+    @Test
+    public void testCancelStopsInheritedSubscribers() {
+        eventBus.register(new ChildEventCanceler());
+        eventBus.register(new BaseEventSubscriber());
+        eventBus.register(new LaterEventSubscriber());
+
+        eventBus.post(new ChildEvent());
+        assertEquals(0, baseEvents);
+        assertEquals(1, eventCount.intValue());
+
+        eventBus.post("next");
+        assertEquals(0, baseEvents);
+        assertEquals(2, eventCount.intValue());
+        assertEquals("next", lastEvent);
     }
 
     @Test
@@ -115,6 +132,35 @@ public class EventBusCancelEventDeliveryTest extends AbstractEventBusTest {
             } catch (EventBusException e) {
                 failed = e;
             }
+        }
+    }
+
+    public static class BaseEvent {
+    }
+
+    public static class ChildEvent extends BaseEvent {
+    }
+
+    public class ChildEventCanceler {
+        @Subscribe
+        public void onEvent(ChildEvent event) {
+            trackEvent(event);
+            eventBus.cancelEventDelivery(event);
+        }
+    }
+
+    public class BaseEventSubscriber {
+        @Subscribe
+        public void onEvent(BaseEvent event) {
+            baseEvents++;
+            trackEvent(event);
+        }
+    }
+
+    public class LaterEventSubscriber {
+        @Subscribe
+        public void onEvent(String event) {
+            trackEvent(event);
         }
     }
 
